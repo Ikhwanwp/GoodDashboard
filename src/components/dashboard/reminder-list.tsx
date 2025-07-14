@@ -1,24 +1,26 @@
 "use client";
 
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { mockKontrakPks, mockKontrakMou, mockInstansi, mockUsers } from "@/lib/mock-data";
+import { useData } from "@/context/data-context";
 import { differenceInDays, format } from 'date-fns';
 import { id } from 'date-fns/locale';
 import { AlertTriangle, Cake, CalendarClock, User } from "lucide-react";
 
 export function ReminderList() {
+  const { kontrakPks, kontrakMou, instansi, users } = useData();
   const now = new Date();
-  const expiringContracts = [...mockKontrakPks, ...mockKontrakMou]
+  
+  const expiringContracts = [...kontrakPks, ...kontrakMou]
     .map(c => ({...c, daysLeft: differenceInDays(c.tanggalBerakhir, now)}))
     .filter(c => c.daysLeft >= 0 && c.daysLeft <= 90)
     .sort((a, b) => a.daysLeft - b.daysLeft);
 
-  const upcomingBirthdays = mockInstansi
+  const upcomingBirthdays = instansi
     .map(i => ({...i, daysLeft: differenceInDays(i.tanggalUlangTahun, now)}))
     .filter(i => i.daysLeft >= 0 && i.daysLeft <= 30)
     .sort((a, b) => a.daysLeft - b.daysLeft);
 
-  const getPicName = (picId: string) => mockUsers.find(u => u.id === picId)?.nama || 'N/A';
+  const getPicName = (picId: string) => users.find(u => u.id === picId)?.nama || 'N/A';
   
   const getDaysLeftColor = (days: number) => {
     if (days <= 30) return "text-destructive";

@@ -1,11 +1,14 @@
+"use client";
+
 import { PageHeader } from "@/components/shared/page-header";
 import { SummaryCard } from "@/components/dashboard/summary-card";
 import { ReminderList } from "@/components/dashboard/reminder-list";
 import { Building2, FileText, Handshake, FileArchive } from "lucide-react";
-import { mockInstansi, mockKontrakPks, mockKontrakMou, mockDokumenSph } from "@/lib/mock-data";
+import { useData } from "@/context/data-context";
 
 export default function DashboardPage() {
-  const activePksCount = mockKontrakPks.filter(k => k.statusKontrak === 'Aktif').length;
+  const { instansi, kontrakPks, kontrakMou, dokumenSph } = useData();
+  const activePksCount = kontrakPks.filter(k => k.statusKontrak === 'Aktif').length;
 
   return (
     <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">
@@ -14,7 +17,7 @@ export default function DashboardPage() {
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <SummaryCard 
           title="Jumlah K/L Total" 
-          value={mockInstansi.length.toString()} 
+          value={instansi.length.toString()} 
           icon={Building2} 
         />
         <SummaryCard 
@@ -25,12 +28,12 @@ export default function DashboardPage() {
         />
         <SummaryCard 
           title="Jumlah MoU" 
-          value={mockKontrakMou.length.toString()} 
+          value={kontrakMou.length.toString()} 
           icon={FileText} 
         />
         <SummaryCard 
           title="Jumlah SPH" 
-          value={mockDokumenSph.length.toString()} 
+          value={dokumenSph.length.toString()} 
           icon={FileArchive} 
         />
       </div>

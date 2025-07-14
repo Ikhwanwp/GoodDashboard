@@ -33,7 +33,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Card, CardContent } from "@/components/ui/card";
-import { mockInstansi } from "@/lib/mock-data";
+import { useData } from "@/context/data-context";
 import { useToast } from "@/hooks/use-toast";
 import { classifyUpdateAction } from "@/lib/actions";
 
@@ -52,6 +52,7 @@ export function StatusUpdateForm() {
   const [isSaving, setIsSaving] = useState(false);
   const [isClassifying, setIsClassifying] = useState(false);
   const { toast } = useToast();
+  const { instansi, addStatusPekerjaan } = useData();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -68,6 +69,16 @@ export function StatusUpdateForm() {
   const handleClassify = async () => {
     setIsClassifying(true);
     const { judulUpdate, deskripsi } = form.getValues();
+    if (!judulUpdate || !deskripsi) {
+      toast({
+        variant: "destructive",
+        title: "Input Kurang",
+        description: "Judul dan deskripsi harus diisi untuk melakukan klasifikasi AI.",
+      });
+      setIsClassifying(false);
+      return;
+    }
+    
     const result = await classifyUpdateAction({ title: judulUpdate, description: deskripsi });
 
     if (result.success && result.data) {
@@ -89,12 +100,21 @@ export function StatusUpdateForm() {
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setIsSaving(true);
-    console.log("Saving status update:", values);
+    
+    // Simulate async operation
     await new Promise(resolve => setTimeout(resolve, 1000));
+    
+    addStatusPekerjaan({
+      id: `stat-${new Date().getTime()}`,
+      tanggalUpdate: new Date(),
+      ...values,
+    });
+    
     toast({
       title: "Update Disimpan",
       description: "Status pekerjaan baru telah berhasil ditambahkan.",
     });
+    
     setIsSaving(false);
     setOpen(false);
     form.reset();
@@ -130,7 +150,7 @@ export function StatusUpdateForm() {
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      {mockInstansi.map(inst => (
+                      {instansi.map(inst => (
                         <SelectItem key={inst.id} value={inst.id}>
                           {inst.namaInstansi}
                         </SelectItem>

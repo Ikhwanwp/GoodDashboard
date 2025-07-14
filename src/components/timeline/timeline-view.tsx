@@ -4,7 +4,7 @@ import { useState, useMemo } from 'react';
 import type { Instansi, TimelineEvent } from '@/lib/types';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { mockKontrakPks, mockKontrakMou, mockDokumenSph, mockStatusPekerjaan } from '@/lib/mock-data';
+import { useData } from '@/context/data-context';
 import { Handshake, FileText, FileArchive, MessageSquareQuote, CalendarIcon } from 'lucide-react';
 import { format } from 'date-fns';
 import { id } from 'date-fns/locale';
@@ -15,35 +15,36 @@ interface TimelineViewProps {
 
 export function TimelineView({ instansiList }: TimelineViewProps) {
   const [selectedInstansi, setSelectedInstansi] = useState<string | null>(null);
+  const { kontrakPks, kontrakMou, dokumenSph, statusPekerjaan } = useData();
 
   const timelineEvents = useMemo((): TimelineEvent[] => {
     if (!selectedInstansi) return [];
 
-    const pksEvents: TimelineEvent[] = mockKontrakPks
+    const pksEvents: TimelineEvent[] = kontrakPks
       .filter(k => k.instansiId === selectedInstansi)
       .flatMap(k => ([
         { instansiId: k.instansiId, date: k.tanggalMulai, type: 'PKS', title: `Mulai PKS: ${k.judulKontrak}`, description: `Nomor: ${k.nomorKontrakPeruri}`, icon: Handshake },
         { instansiId: k.instansiId, date: k.tanggalBerakhir, type: 'PKS', title: `Berakhir PKS: ${k.judulKontrak}`, description: `Status: ${k.statusKontrak}`, icon: Handshake },
       ]));
 
-    const mouEvents: TimelineEvent[] = mockKontrakMou
+    const mouEvents: TimelineEvent[] = kontrakMou
       .filter(m => m.instansiId === selectedInstansi)
       .flatMap(m => ([
          { instansiId: m.instansiId, date: m.tanggalMulai, type: 'MoU', title: `Mulai MoU: ${m.isiMou}`, description: `Nomor: ${m.nomorMouPeruri}`, icon: FileText },
          { instansiId: m.instansiId, date: m.tanggalBerakhir, type: 'MoU', title: `Berakhir MoU: ${m.isiMou}`, description: 'MoU telah berakhir', icon: FileText },
       ]));
 
-    const sphEvents: TimelineEvent[] = mockDokumenSph
+    const sphEvents: TimelineEvent[] = dokumenSph
       .filter(s => s.instansiId === selectedInstansi)
       .map(s => ({ instansiId: s.instansiId, date: s.tanggal, type: 'SPH', title: `SPH: ${s.perihal}`, description: `Nomor: ${s.nomorSuratPeruri}`, icon: FileArchive }));
 
-    const statusEvents: TimelineEvent[] = mockStatusPekerjaan
+    const statusEvents: TimelineEvent[] = statusPekerjaan
       .filter(u => u.instansiId === selectedInstansi)
       .map(u => ({ instansiId: u.instansiId, date: u.tanggalUpdate, type: 'Update', title: u.judulUpdate, description: u.deskripsi, icon: MessageSquareQuote }));
 
     return [...pksEvents, ...mouEvents, ...sphEvents, ...statusEvents].sort((a, b) => b.date.getTime() - a.date.getTime());
 
-  }, [selectedInstansi]);
+  }, [selectedInstansi, kontrakPks, kontrakMou, dokumenSph, statusPekerjaan]);
 
   const EventIcon = ({ type }: { type: TimelineEvent['type']}) => {
     const icons = {

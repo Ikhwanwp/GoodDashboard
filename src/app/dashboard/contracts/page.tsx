@@ -1,3 +1,5 @@
+"use client";
+
 import { PageHeader } from "@/components/shared/page-header";
 import { Button } from "@/components/ui/button";
 import { PlusCircle } from "lucide-react";
@@ -6,9 +8,11 @@ import { PksDataTable } from "./data-table-pks";
 import { MouDataTable } from "./data-table-mou";
 import { pksColumns } from "./pks-columns";
 import { mouColumns } from "./mou-columns";
-import { mockKontrakPks, mockKontrakMou } from "@/lib/mock-data";
+import { useData } from "@/context/data-context";
+
 
 export default function ContractsPage() {
+  const { kontrakPks, kontrakMou } = useData();
 
   return (
     <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">
@@ -26,10 +30,10 @@ export default function ContractsPage() {
             <TabsTrigger value="mou">Kontrak MoU</TabsTrigger>
           </TabsList>
           <TabsContent value="pks">
-            <PksDataTable columns={pksColumns} data={mockKontrakPks} />
+            <PksDataTable columns={pksColumns} data={kontrakPks} />
           </TabsContent>
           <TabsContent value="mou">
-            <MouDataTable columns={mouColumns} data={mockKontrakMou} />
+            <MouDataTable columns={mouColumns} data={kontrakMou} />
           </TabsContent>
         </Tabs>
       </div>
