@@ -5,12 +5,16 @@ import { useData } from "@/context/data-context";
 import { differenceInDays, format } from 'date-fns';
 import { id } from 'date-fns/locale';
 import { AlertTriangle, Cake, CalendarClock, User } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 
 export function ReminderList() {
   const { kontrakPks, kontrakMou, instansi, users } = useData();
   const now = new Date();
   
-  const expiringContracts = [...kontrakPks, ...kontrakMou]
+  const expiringContracts = [
+    ...kontrakPks.map(c => ({...c, type: 'PKS' as const})), 
+    ...kontrakMou.map(m => ({...m, type: 'MoU' as const}))
+  ]
     .map(c => ({...c, daysLeft: differenceInDays(c.tanggalBerakhir, now)}))
     .filter(c => c.daysLeft >= 0 && c.daysLeft <= 90)
     .sort((a, b) => a.daysLeft - b.daysLeft);
@@ -44,7 +48,10 @@ export function ReminderList() {
                     <AlertTriangle className="h-5 w-5" />
                   </div>
                   <div className="flex-1">
-                    <p className="font-semibold">{'judulKontrak' in contract ? contract.judulKontrak : contract.isiMou}</p>
+                    <div className="flex items-center gap-2">
+                      <p className="font-semibold">{'judulKontrak' in contract ? contract.judulKontrak : contract.isiMou}</p>
+                      <Badge variant={contract.type === 'PKS' ? 'default' : 'secondary'}>{contract.type}</Badge>
+                    </div>
                     <div className="text-sm text-muted-foreground space-y-1 mt-1">
                       <p className="flex items-center gap-2"><CalendarClock className="h-4 w-4" /> Berakhir pada: {format(contract.tanggalBerakhir, 'dd MMMM yyyy', { locale: id })}</p>
                       <p className="flex items-center gap-2"><User className="h-4 w-4" /> PIC GA: {getPicName(contract.picGaId)}</p>
