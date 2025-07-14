@@ -64,11 +64,11 @@ export default function InstansiDetailPage() {
               </div>
               <div>
                 <p className="font-semibold text-muted-foreground">Status Kementrian</p>
-                <p>
+                <div>
                   <Badge variant={currentInstansi.statusKementrian === "STG Prioritas" ? "default" : "secondary"}>
                     {currentInstansi.statusKementrian}
                   </Badge>
-                </p>
+                </div>
               </div>
               <div>
                 <p className="font-semibold text-muted-foreground">Ulang Tahun</p>
