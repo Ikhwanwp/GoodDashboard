@@ -2,7 +2,7 @@
 
 import type { ColumnDef } from "@tanstack/react-table"
 import type { Instansi } from "@/lib/types"
-import { MoreHorizontal, ArrowUpDown } from "lucide-react"
+import { MoreHorizontal, ArrowUpDown, Eye } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import {
   DropdownMenu,
@@ -17,6 +17,7 @@ import { format } from "date-fns"
 import { useData } from "@/context/data-context"
 import { InstansiForm } from "@/components/forms/instansi-form"
 import { DeleteConfirmation } from "@/components/shared/delete-confirmation"
+import Link from "next/link"
 
 export const columns: ColumnDef<Instansi>[] = [
   {
@@ -75,10 +76,11 @@ export const columns: ColumnDef<Instansi>[] = [
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
             <DropdownMenuLabel>Actions</DropdownMenuLabel>
-            <DropdownMenuItem
-              onClick={() => navigator.clipboard.writeText(instansi.id)}
-            >
-              Copy ID
+            <DropdownMenuItem asChild>
+                <Link href={`/dashboard/instansi/${instansi.id}`} className="flex items-center">
+                    <Eye className="mr-2 h-4 w-4" />
+                    Lihat Detail
+                </Link>
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <InstansiForm instansiToEdit={instansi}>
