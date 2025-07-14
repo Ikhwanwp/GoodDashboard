@@ -12,7 +12,15 @@ import { UpdatesDataTable } from '@/app/dashboard/updates/data-table';
 import { columns as updatesColumns } from '@/app/dashboard/updates/columns';
 import { Badge } from '@/components/ui/badge';
 import { format } from 'date-fns';
-import { id } from 'date-fns/locale';
+import { id as idLocale } from 'date-fns/locale';
+import type { ColumnDef } from '@tanstack/react-table';
+import type { KontrakPks, KontrakMou, StatusPekerjaan } from '@/lib/types';
+
+// Simplified columns for detail view (without actions)
+const pksDetailColumns: ColumnDef<KontrakPks>[] = pksColumns.filter(c => c.id !== 'actions');
+const mouDetailColumns: ColumnDef<KontrakMou>[] = mouColumns.filter(c => c.id !== 'actions');
+const updatesDetailColumns: ColumnDef<StatusPekerjaan>[] = updatesColumns.filter(c => c.id !== 'actions');
+
 
 export default function InstansiDetailPage() {
   const params = useParams();
@@ -64,7 +72,7 @@ export default function InstansiDetailPage() {
               </div>
               <div>
                 <p className="font-semibold text-muted-foreground">Ulang Tahun</p>
-                <p>{format(currentInstansi.tanggalUlangTahun, 'dd MMMM yyyy', { locale: id })}</p>
+                <p>{format(currentInstansi.tanggalUlangTahun, 'dd MMMM yyyy', { locale: idLocale })}</p>
               </div>
               <div>
                 <p className="font-semibold text-muted-foreground">PIC Internal</p>
@@ -72,7 +80,7 @@ export default function InstansiDetailPage() {
               </div>
               <div>
                 <p className="font-semibold text-muted-foreground">Update Terakhir</p>
-                <p>{format(currentInstansi.tanggalUpdateTerakhir, 'dd MMMM yyyy', { locale: id })}</p>
+                <p>{format(currentInstansi.tanggalUpdateTerakhir, 'dd MMMM yyyy', { locale: idLocale })}</p>
               </div>
             </div>
           </CardContent>
@@ -84,7 +92,7 @@ export default function InstansiDetailPage() {
                 <CardDescription>Daftar kontrak Perjanjian Kerja Sama yang terkait dengan instansi ini.</CardDescription>
             </CardHeader>
             <CardContent>
-                <PksDataTable columns={pksColumns} data={filteredPks} />
+                <PksDataTable columns={pksDetailColumns} data={filteredPks} />
             </CardContent>
         </Card>
 
@@ -94,7 +102,7 @@ export default function InstansiDetailPage() {
                 <CardDescription>Daftar Memorandum of Understanding yang terkait dengan instansi ini.</CardDescription>
             </CardHeader>
             <CardContent>
-                <MouDataTable columns={mouColumns} data={filteredMou} />
+                <MouDataTable columns={mouDetailColumns} data={filteredMou} />
             </CardContent>
         </Card>
 
@@ -104,7 +112,7 @@ export default function InstansiDetailPage() {
                 <CardDescription>Riwayat update status pekerjaan untuk instansi ini.</CardDescription>
             </CardHeader>
             <CardContent>
-                <UpdatesDataTable columns={updatesColumns} data={filteredUpdates} />
+                <UpdatesDataTable columns={updatesDetailColumns} data={filteredUpdates} />
             </CardContent>
         </Card>
       </div>
