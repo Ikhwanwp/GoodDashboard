@@ -12,6 +12,7 @@ import {
   Users,
   Clock,
   MessageSquareQuote,
+  Contact,
 } from "lucide-react";
 
 import {
@@ -36,6 +37,7 @@ const menuItems = [
   { href: "/dashboard/instansi", label: "Instansi", icon: Building2 },
   { href: "/dashboard/contracts", label: "Kontrak", icon: Handshake },
   { href: "/dashboard/updates", label: "Status Updates", icon: MessageSquareQuote },
+  { href: "/dashboard/pic", label: "PIC", icon: Contact },
   { href: "/dashboard/timeline", label: "Timeline", icon: Clock },
 ];
 

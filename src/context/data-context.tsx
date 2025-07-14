@@ -2,14 +2,15 @@
 "use client";
 
 import { createContext, useContext, useState, ReactNode } from 'react';
-import type { Instansi, User, KontrakPks, KontrakMou, StatusPekerjaan, DokumenSph } from '@/lib/types';
+import type { Instansi, User, KontrakPks, KontrakMou, StatusPekerjaan, DokumenSph, PicEksternal } from '@/lib/types';
 import { 
     mockUsers, 
     mockInstansi, 
     mockKontrakPks, 
     mockKontrakMou, 
     mockDokumenSph, 
-    mockStatusPekerjaan 
+    mockStatusPekerjaan,
+    mockPicEksternal
 } from '@/lib/mock-data';
 
 interface DataContextType {
@@ -19,6 +20,7 @@ interface DataContextType {
   kontrakMou: KontrakMou[];
   dokumenSph: DokumenSph[];
   statusPekerjaan: StatusPekerjaan[];
+  picEksternal: PicEksternal[];
   addInstansi: (newInstansi: Instansi) => void;
   updateInstansi: (id: string, updatedInstansi: Partial<Instansi>) => void;
   deleteInstansi: (id: string) => void;
@@ -42,6 +44,8 @@ export function DataProvider({ children }: { children: ReactNode }) {
   const [kontrakMou, setKontrakMou] = useState<KontrakMou[]>(mockKontrakMou);
   const [dokumenSph, setDokumenSph] = useState<DokumenSph[]>(mockDokumenSph);
   const [statusPekerjaan, setStatusPekerjaan] = useState<StatusPekerjaan[]>(mockStatusPekerjaan);
+  const [picEksternal, setPicEksternal] = useState<PicEksternal[]>(mockPicEksternal);
+
 
   const addInstansi = (newInstansi: Instansi) => {
     setInstansi(prev => [newInstansi, ...prev]);
@@ -90,6 +94,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
     kontrakMou,
     dokumenSph,
     statusPekerjaan,
+    picEksternal,
     addInstansi,
     updateInstansi,
     deleteInstansi,

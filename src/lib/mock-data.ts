@@ -1,4 +1,4 @@
-import type { Instansi, User, KontrakPks, KontrakMou, StatusPekerjaan, DokumenSph } from './types';
+import type { Instansi, User, KontrakPks, KontrakMou, StatusPekerjaan, DokumenSph, PicEksternal } from './types';
 import { add, sub } from 'date-fns';
 
 const now = new Date();
@@ -37,4 +37,11 @@ export const mockStatusPekerjaan: StatusPekerjaan[] = [
   { id: 'stat-2', instansiId: 'inst-2', tanggalUpdate: sub(now, { days: 2 }), judulUpdate: 'Pengiriman Proof of Concept', deskripsi: 'Sample cetakan pertama telah dikirimkan ke Bank Indonesia untuk proses review.', type: "Project Update", subject: "Proof of Concept Delivery" },
   { id: 'stat-3', instansiId: 'inst-1', tanggalUpdate: sub(now, { days: 12 }), judulUpdate: 'Follow Up Penawaran', deskripsi: 'Follow up via email terkait penawaran solusi digital signature yang telah dikirim.', type: "Sales Activity", subject: "Offer Follow-up" },
   { id: 'stat-4', instansiId: 'inst-3', tanggalUpdate: sub(now, { days: 10 }), judulUpdate: 'UAT Phase 1', deskripsi: 'User Acceptance Testing untuk modul pendaftaran selesai dilaksanakan.', linkMom: '#' },
+];
+
+export const mockPicEksternal: PicEksternal[] = [
+  { id: 'pic-ext-1', namaPic: 'Budi Santoso', instansiId: 'inst-1', jabatan: 'Kepala Divisi IT', noHp: '081122334455', email: 'budi.s@kemenkeu.go.id' },
+  { id: 'pic-ext-2', namaPic: 'Citra Dewi', instansiId: 'inst-2', jabatan: 'Manajer Pengadaan', noHp: '082233445566', email: 'citra.d@bi.go.id' },
+  { id: 'pic-ext-3', namaPic: 'Ahmad Yani', instansiId: 'inst-3', jabatan: 'Direktur Layanan TI', noHp: '083344556677', email: 'ahmad.y@kominfo.go.id' },
+  { id: 'pic-ext-4', namaPic: 'Siti Aminah', instansiId: 'inst-1', jabatan: 'Analis Kebijakan', noHp: '084455667788', email: 's.aminah@kemenkeu.go.id' },
 ];
