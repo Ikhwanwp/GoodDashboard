@@ -13,6 +13,9 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { format } from "date-fns"
 import { mockInstansi } from "@/lib/mock-data"
+import { useData } from "@/context/data-context"
+import { ContractForm } from "@/components/forms/contract-form"
+import { DeleteConfirmation } from "@/components/shared/delete-confirmation"
 
 export const mouColumns: ColumnDef<KontrakMou>[] = [
   {
@@ -50,6 +53,9 @@ export const mouColumns: ColumnDef<KontrakMou>[] = [
   {
     id: "actions",
     cell: ({ row }) => {
+      const contract = row.original
+      const { deleteKontrakMou } = useData()
+
       return (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
@@ -60,9 +66,20 @@ export const mouColumns: ColumnDef<KontrakMou>[] = [
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
             <DropdownMenuLabel>Actions</DropdownMenuLabel>
-            <DropdownMenuItem>Lihat Detail</DropdownMenuItem>
-            <DropdownMenuItem>Edit MoU</DropdownMenuItem>
-            <DropdownMenuItem className="text-destructive">Hapus</DropdownMenuItem>
+            <DropdownMenuItem onClick={() => navigator.clipboard.writeText(contract.id)}>
+              Copy ID
+            </DropdownMenuItem>
+            <ContractForm contractToEdit={contract} contractType="mou">
+               <DropdownMenuItem onSelect={(e) => e.preventDefault()}>Edit MoU</DropdownMenuItem>
+            </ContractForm>
+            <DeleteConfirmation
+              onConfirm={() => deleteKontrakMou(contract.id)}
+              itemName={contract.isiMou}
+            >
+              <DropdownMenuItem onSelect={(e) => e.preventDefault()} className="text-destructive">
+                Hapus
+              </DropdownMenuItem>
+            </DeleteConfirmation>
           </DropdownMenuContent>
         </DropdownMenu>
       )

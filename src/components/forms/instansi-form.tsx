@@ -1,10 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
-import { CalendarIcon, Loader2, PlusCircle } from "lucide-react";
+import { CalendarIcon, Loader2, PlusCircle, Pencil } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -37,6 +37,7 @@ import { useData } from "@/context/data-context";
 import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
+import type { Instansi } from "@/lib/types";
 
 const formSchema = z.object({
   namaInstansi: z.string().min(3, "Nama instansi minimal 3 karakter"),
@@ -46,56 +47,83 @@ const formSchema = z.object({
   jenisLayanan: z.string().min(3, "Jenis layanan minimal 3 karakter"),
 });
 
-export function InstansiForm() {
+type InstansiFormProps = {
+  children?: React.ReactNode;
+  instansiToEdit?: Instansi;
+};
+
+export function InstansiForm({ children, instansiToEdit }: InstansiFormProps) {
   const [open, setOpen] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const { toast } = useToast();
-  const { addInstansi, users } = useData();
+  const { addInstansi, updateInstansi, users } = useData();
   const picGa = users.find(u => u.role === "PIC GA");
+  const isEditMode = !!instansiToEdit;
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
-    defaultValues: {
+    defaultValues: isEditMode ? instansiToEdit : {
       namaInstansi: "",
       kodeInstansi: "",
       jenisLayanan: "",
     },
   });
 
+  useEffect(() => {
+    if (isEditMode && instansiToEdit) {
+      form.reset(instansiToEdit);
+    }
+  }, [isEditMode, instansiToEdit, form]);
+
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setIsSaving(true);
     await new Promise(resolve => setTimeout(resolve, 1000));
     
-    addInstansi({
-      id: `inst-${new Date().getTime()}`,
-      tanggalUpdateTerakhir: new Date(),
-      internalPicId: picGa?.id || 'user-2', // Default to Genta if not found
-      ...values,
-    });
-    
-    toast({
-      title: "Instansi Disimpan",
-      description: "Instansi baru telah berhasil ditambahkan.",
-    });
+    if (isEditMode) {
+      updateInstansi(instansiToEdit.id, values);
+       toast({
+        title: "Instansi Diperbarui",
+        description: "Perubahan pada data instansi telah disimpan.",
+      });
+    } else {
+      addInstansi({
+        id: `inst-${new Date().getTime()}`,
+        tanggalUpdateTerakhir: new Date(),
+        internalPicId: picGa?.id || 'user-2', // Default to Genta if not found
+        ...values,
+      });
+      toast({
+        title: "Instansi Disimpan",
+        description: "Instansi baru telah berhasil ditambahkan.",
+      });
+    }
     
     setIsSaving(false);
     setOpen(false);
-    form.reset();
+    if (!isEditMode) form.reset();
   }
+
+  const trigger = children ? (
+    <div onClick={() => setOpen(true)} className="w-full">
+      {children}
+    </div>
+  ) : (
+    <Button className="bg-primary hover:bg-primary/90">
+      <PlusCircle className="mr-2 h-4 w-4" />
+      Tambah Instansi
+    </Button>
+  );
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button className="bg-primary hover:bg-primary/90">
-          <PlusCircle className="mr-2 h-4 w-4" />
-          Tambah Instansi
-        </Button>
+        {trigger}
       </DialogTrigger>
       <DialogContent className="sm:max-w-lg">
         <DialogHeader>
-          <DialogTitle>Tambah Instansi Baru</DialogTitle>
+          <DialogTitle>{isEditMode ? "Edit Instansi" : "Tambah Instansi Baru"}</DialogTitle>
           <DialogDescription>
-            Isi detail untuk instansi atau K/L yang baru.
+            {isEditMode ? "Ubah detail untuk instansi atau K/L yang sudah ada." : "Isi detail untuk instansi atau K/L yang baru."}
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
@@ -193,7 +221,7 @@ export function InstansiForm() {
               <Button type="button" variant="ghost" onClick={() => setOpen(false)}>Batal</Button>
               <Button type="submit" disabled={isSaving}>
                 {isSaving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                Simpan
+                {isEditMode ? "Simpan Perubahan" : "Simpan"}
               </Button>
             </DialogFooter>
           </form>

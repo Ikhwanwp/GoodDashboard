@@ -14,6 +14,9 @@ import {
 import { Badge } from "@/components/ui/badge"
 import { format } from "date-fns"
 import { mockInstansi } from "@/lib/mock-data"
+import { StatusUpdateForm } from "@/components/forms/status-update-form"
+import { useData } from "@/context/data-context"
+import { DeleteConfirmation } from "@/components/shared/delete-confirmation"
 
 export const columns: ColumnDef<StatusPekerjaan>[] = [
   {
@@ -60,6 +63,8 @@ export const columns: ColumnDef<StatusPekerjaan>[] = [
   {
     id: "actions",
     cell: ({ row }) => {
+      const update = row.original
+      const { deleteStatusPekerjaan } = useData()
       return (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
@@ -70,9 +75,20 @@ export const columns: ColumnDef<StatusPekerjaan>[] = [
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
             <DropdownMenuLabel>Actions</DropdownMenuLabel>
-            <DropdownMenuItem>Lihat Detail</DropdownMenuItem>
-            <DropdownMenuItem>Edit Update</DropdownMenuItem>
-            <DropdownMenuItem className="text-destructive">Hapus</DropdownMenuItem>
+            <DropdownMenuItem onClick={() => navigator.clipboard.writeText(update.id)}>
+              Copy ID
+            </DropdownMenuItem>
+            <StatusUpdateForm updateToEdit={update}>
+               <DropdownMenuItem onSelect={(e) => e.preventDefault()}>Edit Update</DropdownMenuItem>
+            </StatusUpdateForm>
+            <DeleteConfirmation 
+              onConfirm={() => deleteStatusPekerjaan(update.id)}
+              itemName={update.judulUpdate}
+            >
+              <DropdownMenuItem onSelect={(e) => e.preventDefault()} className="text-destructive">
+                Hapus
+              </DropdownMenuItem>
+            </DeleteConfirmation>
           </DropdownMenuContent>
         </DropdownMenu>
       )

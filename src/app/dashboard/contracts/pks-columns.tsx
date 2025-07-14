@@ -9,12 +9,14 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuLabel,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { Badge } from "@/components/ui/badge"
 import { format } from "date-fns"
 import { mockInstansi } from "@/lib/mock-data"
+import { useData } from "@/context/data-context"
+import { ContractForm } from "@/components/forms/contract-form"
+import { DeleteConfirmation } from "@/components/shared/delete-confirmation"
 
 export const pksColumns: ColumnDef<KontrakPks>[] = [
   {
@@ -64,6 +66,9 @@ export const pksColumns: ColumnDef<KontrakPks>[] = [
   {
     id: "actions",
     cell: ({ row }) => {
+      const contract = row.original
+      const { deleteKontrakPks } = useData()
+
       return (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
@@ -74,9 +79,20 @@ export const pksColumns: ColumnDef<KontrakPks>[] = [
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
             <DropdownMenuLabel>Actions</DropdownMenuLabel>
-            <DropdownMenuItem>Lihat Detail</DropdownMenuItem>
-            <DropdownMenuItem>Edit Kontrak</DropdownMenuItem>
-            <DropdownMenuItem className="text-destructive">Hapus</DropdownMenuItem>
+            <DropdownMenuItem onClick={() => navigator.clipboard.writeText(contract.id)}>
+              Copy ID
+            </DropdownMenuItem>
+             <ContractForm contractToEdit={contract} contractType="pks">
+               <DropdownMenuItem onSelect={(e) => e.preventDefault()}>Edit Kontrak</DropdownMenuItem>
+            </ContractForm>
+            <DeleteConfirmation 
+              onConfirm={() => deleteKontrakPks(contract.id)}
+              itemName={contract.judulKontrak}
+            >
+              <DropdownMenuItem onSelect={(e) => e.preventDefault()} className="text-destructive">
+                Hapus
+              </DropdownMenuItem>
+            </DeleteConfirmation>
           </DropdownMenuContent>
         </DropdownMenu>
       )

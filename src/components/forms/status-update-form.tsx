@@ -1,10 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
-import { Loader2, PlusCircle, Sparkles } from "lucide-react";
+import { Loader2, PlusCircle, Sparkles, Pencil } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -36,27 +36,33 @@ import { Card, CardContent } from "@/components/ui/card";
 import { useData } from "@/context/data-context";
 import { useToast } from "@/hooks/use-toast";
 import { classifyUpdateAction } from "@/lib/actions";
+import type { StatusPekerjaan } from "@/lib/types";
 
 const formSchema = z.object({
   instansiId: z.string().min(1, "Instansi harus dipilih"),
   judulUpdate: z.string().min(3, "Judul minimal 3 karakter"),
   deskripsi: z.string().min(10, "Deskripsi minimal 10 karakter"),
   linkMom: z.string().url().optional().or(z.literal('')),
-  // AI fields
   type: z.string().optional(),
   subject: z.string().optional(),
 });
 
-export function StatusUpdateForm() {
+type StatusUpdateFormProps = {
+  children?: React.ReactNode;
+  updateToEdit?: StatusPekerjaan;
+}
+
+export function StatusUpdateForm({ children, updateToEdit }: StatusUpdateFormProps) {
   const [open, setOpen] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [isClassifying, setIsClassifying] = useState(false);
   const { toast } = useToast();
-  const { instansi, addStatusPekerjaan } = useData();
+  const { instansi, addStatusPekerjaan, updateStatusPekerjaan } = useData();
+  const isEditMode = !!updateToEdit;
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
-    defaultValues: {
+    defaultValues: isEditMode ? updateToEdit : {
       instansiId: "",
       judulUpdate: "",
       deskripsi: "",
@@ -65,6 +71,12 @@ export function StatusUpdateForm() {
       subject: "",
     },
   });
+
+  useEffect(() => {
+    if(isEditMode && updateToEdit) {
+      form.reset(updateToEdit);
+    }
+  }, [isEditMode, updateToEdit, form]);
 
   const handleClassify = async () => {
     setIsClassifying(true);
@@ -100,39 +112,53 @@ export function StatusUpdateForm() {
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setIsSaving(true);
-    
-    // Simulate async operation
     await new Promise(resolve => setTimeout(resolve, 1000));
     
-    addStatusPekerjaan({
-      id: `stat-${new Date().getTime()}`,
-      tanggalUpdate: new Date(),
-      ...values,
-    });
-    
-    toast({
-      title: "Update Disimpan",
-      description: "Status pekerjaan baru telah berhasil ditambahkan.",
-    });
+    if (isEditMode) {
+      updateStatusPekerjaan(updateToEdit.id, values);
+      toast({
+        title: "Update Diperbarui",
+        description: "Perubahan pada status pekerjaan telah disimpan.",
+      });
+    } else {
+      addStatusPekerjaan({
+        id: `stat-${new Date().getTime()}`,
+        tanggalUpdate: new Date(),
+        ...values,
+      });
+      toast({
+        title: "Update Disimpan",
+        description: "Status pekerjaan baru telah berhasil ditambahkan.",
+      });
+    }
     
     setIsSaving(false);
     setOpen(false);
-    form.reset();
+    if (!isEditMode) form.reset();
   }
+
+  const trigger = children ? (
+    <div onClick={() => setOpen(true)} className="w-full">
+      {children}
+    </div>
+  ) : (
+    <Button className="bg-primary hover:bg-primary/90">
+      <PlusCircle className="mr-2 h-4 w-4" />
+      Tambah Update
+    </Button>
+  );
+
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button className="bg-primary hover:bg-primary/90">
-          <PlusCircle className="mr-2 h-4 w-4" />
-          Tambah Update
-        </Button>
+        {trigger}
       </DialogTrigger>
       <DialogContent className="sm:max-w-[600px]">
         <DialogHeader>
-          <DialogTitle>Tambah Status Pekerjaan</DialogTitle>
+          <DialogTitle>{isEditMode ? 'Edit Status Pekerjaan' : 'Tambah Status Pekerjaan'}</DialogTitle>
           <DialogDescription>
-            Isi detail update pekerjaan terbaru. Gunakan AI untuk klasifikasi otomatis.
+            {isEditMode ? 'Ubah detail update pekerjaan yang sudah ada.' : 'Isi detail update pekerjaan terbaru. Gunakan AI untuk klasifikasi otomatis.'}
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
@@ -242,7 +268,7 @@ export function StatusUpdateForm() {
               <Button type="button" variant="ghost" onClick={() => setOpen(false)}>Batal</Button>
               <Button type="submit" disabled={isSaving}>
                 {isSaving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                Simpan
+                {isEditMode ? 'Simpan Perubahan' : 'Simpan'}
               </Button>
             </DialogFooter>
           </form>

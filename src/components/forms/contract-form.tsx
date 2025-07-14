@@ -1,10 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
-import { CalendarIcon, Loader2, PlusCircle } from "lucide-react";
+import { CalendarIcon, Loader2, PlusCircle, Pencil } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -39,6 +39,7 @@ import { Calendar } from "@/components/ui/calendar";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import type { KontrakPks, KontrakMou } from "@/lib/types";
 
 const pksSchema = z.object({
   instansiId: z.string().min(1, "Instansi harus dipilih"),
@@ -52,25 +53,32 @@ const pksSchema = z.object({
 });
 
 const mouSchema = z.object({
-    instansiId: z.string().min(1, "Instansi harus dipilih"),
-    nomorMouPeruri: z.string().min(1, "Nomor MoU harus diisi"),
-    isiMou: z.string().min(10, "Isi MoU minimal 10 karakter"),
-    tanggalMulai: z.date({ required_error: "Tanggal mulai harus diisi" }),
-    tanggalBerakhir: z.date({ required_error: "Tanggal berakhir harus diisi" }),
-    ruangLingkup: z.string().min(1, "Ruang lingkup harus diisi"),
-    keterangan: z.string().optional(),
+  instansiId: z.string().min(1, "Instansi harus dipilih"),
+  nomorMouPeruri: z.string().min(1, "Nomor MoU harus diisi"),
+  isiMou: z.string().min(10, "Isi MoU minimal 10 karakter"),
+  tanggalMulai: z.date({ required_error: "Tanggal mulai harus diisi" }),
+  tanggalBerakhir: z.date({ required_error: "Tanggal berakhir harus diisi" }),
+  ruangLingkup: z.string().min(1, "Ruang lingkup harus diisi"),
+  keterangan: z.string().optional(),
 });
 
-export function ContractForm() {
+type ContractFormProps = {
+  children?: React.ReactNode;
+  contractToEdit?: KontrakPks | KontrakMou;
+  contractType?: 'pks' | 'mou';
+}
+
+export function ContractForm({ children, contractToEdit, contractType }: ContractFormProps) {
   const [open, setOpen] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const { toast } = useToast();
-  const { instansi, addKontrakPks, addKontrakMou, users } = useData();
+  const { instansi, addKontrakPks, addKontrakMou, updateKontrakPks, updateKontrakMou, users } = useData();
   const picGa = users.find(u => u.role === "PIC GA");
+  const isEditMode = !!contractToEdit;
 
   const pksForm = useForm<z.infer<typeof pksSchema>>({
     resolver: zodResolver(pksSchema),
-    defaultValues: {
+    defaultValues: isEditMode && 'judulKontrak' in contractToEdit ? contractToEdit : {
       instansiId: "",
       nomorKontrakPeruri: "",
       nomorKontrakKl: "",
@@ -82,7 +90,7 @@ export function ContractForm() {
 
   const mouForm = useForm<z.infer<typeof mouSchema>>({
     resolver: zodResolver(mouSchema),
-    defaultValues: {
+    defaultValues: isEditMode && 'isiMou' in contractToEdit ? contractToEdit : {
         instansiId: "",
         nomorMouPeruri: "",
         isiMou: "",
@@ -91,66 +99,100 @@ export function ContractForm() {
     },
   });
 
+  useEffect(() => {
+    if (isEditMode && contractToEdit) {
+      if ('judulKontrak' in contractToEdit) {
+        pksForm.reset(contractToEdit);
+      }
+      if ('isiMou' in contractToEdit) {
+        mouForm.reset(contractToEdit);
+      }
+    }
+  }, [isEditMode, contractToEdit, pksForm, mouForm]);
+
+
   async function onPksSubmit(values: z.infer<typeof pksSchema>) {
     setIsSaving(true);
     await new Promise(resolve => setTimeout(resolve, 1000));
     
-    addKontrakPks({
-      id: `pks-${new Date().getTime()}`,
-      picGaId: picGa?.id || 'user-2',
-      statusKontrak: 'Aktif',
-      ...values,
-    });
-    
-    toast({
-      title: "Kontrak PKS Disimpan",
-      description: "Kontrak PKS baru telah berhasil ditambahkan.",
-    });
+    if (isEditMode && 'judulKontrak' in contractToEdit) {
+      updateKontrakPks(contractToEdit.id, values);
+      toast({
+        title: "Kontrak PKS Diperbarui",
+        description: "Perubahan pada kontrak PKS telah disimpan.",
+      });
+    } else {
+      addKontrakPks({
+        id: `pks-${new Date().getTime()}`,
+        picGaId: picGa?.id || 'user-2',
+        statusKontrak: 'Aktif',
+        ...values,
+      });
+      toast({
+        title: "Kontrak PKS Disimpan",
+        description: "Kontrak PKS baru telah berhasil ditambahkan.",
+      });
+    }
     
     setIsSaving(false);
     setOpen(false);
-    pksForm.reset();
+    if (!isEditMode) pksForm.reset();
   }
 
   async function onMouSubmit(values: z.infer<typeof mouSchema>) {
     setIsSaving(true);
     await new Promise(resolve => setTimeout(resolve, 1000));
     
-    addKontrakMou({
-      id: `mou-${new Date().getTime()}`,
-      picGaId: picGa?.id || 'user-2',
-      ...values,
-    });
-    
-    toast({
-      title: "Kontrak MoU Disimpan",
-      description: "Kontrak MoU baru telah berhasil ditambahkan.",
-    });
+    if (isEditMode && 'isiMou' in contractToEdit) {
+      updateKontrakMou(contractToEdit.id, values);
+       toast({
+        title: "Kontrak MoU Diperbarui",
+        description: "Perubahan pada kontrak MoU telah disimpan.",
+      });
+    } else {
+       addKontrakMou({
+        id: `mou-${new Date().getTime()}`,
+        picGaId: picGa?.id || 'user-2',
+        ...values,
+      });
+      toast({
+        title: "Kontrak MoU Disimpan",
+        description: "Kontrak MoU baru telah berhasil ditambahkan.",
+      });
+    }
     
     setIsSaving(false);
     setOpen(false);
-    mouForm.reset();
+    if (!isEditMode) mouForm.reset();
   }
+  
+  const trigger = children ? (
+    <div onClick={() => setOpen(true)} className="w-full">
+      {children}
+    </div>
+  ) : (
+    <Button className="bg-primary hover:bg-primary/90">
+      <PlusCircle className="mr-2 h-4 w-4" />
+      Tambah Kontrak
+    </Button>
+  );
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button className="bg-primary hover:bg-primary/90">
-          <PlusCircle className="mr-2 h-4 w-4" />
-          Tambah Kontrak
-        </Button>
+        {trigger}
       </DialogTrigger>
       <DialogContent className="sm:max-w-3xl">
         <DialogHeader>
-          <DialogTitle>Tambah Kontrak Baru</DialogTitle>
+          <DialogTitle>{isEditMode ? "Edit Kontrak" : "Tambah Kontrak Baru"}</DialogTitle>
           <DialogDescription>
-            Pilih jenis kontrak (PKS atau MoU) dan isi detailnya.
+            {isEditMode ? "Ubah detail kontrak yang sudah ada." : "Pilih jenis kontrak (PKS atau MoU) dan isi detailnya."}
           </DialogDescription>
         </DialogHeader>
-        <Tabs defaultValue="pks" className="w-full">
+        <Tabs defaultValue={contractType || 'pks'} className="w-full">
             <TabsList className="grid w-full grid-cols-2">
-                <TabsTrigger value="pks">Kontrak PKS</TabsTrigger>
-                <TabsTrigger value="mou">Kontrak MoU</TabsTrigger>
+                <TabsTrigger value="pks" disabled={isEditMode && contractType === 'mou'}>Kontrak PKS</TabsTrigger>
+                <TabsTrigger value="mou" disabled={isEditMode && contractType === 'pks'}>Kontrak MoU</TabsTrigger>
             </TabsList>
             <TabsContent value="pks">
                  <Form {...pksForm}>
@@ -282,7 +324,7 @@ export function ContractForm() {
                             <Button type="button" variant="ghost" onClick={() => setOpen(false)}>Batal</Button>
                             <Button type="submit" disabled={isSaving}>
                                 {isSaving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                                Simpan PKS
+                                {isEditMode ? "Simpan Perubahan" : "Simpan PKS"}
                             </Button>
                         </DialogFooter>
                     </form>
@@ -407,7 +449,7 @@ export function ContractForm() {
                             <Button type="button" variant="ghost" onClick={() => setOpen(false)}>Batal</Button>
                             <Button type="submit" disabled={isSaving}>
                                 {isSaving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                                Simpan MoU
+                                {isEditMode ? "Simpan Perubahan" : "Simpan MoU"}
                             </Button>
                         </DialogFooter>
                     </form>

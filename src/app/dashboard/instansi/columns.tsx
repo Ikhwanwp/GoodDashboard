@@ -14,6 +14,9 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { Badge } from "@/components/ui/badge"
 import { format } from "date-fns"
+import { useData } from "@/context/data-context"
+import { InstansiForm } from "@/components/forms/instansi-form"
+import { DeleteConfirmation } from "@/components/shared/delete-confirmation"
 
 export const columns: ColumnDef<Instansi>[] = [
   {
@@ -60,6 +63,7 @@ export const columns: ColumnDef<Instansi>[] = [
     id: "actions",
     cell: ({ row }) => {
       const instansi = row.original
+      const { deleteInstansi } = useData()
 
       return (
         <DropdownMenu>
@@ -77,9 +81,17 @@ export const columns: ColumnDef<Instansi>[] = [
               Copy ID
             </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem>Lihat Detail</DropdownMenuItem>
-            <DropdownMenuItem>Edit Instansi</DropdownMenuItem>
-            <DropdownMenuItem className="text-destructive">Hapus</DropdownMenuItem>
+            <InstansiForm instansiToEdit={instansi}>
+              <DropdownMenuItem onSelect={(e) => e.preventDefault()}>Edit Instansi</DropdownMenuItem>
+            </InstansiForm>
+            <DeleteConfirmation 
+              onConfirm={() => deleteInstansi(instansi.id)}
+              itemName={instansi.namaInstansi}
+            >
+              <DropdownMenuItem onSelect={(e) => e.preventDefault()} className="text-destructive">
+                Hapus
+              </DropdownMenuItem>
+            </DeleteConfirmation>
           </DropdownMenuContent>
         </DropdownMenu>
       )
