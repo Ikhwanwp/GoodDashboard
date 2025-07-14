@@ -23,9 +23,9 @@ export function ReminderList() {
   const getPicName = (picId: string) => users.find(u => u.id === picId)?.nama || 'N/A';
   
   const getDaysLeftColor = (days: number) => {
-    if (days <= 30) return "text-destructive";
-    if (days <= 60) return "text-accent-foreground bg-accent/20";
-    return "text-amber-600";
+    if (days < 30) return "bg-destructive text-destructive-foreground";
+    if (days < 60) return "bg-orange-500 text-white";
+    return "bg-green-500 text-white";
   }
 
   return (
