@@ -17,6 +17,7 @@ export interface User {
   email: string;
   noHp: string;
   role: "Admin" | "PIC GA" | "Viewer";
+  handledInstansiIds?: string[];
 }
 
 export interface PicEksternal {

@@ -32,6 +32,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Checkbox } from "@/components/ui/checkbox";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { useData } from "@/context/data-context";
 import { useToast } from "@/hooks/use-toast";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -42,6 +44,7 @@ const internalPicSchema = z.object({
   email: z.string().email("Format email tidak valid"),
   noHp: z.string().min(10, "Nomor HP minimal 10 digit"),
   role: z.enum(["Admin", "PIC GA", "Viewer"], { required_error: "Role harus dipilih" }),
+  handledInstansiIds: z.array(z.string()).optional(),
 });
 
 const externalPicSchema = z.object({
@@ -67,16 +70,17 @@ export function PicForm({ children, picToEdit, picType }: PicFormProps) {
 
   const internalForm = useForm<z.infer<typeof internalPicSchema>>({
     resolver: zodResolver(internalPicSchema),
-    defaultValues: isEditMode && picType === 'internal' ? picToEdit as User : {
+    defaultValues: {
       nama: "",
       email: "",
       noHp: "",
+      handledInstansiIds: [],
     },
   });
 
   const externalForm = useForm<z.infer<typeof externalPicSchema>>({
     resolver: zodResolver(externalPicSchema),
-    defaultValues: isEditMode && picType === 'external' ? picToEdit as PicEksternal : {
+    defaultValues: {
         namaPic: "",
         instansiId: "",
         jabatan: "",
@@ -84,17 +88,41 @@ export function PicForm({ children, picToEdit, picType }: PicFormProps) {
         email: "",
     },
   });
+  
+  const watchedRole = internalForm.watch("role");
 
   useEffect(() => {
     if (isEditMode && picToEdit) {
       if (picType === 'internal') {
-        internalForm.reset(picToEdit as User);
+        const userToEdit = picToEdit as User;
+        const handledIds = instansi
+          .filter(i => i.internalPicId === userToEdit.id)
+          .map(i => i.id);
+        
+        internalForm.reset({
+          ...userToEdit,
+          handledInstansiIds: handledIds,
+        });
       }
       if (picType === 'external') {
         externalForm.reset(picToEdit as PicEksternal);
       }
+    } else {
+        internalForm.reset({
+            nama: "",
+            email: "",
+            noHp: "",
+            handledInstansiIds: [],
+        });
+        externalForm.reset({
+            namaPic: "",
+            instansiId: "",
+            jabatan: "",
+            noHp: "",
+            email: "",
+        });
     }
-  }, [isEditMode, picToEdit, picType, internalForm, externalForm]);
+  }, [isEditMode, picToEdit, picType, internalForm, externalForm, open, instansi]);
 
 
   async function onInternalSubmit(values: z.infer<typeof internalPicSchema>) {
@@ -120,7 +148,6 @@ export function PicForm({ children, picToEdit, picType }: PicFormProps) {
     
     setIsSaving(false);
     setOpen(false);
-    if (!isEditMode) internalForm.reset();
   }
 
   async function onExternalSubmit(values: z.infer<typeof externalPicSchema>) {
@@ -146,7 +173,6 @@ export function PicForm({ children, picToEdit, picType }: PicFormProps) {
     
     setIsSaving(false);
     setOpen(false);
-    if (!isEditMode) externalForm.reset();
   }
   
   const trigger = children ? (
@@ -235,6 +261,57 @@ export function PicForm({ children, picToEdit, picType }: PicFormProps) {
                                 </FormItem>
                             )}
                         />
+                         {watchedRole === 'PIC GA' && (
+                            <FormField
+                                control={internalForm.control}
+                                name="handledInstansiIds"
+                                render={() => (
+                                    <FormItem>
+                                    <div className="mb-4">
+                                        <FormLabel className="text-base">Handle Instansi</FormLabel>
+                                    </div>
+                                    <ScrollArea className="h-40 rounded-md border p-4">
+                                        <div className="space-y-2">
+                                        {instansi.map((item) => (
+                                            <FormField
+                                            key={item.id}
+                                            control={internalForm.control}
+                                            name="handledInstansiIds"
+                                            render={({ field }) => {
+                                                return (
+                                                <FormItem
+                                                    key={item.id}
+                                                    className="flex flex-row items-start space-x-3 space-y-0"
+                                                >
+                                                    <FormControl>
+                                                    <Checkbox
+                                                        checked={field.value?.includes(item.id)}
+                                                        onCheckedChange={(checked) => {
+                                                        return checked
+                                                            ? field.onChange([...(field.value || []), item.id])
+                                                            : field.onChange(
+                                                                field.value?.filter(
+                                                                (value) => value !== item.id
+                                                                )
+                                                            )
+                                                        }}
+                                                    />
+                                                    </FormControl>
+                                                    <FormLabel className="font-normal">
+                                                        {item.namaInstansi} ({item.kodeInstansi})
+                                                    </FormLabel>
+                                                </FormItem>
+                                                )
+                                            }}
+                                            />
+                                        ))}
+                                        </div>
+                                    </ScrollArea>
+                                    <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                        )}
                         <DialogFooter className="pt-4">
                             <Button type="button" variant="ghost" onClick={() => setOpen(false)}>Batal</Button>
                             <Button type="submit" disabled={isSaving}>

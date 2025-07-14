@@ -101,10 +101,36 @@ export function DataProvider({ children }: { children: ReactNode }) {
 
   const addUser = (newUser: User) => {
     setUsers(prev => [newUser, ...prev]);
+    // Also update instansi if handledInstansiIds is present
+    if (newUser.handledInstansiIds && newUser.handledInstansiIds.length > 0) {
+      setInstansi(prevInstansi => 
+        prevInstansi.map(i => 
+          newUser.handledInstansiIds!.includes(i.id) ? { ...i, internalPicId: newUser.id } : i
+        )
+      );
+    }
   };
+  
   const updateUser = (id: string, updatedUser: Partial<User>) => {
     setUsers(prev => prev.map(u => u.id === id ? { ...u, ...updatedUser } : u));
+    // Also update instansi if handledInstansiIds is present
+    if (updatedUser.handledInstansiIds) {
+       setInstansi(prevInstansi => 
+        prevInstansi.map(i => {
+          // If instansi is now handled by this user, update its picId
+          if (updatedUser.handledInstansiIds!.includes(i.id)) {
+            return { ...i, internalPicId: id };
+          }
+          // If instansi was handled by this user but not anymore, clear its picId (or assign to a default)
+          if (i.internalPicId === id && !updatedUser.handledInstansiIds!.includes(i.id)) {
+            return { ...i, internalPicId: 'user-2' }; // or some default/unassigned user
+          }
+          return i;
+        })
+      );
+    }
   };
+
   const deleteUser = (id: string) => {
     setUsers(prev => prev.filter(u => u.id !== id));
   };
