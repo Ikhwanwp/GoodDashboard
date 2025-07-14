@@ -21,18 +21,30 @@ interface DataContextType {
   dokumenSph: DokumenSph[];
   statusPekerjaan: StatusPekerjaan[];
   picEksternal: PicEksternal[];
+  // Instansi
   addInstansi: (newInstansi: Instansi) => void;
   updateInstansi: (id: string, updatedInstansi: Partial<Instansi>) => void;
   deleteInstansi: (id: string) => void;
+  // Kontrak PKS
   addKontrakPks: (newKontrak: KontrakPks) => void;
   updateKontrakPks: (id: string, updatedKontrak: Partial<KontrakPks>) => void;
   deleteKontrakPks: (id: string) => void;
+  // Kontrak MoU
   addKontrakMou: (newKontrak: KontrakMou) => void;
   updateKontrakMou: (id: string, updatedKontrak: Partial<KontrakMou>) => void;
   deleteKontrakMou: (id: string) => void;
+  // Status Pekerjaan
   addStatusPekerjaan: (newStatus: StatusPekerjaan) => void;
   updateStatusPekerjaan: (id: string, updatedStatus: Partial<StatusPekerjaan>) => void;
   deleteStatusPekerjaan: (id: string) => void;
+  // User (Internal PIC)
+  addUser: (newUser: User) => void;
+  updateUser: (id: string, updatedUser: Partial<User>) => void;
+  deleteUser: (id: string) => void;
+  // PIC Eksternal
+  addPicEksternal: (newPic: PicEksternal) => void;
+  updatePicEksternal: (id: string, updatedPic: Partial<PicEksternal>) => void;
+  deletePicEksternal: (id: string) => void;
 }
 
 const DataContext = createContext<DataContextType | undefined>(undefined);
@@ -87,6 +99,26 @@ export function DataProvider({ children }: { children: ReactNode }) {
     setStatusPekerjaan(prev => prev.filter(s => s.id !== id));
   };
 
+  const addUser = (newUser: User) => {
+    setUsers(prev => [newUser, ...prev]);
+  };
+  const updateUser = (id: string, updatedUser: Partial<User>) => {
+    setUsers(prev => prev.map(u => u.id === id ? { ...u, ...updatedUser } : u));
+  };
+  const deleteUser = (id: string) => {
+    setUsers(prev => prev.filter(u => u.id !== id));
+  };
+
+  const addPicEksternal = (newPic: PicEksternal) => {
+    setPicEksternal(prev => [newPic, ...prev]);
+  };
+  const updatePicEksternal = (id: string, updatedPic: Partial<PicEksternal>) => {
+    setPicEksternal(prev => prev.map(p => p.id === id ? { ...p, ...updatedPic } : p));
+  };
+  const deletePicEksternal = (id: string) => {
+    setPicEksternal(prev => prev.filter(p => p.id !== id));
+  };
+
   const value = {
     users,
     instansi,
@@ -107,6 +139,12 @@ export function DataProvider({ children }: { children: ReactNode }) {
     addStatusPekerjaan,
     updateStatusPekerjaan,
     deleteStatusPekerjaan,
+    addUser,
+    updateUser,
+    deleteUser,
+    addPicEksternal,
+    updatePicEksternal,
+    deletePicEksternal,
   };
 
   return <DataContext.Provider value={value}>{children}</DataContext.Provider>;

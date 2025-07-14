@@ -5,6 +5,18 @@ import type { ColumnDef } from "@tanstack/react-table"
 import type { User } from "@/lib/types"
 import { useData } from "@/context/data-context"
 import { Badge } from "@/components/ui/badge"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
+import { Button } from "@/components/ui/button"
+import { MoreHorizontal } from "lucide-react"
+import { PicForm } from "@/components/forms/pic-form"
+import { DeleteConfirmation } from "@/components/shared/delete-confirmation"
+
 
 export const internalPicColumns: ColumnDef<User>[] = [
   {
@@ -36,5 +48,40 @@ export const internalPicColumns: ColumnDef<User>[] = [
   {
     accessorKey: "email",
     header: "Email",
+  },
+   {
+    id: "actions",
+    cell: ({ row }) => {
+      const pic = row.original
+      const { deleteUser } = useData()
+
+      return (
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" className="h-8 w-8 p-0">
+              <span className="sr-only">Open menu</span>
+              <MoreHorizontal className="h-4 w-4" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            <DropdownMenuLabel>Actions</DropdownMenuLabel>
+            <DropdownMenuItem onClick={() => navigator.clipboard.writeText(pic.id)}>
+              Copy ID
+            </DropdownMenuItem>
+             <PicForm picToEdit={pic} picType="internal">
+               <DropdownMenuItem onSelect={(e) => e.preventDefault()}>Edit PIC</DropdownMenuItem>
+            </PicForm>
+            <DeleteConfirmation
+              onConfirm={() => deleteUser(pic.id)}
+              itemName={pic.nama}
+            >
+              <DropdownMenuItem onSelect={(e) => e.preventDefault()} className="text-destructive">
+                Hapus
+              </DropdownMenuItem>
+            </DeleteConfirmation>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      )
+    },
   },
 ]

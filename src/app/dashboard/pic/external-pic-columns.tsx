@@ -5,6 +5,17 @@ import type { ColumnDef } from "@tanstack/react-table"
 import type { PicEksternal } from "@/lib/types"
 import { useData } from "@/context/data-context"
 import { Badge } from "@/components/ui/badge"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
+import { Button } from "@/components/ui/button"
+import { MoreHorizontal } from "lucide-react"
+import { PicForm } from "@/components/forms/pic-form"
+import { DeleteConfirmation } from "@/components/shared/delete-confirmation"
 
 export const externalPicColumns: ColumnDef<PicEksternal>[] = [
   {
@@ -13,11 +24,11 @@ export const externalPicColumns: ColumnDef<PicEksternal>[] = [
   },
   {
     accessorKey: "instansiId",
-    header: "Kode Instansi",
+    header: "Nama Instansi",
     cell: ({ row }) => {
       const { instansi } = useData();
       const picInstansi = instansi.find(i => i.id === row.original.instansiId);
-      return <Badge variant="secondary">{picInstansi?.kodeInstansi || 'N/A'}</Badge>
+      return <div className="font-medium">{picInstansi?.namaInstansi || 'N/A'}</div>;
     }
   },
   {
@@ -31,5 +42,40 @@ export const externalPicColumns: ColumnDef<PicEksternal>[] = [
   {
     accessorKey: "email",
     header: "Email",
+  },
+  {
+    id: "actions",
+    cell: ({ row }) => {
+      const pic = row.original
+      const { deletePicEksternal } = useData()
+
+      return (
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" className="h-8 w-8 p-0">
+              <span className="sr-only">Open menu</span>
+              <MoreHorizontal className="h-4 w-4" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            <DropdownMenuLabel>Actions</DropdownMenuLabel>
+            <DropdownMenuItem onClick={() => navigator.clipboard.writeText(pic.id)}>
+              Copy ID
+            </DropdownMenuItem>
+             <PicForm picToEdit={pic} picType="external">
+               <DropdownMenuItem onSelect={(e) => e.preventDefault()}>Edit PIC</DropdownMenuItem>
+            </PicForm>
+            <DeleteConfirmation
+              onConfirm={() => deletePicEksternal(pic.id)}
+              itemName={pic.namaPic}
+            >
+              <DropdownMenuItem onSelect={(e) => e.preventDefault()} className="text-destructive">
+                Hapus
+              </DropdownMenuItem>
+            </DeleteConfirmation>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      )
+    },
   },
 ]
