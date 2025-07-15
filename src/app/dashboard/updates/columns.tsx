@@ -13,12 +13,14 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { Badge } from "@/components/ui/badge"
 import { format } from "date-fns"
-import { mockInstansi } from "@/lib/mock-data"
 import { StatusUpdateForm } from "@/components/forms/status-update-form"
 import { useData } from "@/context/data-context"
 import { DeleteConfirmation } from "@/components/shared/delete-confirmation"
 
-export const columns: ColumnDef<StatusPekerjaan>[] = [
+export const UpdatesColumns = (): ColumnDef<StatusPekerjaan>[] => {
+  const { instansi, deleteStatusPekerjaan } = useData();
+  
+  return [
   {
     accessorKey: "tanggalUpdate",
     header: ({ column }) => {
@@ -38,8 +40,8 @@ export const columns: ColumnDef<StatusPekerjaan>[] = [
     accessorKey: "instansiId",
     header: "Nama Instansi",
     cell: ({ row }) => {
-      const instansi = mockInstansi.find(i => i.id === row.original.instansiId);
-      return <div className="font-medium">{instansi?.namaInstansi || 'N/A'}</div>;
+      const i = instansi.find(i => i.id === row.original.instansiId);
+      return <div className="font-medium">{i?.namaInstansi || 'N/A'}</div>;
     },
   },
   {
@@ -64,7 +66,7 @@ export const columns: ColumnDef<StatusPekerjaan>[] = [
     id: "actions",
     cell: ({ row }) => {
       const update = row.original
-      const { deleteStatusPekerjaan } = useData()
+      
       return (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
@@ -95,3 +97,4 @@ export const columns: ColumnDef<StatusPekerjaan>[] = [
     },
   },
 ]
+}

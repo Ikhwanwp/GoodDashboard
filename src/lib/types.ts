@@ -1,4 +1,10 @@
 import type { LucideIcon } from "lucide-react";
+import type { Timestamp } from "firebase/firestore";
+
+// Helper type to convert Firestore Timestamps to Dates in other types
+type WithDates<T> = {
+  [K in keyof T]: T[K] extends Timestamp ? Date : T[K];
+};
 
 export interface Instansi {
   id: string;
@@ -11,13 +17,24 @@ export interface Instansi {
   internalPicId: string;
 }
 
+export interface InstansiFromDB {
+  id: string;
+  kodeInstansi: string;
+  namaInstansi: string;
+  tanggalUlangTahun: Timestamp;
+  statusKementrian: "STG Prioritas" | "Non Prioritas";
+  jenisLayanan: string;
+  tanggalUpdateTerakhir: Timestamp;
+  internalPicId: string;
+}
+
 export interface User {
   id: string; // Corresponds to Firebase Auth User UID
   nama: string;
   email: string;
   noHp: string;
   role: "Admin" | "PIC GA" | "Viewer";
-  handledInstansiIds?: string[];
+  handledInstansiIds?: string[]; // Used in form, not in DB directly
 }
 
 export interface PicEksternal {
@@ -43,6 +60,11 @@ export interface KontrakPks {
   statusKontrak: "Aktif" | "Berakhir";
   linkDokumen?: string;
 }
+export interface KontrakPksFromDB extends Omit<KontrakPks, 'tanggalMulai' | 'tanggalBerakhir'> {
+  tanggalMulai: Timestamp;
+  tanggalBerakhir: Timestamp;
+}
+
 
 export interface KontrakMou {
     id: string;
@@ -55,6 +77,10 @@ export interface KontrakMou {
     ruangLingkup: string;
     keterangan: string;
 }
+export interface KontrakMouFromDB extends Omit<KontrakMou, 'tanggalMulai' | 'tanggalBerakhir'> {
+  tanggalMulai: Timestamp;
+  tanggalBerakhir: Timestamp;
+}
 
 export interface DokumenSph {
     id: string;
@@ -63,6 +89,9 @@ export interface DokumenSph {
     tanggal: Date;
     perihal: string;
     linkDokumen?: string;
+}
+export interface DokumenSphFromDB extends Omit<DokumenSph, 'tanggal'> {
+    tanggal: Timestamp;
 }
 
 export interface StatusPekerjaan {
@@ -75,6 +104,9 @@ export interface StatusPekerjaan {
     // Fields from AI classification
     type?: string;
     subject?: string;
+}
+export interface StatusPekerjaanFromDB extends Omit<StatusPekerjaan, 'tanggalUpdate'> {
+    tanggalUpdate: Timestamp;
 }
 
 // For timeline aggregation

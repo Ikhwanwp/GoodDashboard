@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
-import { CalendarIcon, Loader2, PlusCircle, Pencil } from "lucide-react";
+import { CalendarIcon, Loader2, PlusCircle } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -33,7 +33,6 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useData } from "@/context/data-context";
-import { useToast } from "@/hooks/use-toast";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
 import { cn } from "@/lib/utils";
@@ -50,6 +49,7 @@ const pksSchema = z.object({
   tanggalBerakhir: z.date({ required_error: "Tanggal berakhir harus diisi" }),
   ruangLingkup: z.string().min(1, "Ruang lingkup harus diisi"),
   keterangan: z.string().optional(),
+  linkDokumen: z.string().url().optional().or(z.literal('')),
 });
 
 const mouSchema = z.object({
@@ -71,99 +71,74 @@ type ContractFormProps = {
 export function ContractForm({ children, contractToEdit, contractType }: ContractFormProps) {
   const [open, setOpen] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
-  const { toast } = useToast();
-  const { instansi, addKontrakPks, addKontrakMou, updateKontrakPks, updateKontrakMou, users } = useData();
-  const picGa = users.find(u => u.role === "PIC GA");
+  const { instansi, addKontrakPks, addKontrakMou, updateKontrakPks, updateKontrakMou } = useData();
   const isEditMode = !!contractToEdit;
 
   const pksForm = useForm<z.infer<typeof pksSchema>>({
     resolver: zodResolver(pksSchema),
-    defaultValues: isEditMode && 'judulKontrak' in contractToEdit ? contractToEdit : {
-      instansiId: "",
-      nomorKontrakPeruri: "",
-      nomorKontrakKl: "",
-      judulKontrak: "",
-      ruangLingkup: "",
-      keterangan: "",
-    },
   });
 
   const mouForm = useForm<z.infer<typeof mouSchema>>({
     resolver: zodResolver(mouSchema),
-    defaultValues: isEditMode && 'isiMou' in contractToEdit ? contractToEdit : {
-        instansiId: "",
-        nomorMouPeruri: "",
-        isiMou: "",
-        ruangLingkup: "",
-        keterangan: "",
-    },
   });
 
   useEffect(() => {
-    if (isEditMode && contractToEdit) {
-      if ('judulKontrak' in contractToEdit) {
-        pksForm.reset(contractToEdit);
-      }
-      if ('isiMou' in contractToEdit) {
-        mouForm.reset(contractToEdit);
+    if (open) {
+      if (isEditMode && contractToEdit) {
+        if ('judulKontrak' in contractToEdit) {
+          pksForm.reset(contractToEdit);
+        }
+        if ('isiMou' in contractToEdit) {
+          mouForm.reset(contractToEdit);
+        }
+      } else {
+        pksForm.reset({
+            instansiId: "",
+            nomorKontrakPeruri: "",
+            nomorKontrakKl: "",
+            judulKontrak: "",
+            ruangLingkup: "",
+            keterangan: "",
+            linkDokumen: "",
+        });
+        mouForm.reset({
+            instansiId: "",
+            nomorMouPeruri: "",
+            isiMou: "",
+            ruangLingkup: "",
+            keterangan: "",
+        });
       }
     }
-  }, [isEditMode, contractToEdit, pksForm, mouForm]);
-
+  }, [open, isEditMode, contractToEdit, pksForm, mouForm]);
 
   async function onPksSubmit(values: z.infer<typeof pksSchema>) {
     setIsSaving(true);
-    await new Promise(resolve => setTimeout(resolve, 1000));
+    const dataToSubmit = { ...values, keterangan: values.keterangan || "", linkDokumen: values.linkDokumen || "" };
     
     if (isEditMode && 'judulKontrak' in contractToEdit) {
-      updateKontrakPks(contractToEdit.id, values);
-      toast({
-        title: "Kontrak PKS Diperbarui",
-        description: "Perubahan pada kontrak PKS telah disimpan.",
-      });
+      await updateKontrakPks(contractToEdit.id, dataToSubmit);
     } else {
-      addKontrakPks({
-        id: `pks-${new Date().getTime()}`,
-        picGaId: picGa?.id || 'user-2',
-        statusKontrak: 'Aktif',
-        ...values,
-      });
-      toast({
-        title: "Kontrak PKS Disimpan",
-        description: "Kontrak PKS baru telah berhasil ditambahkan.",
-      });
+      // picGaId is handled by the service now
+      await addKontrakPks(dataToSubmit);
     }
     
     setIsSaving(false);
     setOpen(false);
-    if (!isEditMode) pksForm.reset();
   }
 
   async function onMouSubmit(values: z.infer<typeof mouSchema>) {
     setIsSaving(true);
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
+    const dataToSubmit = { ...values, keterangan: values.keterangan || "" };
+
     if (isEditMode && 'isiMou' in contractToEdit) {
-      updateKontrakMou(contractToEdit.id, values);
-       toast({
-        title: "Kontrak MoU Diperbarui",
-        description: "Perubahan pada kontrak MoU telah disimpan.",
-      });
+      await updateKontrakMou(contractToEdit.id, dataToSubmit);
     } else {
-       addKontrakMou({
-        id: `mou-${new Date().getTime()}`,
-        picGaId: picGa?.id || 'user-2',
-        ...values,
-      });
-      toast({
-        title: "Kontrak MoU Disimpan",
-        description: "Kontrak MoU baru telah berhasil ditambahkan.",
-      });
+      await addKontrakMou(dataToSubmit);
     }
     
     setIsSaving(false);
     setOpen(false);
-    if (!isEditMode) mouForm.reset();
   }
   
   const trigger = children ? (
@@ -316,6 +291,17 @@ export function ContractForm({ children, contractToEdit, contractType }: Contrac
                             <FormItem className="col-span-2">
                               <FormLabel>Keterangan (Opsional)</FormLabel>
                               <FormControl><Textarea placeholder="Informasi tambahan..." {...field} /></FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        <FormField
+                          control={pksForm.control}
+                          name="linkDokumen"
+                          render={({ field }) => (
+                            <FormItem className="col-span-2">
+                              <FormLabel>Link Dokumen (Opsional)</FormLabel>
+                              <FormControl><Input placeholder="https://..." {...field} /></FormControl>
                               <FormMessage />
                             </FormItem>
                           )}

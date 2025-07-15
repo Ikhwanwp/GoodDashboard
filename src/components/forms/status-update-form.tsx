@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
-import { Loader2, PlusCircle, Sparkles, Pencil } from "lucide-react";
+import { Loader2, PlusCircle, Sparkles } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -62,21 +62,24 @@ export function StatusUpdateForm({ children, updateToEdit }: StatusUpdateFormPro
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
-    defaultValues: isEditMode ? updateToEdit : {
-      instansiId: "",
-      judulUpdate: "",
-      deskripsi: "",
-      linkMom: "",
-      type: "",
-      subject: "",
-    },
   });
 
   useEffect(() => {
-    if(isEditMode && updateToEdit) {
-      form.reset(updateToEdit);
+    if (open) {
+      if(isEditMode && updateToEdit) {
+        form.reset(updateToEdit);
+      } else {
+        form.reset({
+          instansiId: "",
+          judulUpdate: "",
+          deskripsi: "",
+          linkMom: "",
+          type: "",
+          subject: "",
+        });
+      }
     }
-  }, [isEditMode, updateToEdit, form]);
+  }, [open, isEditMode, updateToEdit, form]);
 
   const handleClassify = async () => {
     setIsClassifying(true);
@@ -112,29 +115,21 @@ export function StatusUpdateForm({ children, updateToEdit }: StatusUpdateFormPro
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setIsSaving(true);
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
-    if (isEditMode) {
-      updateStatusPekerjaan(updateToEdit.id, values);
-      toast({
-        title: "Update Diperbarui",
-        description: "Perubahan pada status pekerjaan telah disimpan.",
-      });
+    const dataToSubmit = {
+      ...values,
+      linkMom: values.linkMom || "",
+      type: values.type || "",
+      subject: values.subject || "",
+    };
+
+    if (isEditMode && updateToEdit) {
+      await updateStatusPekerjaan(updateToEdit.id, dataToSubmit);
     } else {
-      addStatusPekerjaan({
-        id: `stat-${new Date().getTime()}`,
-        tanggalUpdate: new Date(),
-        ...values,
-      });
-      toast({
-        title: "Update Disimpan",
-        description: "Status pekerjaan baru telah berhasil ditambahkan.",
-      });
+      await addStatusPekerjaan(dataToSubmit);
     }
     
     setIsSaving(false);
     setOpen(false);
-    if (!isEditMode) form.reset();
   }
 
   const trigger = children ? (

@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
-import { CalendarIcon, Loader2, PlusCircle, Pencil } from "lucide-react";
+import { CalendarIcon, Loader2, PlusCircle } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -34,7 +34,6 @@ import {
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
 import { useData } from "@/context/data-context";
-import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import type { Instansi } from "@/lib/types";
@@ -55,52 +54,43 @@ type InstansiFormProps = {
 export function InstansiForm({ children, instansiToEdit }: InstansiFormProps) {
   const [open, setOpen] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
-  const { toast } = useToast();
-  const { addInstansi, updateInstansi, users } = useData();
-  const picGa = users.find(u => u.role === "PIC GA");
+  const { addInstansi, updateInstansi } = useData();
   const isEditMode = !!instansiToEdit;
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
-    defaultValues: isEditMode ? instansiToEdit : {
-      namaInstansi: "",
-      kodeInstansi: "",
-      jenisLayanan: "",
-    },
   });
 
   useEffect(() => {
-    if (isEditMode && instansiToEdit) {
-      form.reset(instansiToEdit);
+    if (open) {
+      if (isEditMode && instansiToEdit) {
+        form.reset({
+          ...instansiToEdit,
+          tanggalUlangTahun: new Date(instansiToEdit.tanggalUlangTahun),
+        });
+      } else {
+        form.reset({
+          namaInstansi: "",
+          kodeInstansi: "",
+          jenisLayanan: "",
+          statusKementrian: undefined,
+          tanggalUlangTahun: undefined
+        });
+      }
     }
-  }, [isEditMode, instansiToEdit, form]);
+  }, [open, isEditMode, instansiToEdit, form]);
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setIsSaving(true);
-    await new Promise(resolve => setTimeout(resolve, 1000));
     
-    if (isEditMode) {
-      updateInstansi(instansiToEdit.id, values);
-       toast({
-        title: "Instansi Diperbarui",
-        description: "Perubahan pada data instansi telah disimpan.",
-      });
+    if (isEditMode && instansiToEdit) {
+      await updateInstansi(instansiToEdit.id, values);
     } else {
-      addInstansi({
-        id: `inst-${new Date().getTime()}`,
-        tanggalUpdateTerakhir: new Date(),
-        internalPicId: picGa?.id || 'user-2', // Default to Genta if not found
-        ...values,
-      });
-      toast({
-        title: "Instansi Disimpan",
-        description: "Instansi baru telah berhasil ditambahkan.",
-      });
+      await addInstansi(values);
     }
     
     setIsSaving(false);
     setOpen(false);
-    if (!isEditMode) form.reset();
   }
 
   const trigger = children ? (

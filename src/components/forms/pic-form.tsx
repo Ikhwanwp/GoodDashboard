@@ -35,7 +35,6 @@ import {
 import { Checkbox } from "@/components/ui/checkbox";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useData } from "@/context/data-context";
-import { useToast } from "@/hooks/use-toast";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import type { User, PicEksternal } from "@/lib/types";
 
@@ -64,54 +63,40 @@ type PicFormProps = {
 export function PicForm({ children, picToEdit, picType }: PicFormProps) {
   const [open, setOpen] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
-  const { toast } = useToast();
   const { instansi, addUser, updateUser, addPicEksternal, updatePicEksternal } = useData();
   const isEditMode = !!picToEdit;
 
   const internalForm = useForm<z.infer<typeof internalPicSchema>>({
     resolver: zodResolver(internalPicSchema),
-    defaultValues: {
-      nama: "",
-      email: "",
-      noHp: "",
-      handledInstansiIds: [],
-    },
   });
 
   const externalForm = useForm<z.infer<typeof externalPicSchema>>({
     resolver: zodResolver(externalPicSchema),
-    defaultValues: {
-        namaPic: "",
-        instansiId: "",
-        jabatan: "",
-        noHp: "",
-        email: "",
-    },
   });
   
   const watchedRole = internalForm.watch("role");
 
   useEffect(() => {
-    if (isEditMode && picToEdit) {
-      if (picType === 'internal') {
-        const userToEdit = picToEdit as User;
-        const handledIds = instansi
-          .filter(i => i.internalPicId === userToEdit.id)
-          .map(i => i.id);
-        
-        internalForm.reset({
-          ...userToEdit,
-          handledInstansiIds: handledIds,
-        });
-      }
-      if (picType === 'external') {
-        externalForm.reset(picToEdit as PicEksternal);
-      }
-    } else {
+    if (open) {
+      if (isEditMode && picToEdit) {
+        if (picType === 'internal' && 'role' in picToEdit) {
+          const handledIds = instansi
+            .filter(i => i.internalPicId === picToEdit.id)
+            .map(i => i.id);
+          
+          internalForm.reset({
+            ...(picToEdit as User),
+            handledInstansiIds: handledIds,
+          });
+        } else if (picType === 'external' && 'namaPic' in picToEdit) {
+          externalForm.reset(picToEdit as PicEksternal);
+        }
+      } else {
         internalForm.reset({
             nama: "",
             email: "",
             noHp: "",
+            role: undefined,
             handledInstansiIds: [],
         });
         externalForm.reset({
@@ -121,29 +106,17 @@ export function PicForm({ children, picToEdit, picType }: PicFormProps) {
             noHp: "",
             email: "",
         });
+      }
     }
   }, [isEditMode, picToEdit, picType, internalForm, externalForm, open, instansi]);
 
-
   async function onInternalSubmit(values: z.infer<typeof internalPicSchema>) {
     setIsSaving(true);
-    await new Promise(resolve => setTimeout(resolve, 1000));
     
-    if (isEditMode && 'nama' in picToEdit) {
-      updateUser(picToEdit.id, values);
-      toast({
-        title: "PIC Internal Diperbarui",
-        description: "Perubahan pada data PIC internal telah disimpan.",
-      });
+    if (isEditMode && picToEdit && 'role' in picToEdit) {
+      await updateUser(picToEdit.id, values);
     } else {
-      addUser({
-        id: `user-${new Date().getTime()}`,
-        ...values,
-      });
-      toast({
-        title: "PIC Internal Disimpan",
-        description: "PIC internal baru telah berhasil ditambahkan.",
-      });
+      await addUser(values);
     }
     
     setIsSaving(false);
@@ -152,23 +125,11 @@ export function PicForm({ children, picToEdit, picType }: PicFormProps) {
 
   async function onExternalSubmit(values: z.infer<typeof externalPicSchema>) {
     setIsSaving(true);
-    await new Promise(resolve => setTimeout(resolve, 1000));
     
-    if (isEditMode && 'namaPic' in picToEdit) {
-      updatePicEksternal(picToEdit.id, values);
-       toast({
-        title: "PIC Eksternal Diperbarui",
-        description: "Perubahan pada data PIC eksternal telah disimpan.",
-      });
+    if (isEditMode && picToEdit && 'namaPic' in picToEdit) {
+      await updatePicEksternal(picToEdit.id, values);
     } else {
-       addPicEksternal({
-        id: `pic-ext-${new Date().getTime()}`,
-        ...values,
-      });
-      toast({
-        title: "PIC Eksternal Disimpan",
-        description: "PIC eksternal baru telah berhasil ditambahkan.",
-      });
+       await addPicEksternal(values);
     }
     
     setIsSaving(false);

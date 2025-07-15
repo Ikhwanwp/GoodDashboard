@@ -7,13 +7,37 @@ import type { User, Instansi, PicEksternal } from "@/lib/types";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { InternalPicTable } from "./internal-pic-table";
-import { internalPicColumns } from "./internal-pic-columns";
+import { InternalPicColumns } from "./internal-pic-columns";
 import { ExternalPicTable } from "./external-pic-table";
-import { externalPicColumns } from "./external-pic-columns";
+import { ExternalPicColumns } from "./external-pic-columns";
 import { PicForm } from "@/components/forms/pic-form";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export default function PicPage() {
-  const { users, instansi, picEksternal } = useData();
+  const { users, instansi, picEksternal, loading } = useData();
+  
+  if (loading) {
+     return (
+       <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">
+        <PageHeader title="Penanggung Jawab (PIC)">
+            <Skeleton className="h-10 w-32" />
+        </PageHeader>
+        <section>
+          <Skeleton className="h-8 w-64 mb-4" />
+          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+              <Skeleton className="h-48 w-full" />
+              <Skeleton className="h-48 w-full" />
+              <Skeleton className="h-48 w-full" />
+          </div>
+        </section>
+        <section className="grid gap-8 mt-8">
+            <Skeleton className="h-96 w-full" />
+            <Skeleton className="h-96 w-full" />
+        </section>
+      </main>
+     )
+  }
+
   const picGaUsers = users.filter(user => user.role === "PIC GA");
   const internalPics = users;
   const externalPics = picEksternal;
@@ -65,7 +89,7 @@ export default function PicPage() {
             <CardDescription>Daftar penanggung jawab internal dari Peruri.</CardDescription>
           </CardHeader>
           <CardContent>
-            <InternalPicTable columns={internalPicColumns} data={internalPics} />
+            <InternalPicTable columns={InternalPicColumns()} data={internalPics} />
           </CardContent>
         </Card>
 
@@ -75,7 +99,7 @@ export default function PicPage() {
             <CardDescription>Daftar penanggung jawab eksternal dari Kementrian/Lembaga.</CardDescription>
           </CardHeader>
           <CardContent>
-            <ExternalPicTable columns={externalPicColumns} data={externalPics} />
+            <ExternalPicTable columns={ExternalPicColumns()} data={externalPics} />
           </CardContent>
         </Card>
       </section>
