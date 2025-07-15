@@ -53,7 +53,7 @@ export default function InstansiDetailPage() {
             <CardTitle>Detail Instansi</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-y-4 gap-x-2 text-sm">
               <div>
                 <p className="font-semibold text-muted-foreground">Kode Instansi</p>
                 <p>{currentInstansi.kodeInstansi}</p>
