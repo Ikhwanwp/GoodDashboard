@@ -58,7 +58,17 @@ export const SphColumns = ({ instansi, deleteDokumenSph }: SphColumnsParams): Co
           </Button>
         )
       },
-      cell: ({ row }) => format(row.original.tanggal, "dd MMM yyyy"),
+      cell: ({ row }) => {
+        const tanggal = row.original.tanggal;
+        if (!tanggal || !(tanggal instanceof Date)) {
+            return <span className="text-muted-foreground">N/A</span>
+        }
+        try {
+            return format(tanggal, "dd MMM yyyy");
+        } catch (error) {
+            return <span className="text-muted-foreground">Invalid Date</span>
+        }
+      },
     },
     {
       accessorKey: "linkDokumen",
