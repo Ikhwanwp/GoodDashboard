@@ -20,7 +20,7 @@ type CollectionName = 'users' | 'instansi' | 'kontrakPks' | 'kontrakMou' | 'doku
 
 interface DataContextType {
   currentUser: User | null;
-  currentUserLoading: boolean;
+  loading: boolean;
   logout: () => Promise<void>;
   users: User[];
   instansi: Instansi[];
@@ -29,7 +29,6 @@ interface DataContextType {
   dokumenSph: DokumenSph[];
   statusPekerjaan: StatusPekerjaan[];
   picEksternal: PicEksternal[];
-  loading: boolean;
   error: Error | null;
   reloadData: (collections?: CollectionName[]) => Promise<void>;
   // Instansi
@@ -66,7 +65,6 @@ const DataContext = createContext<DataContextType | undefined>(undefined);
 
 export function DataProvider({ children }: { children: ReactNode }) {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
-  const [currentUserLoading, setCurrentUserLoading] = useState<boolean>(true);
   const [users, setUsers] = useState<User[]>([]);
   const [instansi, setInstansi] = useState<Instansi[]>([]);
   const [kontrakPks, setKontrakPks] = useState<KontrakPks[]>([]);
@@ -108,7 +106,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
         };
 
         const fetchPromises = collections.map(async (collectionName) => {
-            if (dataFetchers[collectionName]) { // Check if fetcher exists
+            if (dataFetchers[collectionName]) {
                 const data = await dataFetchers[collectionName]();
                 setters[collectionName](data);
             }
@@ -133,7 +131,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser: FirebaseUser | null) => {
-      setCurrentUserLoading(true);
+      setLoading(true);
       if (firebaseUser) {
         // Fetch all data if user is logged in
         await fetchData(); 
@@ -142,9 +140,9 @@ export function DataProvider({ children }: { children: ReactNode }) {
         if (userData) {
           setCurrentUser(userData);
         } else {
-          // This case might happen if the user exists in Auth but not in 'users' collection
           console.error("User not found in 'users' collection:", firebaseUser.uid);
           setCurrentUser(null);
+          await signOut(auth);
         }
       } else {
         setCurrentUser(null);
@@ -155,9 +153,8 @@ export function DataProvider({ children }: { children: ReactNode }) {
         setDokumenSph([]);
         setStatusPekerjaan([]);
         setPicEksternal([]);
-        setLoading(false);
       }
-      setCurrentUserLoading(false);
+      setLoading(false);
     });
 
     return () => unsubscribe();
@@ -187,15 +184,11 @@ export function DataProvider({ children }: { children: ReactNode }) {
   const logout = async () => {
     await signOut(auth);
     setCurrentUser(null);
-    // Optionally clear all data on logout
-    setUsers([]);
-    setInstansi([]);
-    // ... reset all other state arrays
   };
 
   const value: DataContextType = {
     currentUser,
-    currentUserLoading,
+    loading,
     logout,
     users,
     instansi,
@@ -204,7 +197,6 @@ export function DataProvider({ children }: { children: ReactNode }) {
     dokumenSph,
     statusPekerjaan,
     picEksternal,
-    loading,
     error,
     reloadData: fetchData,
     // Instansi

@@ -45,17 +45,17 @@ const menuItems = [
 ];
 
 function AuthWrapper({ children }: { children: React.ReactNode }) {
-  const { currentUser, currentUserLoading, logout } = useData();
+  const { currentUser, loading, logout } = useData();
   const pathname = usePathname();
   const router = useRouter();
 
   useEffect(() => {
-    if (!currentUserLoading && !currentUser && pathname !== "/login") {
+    if (!loading && !currentUser && pathname !== "/login") {
       router.push("/login");
     }
-  }, [currentUser, currentUserLoading, router, pathname]);
+  }, [currentUser, loading, router, pathname]);
 
-  if (currentUserLoading) {
+  if (loading && !currentUser) {
     return (
       <div className="flex h-screen w-full items-center justify-center">
         <Loader2 className="h-8 w-8 animate-spin" />
@@ -63,7 +63,7 @@ function AuthWrapper({ children }: { children: React.ReactNode }) {
     );
   }
 
-  if (!currentUser) {
+  if (!currentUser && pathname !== "/login") {
     // This can happen briefly before the redirect, or if the user is logged out
     // and the page is accessed directly. The useEffect above will handle the redirect.
     return null;
@@ -111,11 +111,11 @@ function AuthWrapper({ children }: { children: React.ReactNode }) {
              <div className="flex items-center gap-3 p-2 rounded-md transition-colors">
               <Avatar className="h-10 w-10">
                 <AvatarImage src={`https://placehold.co/40x40.png`} data-ai-hint="profile picture" />
-                <AvatarFallback>{getInitials(currentUser.nama)}</AvatarFallback>
+                <AvatarFallback>{currentUser ? getInitials(currentUser.nama) : '...'}</AvatarFallback>
               </Avatar>
               <div className="flex flex-col overflow-hidden whitespace-nowrap">
-                <span className="font-semibold text-sidebar-foreground">{currentUser.nama}</span>
-                <span className="text-xs text-sidebar-foreground/70">{currentUser.role}</span>
+                <span className="font-semibold text-sidebar-foreground">{currentUser?.nama}</span>
+                <span className="text-xs text-sidebar-foreground/70">{currentUser?.role}</span>
               </div>
                 <Button onClick={handleLogout} variant="ghost" size="icon" className="text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground ml-auto">
                     <LogOut className="w-4 h-4" />
