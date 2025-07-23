@@ -159,7 +159,7 @@ export function StatusUpdateForm({ children, updateToEdit }: StatusUpdateFormPro
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+          <form onSubmit={form.handleSubmit(onSubmit)}>
              <ScrollArea className="h-auto max-h-[65vh] pr-6">
                 <div className="space-y-4 py-4">
                     <FormField
@@ -278,5 +278,3 @@ export function StatusUpdateForm({ children, updateToEdit }: StatusUpdateFormPro
     </Dialog>
   );
 }
-
-    

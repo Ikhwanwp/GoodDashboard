@@ -181,7 +181,7 @@ export function ContractForm({ children, contractToEdit, contractType }: Contrac
             </TabsList>
             <TabsContent value="pks">
               <Form {...pksForm}>
-                <form onSubmit={pksForm.handleSubmit(onPksSubmit)} className="space-y-4">
+                <form onSubmit={pksForm.handleSubmit(onPksSubmit)}>
                   <ScrollArea className="h-auto max-h-[60vh] pr-6">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 py-4">
                       <FormField
@@ -271,7 +271,7 @@ export function ContractForm({ children, contractToEdit, contractType }: Contrac
                           control={pksForm.control}
                           name="tanggalMulai"
                           render={({ field }) => (
-                          <FormItem>
+                          <FormItem className="flex flex-col">
                               <FormLabel>Tanggal Mulai</FormLabel>
                               <Popover><PopoverTrigger asChild>
                               <FormControl>
@@ -293,7 +293,7 @@ export function ContractForm({ children, contractToEdit, contractType }: Contrac
                           control={pksForm.control}
                           name="tanggalBerakhir"
                           render={({ field }) => (
-                          <FormItem>
+                          <FormItem className="flex flex-col">
                               <FormLabel>Tanggal Berakhir</FormLabel>
                               <Popover><PopoverTrigger asChild>
                               <FormControl>
@@ -364,7 +364,7 @@ export function ContractForm({ children, contractToEdit, contractType }: Contrac
             </TabsContent>
             <TabsContent value="mou">
                  <Form {...mouForm}>
-                    <form onSubmit={mouForm.handleSubmit(onMouSubmit)} className="space-y-4">
+                    <form onSubmit={mouForm.handleSubmit(onMouSubmit)}>
                       <ScrollArea className="h-auto max-h-[60vh] pr-6">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 py-4">
                           <FormField
@@ -445,7 +445,7 @@ export function ContractForm({ children, contractToEdit, contractType }: Contrac
                               control={mouForm.control}
                               name="tanggalMulai"
                               render={({ field }) => (
-                                  <FormItem>
+                                  <FormItem className="flex flex-col">
                                       <FormLabel>Tanggal Mulai</FormLabel>
                                       <Popover><PopoverTrigger asChild>
                                       <FormControl>
@@ -467,7 +467,7 @@ export function ContractForm({ children, contractToEdit, contractType }: Contrac
                               control={mouForm.control}
                               name="tanggalBerakhir"
                               render={({ field }) => (
-                                  <FormItem>
+                                  <FormItem className="flex flex-col">
                                       <FormLabel>Tanggal Berakhir</FormLabel>
                                       <Popover><PopoverTrigger asChild>
                                       <FormControl>
@@ -528,5 +528,3 @@ export function ContractForm({ children, contractToEdit, contractType }: Contrac
     </Dialog>
   );
 }
-
-    

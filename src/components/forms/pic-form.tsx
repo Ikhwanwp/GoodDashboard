@@ -171,123 +171,127 @@ export function PicForm({ children, picToEdit, picType }: PicFormProps) {
             </TabsList>
             <TabsContent value="internal">
                  <Form {...internalForm}>
-                    <form onSubmit={internalForm.handleSubmit(onInternalSubmit)} className="space-y-4 py-4">
-                        <FormField
-                            control={internalForm.control}
-                            name="nama"
-                            render={({ field }) => (
-                                <FormItem>
-                                <FormLabel>Nama Lengkap</FormLabel>
-                                <FormControl><Input placeholder="cth: Genta Anugrah" {...field} /></FormControl>
-                                <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-                        <div className="grid grid-cols-2 gap-4">
+                    <form onSubmit={internalForm.handleSubmit(onInternalSubmit)}>
+                      <ScrollArea className="h-auto max-h-[60vh] pr-6">
+                        <div className="space-y-4 py-4">
                             <FormField
                                 control={internalForm.control}
-                                name="email"
+                                name="nama"
                                 render={({ field }) => (
                                     <FormItem>
-                                    <FormLabel>Email</FormLabel>
-                                    <FormControl><Input placeholder="cth: genta@peruri.co.id" {...field} /></FormControl>
+                                    <FormLabel>Nama Lengkap</FormLabel>
+                                    <FormControl><Input placeholder="cth: Genta Anugrah" {...field} /></FormControl>
                                     <FormMessage />
                                     </FormItem>
                                 )}
                             />
+                            <div className="grid grid-cols-2 gap-4">
+                                <FormField
+                                    control={internalForm.control}
+                                    name="email"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                        <FormLabel>Email</FormLabel>
+                                        <FormControl><Input placeholder="cth: genta@peruri.co.id" {...field} /></FormControl>
+                                        <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                                <FormField
+                                    control={internalForm.control}
+                                    name="noHp"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                        <FormLabel>No. HP</FormLabel>
+                                        <FormControl><Input placeholder="cth: 081234567890" {...field} /></FormControl>
+                                        <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                            </div>
                             <FormField
                                 control={internalForm.control}
-                                name="noHp"
+                                name="role"
                                 render={({ field }) => (
                                     <FormItem>
-                                    <FormLabel>No. HP</FormLabel>
-                                    <FormControl><Input placeholder="cth: 081234567890" {...field} /></FormControl>
+                                    <FormLabel>Role</FormLabel>
+                                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                        <FormControl>
+                                        <SelectTrigger>
+                                            <SelectValue placeholder="Pilih role untuk user" />
+                                        </SelectTrigger>
+                                        </FormControl>
+                                        <SelectContent>
+                                            <SelectItem value="PIC GA">PIC GA</SelectItem>
+                                            <SelectItem value="Admin">Admin</SelectItem>
+                                            <SelectItem value="Viewer">Viewer</SelectItem>
+                                        </SelectContent>
+                                    </Select>
                                     <FormMessage />
                                     </FormItem>
                                 )}
                             />
-                        </div>
-                        <FormField
-                            control={internalForm.control}
-                            name="role"
-                            render={({ field }) => (
-                                <FormItem>
-                                <FormLabel>Role</FormLabel>
-                                <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                    <FormControl>
-                                    <SelectTrigger>
-                                        <SelectValue placeholder="Pilih role untuk user" />
-                                    </SelectTrigger>
-                                    </FormControl>
-                                    <SelectContent>
-                                        <SelectItem value="PIC GA">PIC GA</SelectItem>
-                                        <SelectItem value="Admin">Admin</SelectItem>
-                                        <SelectItem value="Viewer">Viewer</SelectItem>
-                                    </SelectContent>
-                                </Select>
-                                <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-                         {watchedRole === 'PIC GA' && (
-                            <FormField
-                                control={internalForm.control}
-                                name="handledInstansiIds"
-                                render={() => (
-                                    <FormItem>
-                                    <div className="mb-4">
-                                        <FormLabel className="text-base">Handle Instansi</FormLabel>
-                                    </div>
-                                    <ScrollArea className="h-40 rounded-md border p-4">
-                                        <div className="space-y-2">
-                                        {instansi.map((item) => (
-                                            <FormField
-                                            key={item.id}
-                                            control={internalForm.control}
-                                            name="handledInstansiIds"
-                                            render={({ field }) => {
-                                                const otherPic = instansi.find(i => i.id === item.id)?.internalPicId;
-                                                const isDisabled = otherPic && (!picToEdit || otherPic !== picToEdit.id);
-                                                const picName = users.find(u => u.id === otherPic)?.nama;
-
-                                                return (
-                                                <FormItem
-                                                    key={item.id}
-                                                    className="flex flex-row items-start space-x-3 space-y-0"
-                                                >
-                                                    <FormControl>
-                                                    <Checkbox
-                                                        checked={field.value?.includes(item.id)}
-                                                        onCheckedChange={(checked) => {
-                                                        return checked
-                                                            ? field.onChange([...(field.value || []), item.id])
-                                                            : field.onChange(
-                                                                field.value?.filter(
-                                                                (value) => value !== item.id
-                                                                )
-                                                            )
-                                                        }}
-                                                        disabled={isDisabled}
-                                                    />
-                                                    </FormControl>
-                                                    <div className="flex flex-col">
-                                                        <FormLabel className={cn("font-normal", isDisabled && "text-muted-foreground")}>
-                                                            {item.namaInstansi} ({item.kodeInstansi})
-                                                        </FormLabel>
-                                                        {isDisabled && picName && <p className="text-xs text-muted-foreground">Dihandle oleh {picName}</p>}
-                                                    </div>
-                                                </FormItem>
-                                                )
-                                            }}
-                                            />
-                                        ))}
+                            {watchedRole === 'PIC GA' && (
+                                <FormField
+                                    control={internalForm.control}
+                                    name="handledInstansiIds"
+                                    render={() => (
+                                        <FormItem>
+                                        <div className="mb-4">
+                                            <FormLabel className="text-base">Handle Instansi</FormLabel>
                                         </div>
-                                    </ScrollArea>
-                                    <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
-                        )}
+                                        <ScrollArea className="h-40 rounded-md border p-4">
+                                            <div className="space-y-2">
+                                            {instansi.map((item) => (
+                                                <FormField
+                                                key={item.id}
+                                                control={internalForm.control}
+                                                name="handledInstansiIds"
+                                                render={({ field }) => {
+                                                    const otherPic = instansi.find(i => i.id === item.id)?.internalPicId;
+                                                    const isDisabled = otherPic && (!picToEdit || otherPic !== picToEdit.id);
+                                                    const picName = users.find(u => u.id === otherPic)?.nama;
+
+                                                    return (
+                                                    <FormItem
+                                                        key={item.id}
+                                                        className="flex flex-row items-start space-x-3 space-y-0"
+                                                    >
+                                                        <FormControl>
+                                                        <Checkbox
+                                                            checked={field.value?.includes(item.id)}
+                                                            onCheckedChange={(checked) => {
+                                                            return checked
+                                                                ? field.onChange([...(field.value || []), item.id])
+                                                                : field.onChange(
+                                                                    field.value?.filter(
+                                                                    (value) => value !== item.id
+                                                                    )
+                                                                )
+                                                            }}
+                                                            disabled={isDisabled}
+                                                        />
+                                                        </FormControl>
+                                                        <div className="flex flex-col">
+                                                            <FormLabel className={cn("font-normal", isDisabled && "text-muted-foreground")}>
+                                                                {item.namaInstansi} ({item.kodeInstansi})
+                                                            </FormLabel>
+                                                            {isDisabled && picName && <p className="text-xs text-muted-foreground">Dihandle oleh {picName}</p>}
+                                                        </div>
+                                                    </FormItem>
+                                                    )
+                                                }}
+                                                />
+                                            ))}
+                                            </div>
+                                        </ScrollArea>
+                                        <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                            )}
+                        </div>
+                        </ScrollArea>
                         <DialogFooter className="pt-4">
                             <Button type="button" variant="ghost" onClick={() => setOpen(false)}>Batal</Button>
                             <Button type="submit" disabled={isSaving}>
@@ -300,77 +304,81 @@ export function PicForm({ children, picToEdit, picType }: PicFormProps) {
             </TabsContent>
             <TabsContent value="external">
                  <Form {...externalForm}>
-                    <form onSubmit={externalForm.handleSubmit(onExternalSubmit)} className="grid grid-cols-1 md:grid-cols-2 gap-4 py-4">
-                        <FormField
-                            control={externalForm.control}
-                            name="instansiId"
-                            render={({ field }) => (
-                                <FormItem>
-                                <FormLabel>Instansi</FormLabel>
-                                <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                    <FormControl>
-                                    <SelectTrigger>
-                                        <SelectValue placeholder="Pilih instansi terkait" />
-                                    </SelectTrigger>
-                                    </FormControl>
-                                    <SelectContent>
-                                    {instansi.map(inst => (
-                                        <SelectItem key={inst.id} value={inst.id}>
-                                        {inst.namaInstansi}
-                                        </SelectItem>
-                                    ))}
-                                    </SelectContent>
-                                </Select>
-                                <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-                        <FormField
-                            control={externalForm.control}
-                            name="jabatan"
-                            render={({ field }) => (
-                                <FormItem>
-                                <FormLabel>Jabatan</FormLabel>
-                                <FormControl><Input placeholder="cth: Kepala Divisi IT" {...field} /></FormControl>
-                                <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-                        <div className="md:col-span-2">
-                          <FormField
-                              control={externalForm.control}
-                              name="namaPic"
-                              render={({ field }) => (
-                                  <FormItem>
-                                  <FormLabel>Nama Lengkap</FormLabel>
-                                  <FormControl><Input placeholder="cth: Budi Santoso" {...field} /></FormControl>
-                                  <FormMessage />
-                                  </FormItem>
-                              )}
-                          />
+                    <form onSubmit={externalForm.handleSubmit(onExternalSubmit)}>
+                       <ScrollArea className="h-auto max-h-[60vh] pr-6">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 py-4">
+                            <div className="md:col-span-2">
+                                <FormField
+                                    control={externalForm.control}
+                                    name="instansiId"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                        <FormLabel>Instansi</FormLabel>
+                                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                            <FormControl>
+                                            <SelectTrigger>
+                                                <SelectValue placeholder="Pilih instansi terkait" />
+                                            </SelectTrigger>
+                                            </FormControl>
+                                            <SelectContent>
+                                            {instansi.map(inst => (
+                                                <SelectItem key={inst.id} value={inst.id}>
+                                                {inst.namaInstansi}
+                                                </SelectItem>
+                                            ))}
+                                            </SelectContent>
+                                        </Select>
+                                        <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                            </div>
+                            <FormField
+                                control={externalForm.control}
+                                name="namaPic"
+                                render={({ field }) => (
+                                    <FormItem>
+                                    <FormLabel>Nama Lengkap</FormLabel>
+                                    <FormControl><Input placeholder="cth: Budi Santoso" {...field} /></FormControl>
+                                    <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                            <FormField
+                                control={externalForm.control}
+                                name="jabatan"
+                                render={({ field }) => (
+                                    <FormItem>
+                                    <FormLabel>Jabatan</FormLabel>
+                                    <FormControl><Input placeholder="cth: Kepala Divisi IT" {...field} /></FormControl>
+                                    <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                            <FormField
+                                control={externalForm.control}
+                                name="email"
+                                render={({ field }) => (
+                                    <FormItem>
+                                    <FormLabel>Email</FormLabel>
+                                    <FormControl><Input placeholder="cth: budi.s@kemenkeu.go.id" {...field} /></FormControl>
+                                    <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                            <FormField
+                                control={externalForm.control}
+                                name="noHp"
+                                render={({ field }) => (
+                                    <FormItem>
+                                    <FormLabel>No. HP</FormLabel>
+                                    <FormControl><Input placeholder="cth: 081122334455" {...field} /></FormControl>
+                                    <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
                         </div>
-                        <FormField
-                            control={externalForm.control}
-                            name="email"
-                            render={({ field }) => (
-                                <FormItem>
-                                <FormLabel>Email</FormLabel>
-                                <FormControl><Input placeholder="cth: budi.s@kemenkeu.go.id" {...field} /></FormControl>
-                                <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-                        <FormField
-                            control={externalForm.control}
-                            name="noHp"
-                            render={({ field }) => (
-                                <FormItem>
-                                <FormLabel>No. HP</FormLabel>
-                                <FormControl><Input placeholder="cth: 081122334455" {...field} /></FormControl>
-                                <FormMessage />
-                                </FormItem>
-                            )}
-                        />
+                       </ScrollArea>
                         <DialogFooter className="md:col-span-2 pt-4">
                             <Button type="button" variant="ghost" onClick={() => setOpen(false)}>Batal</Button>
                             <Button type="submit" disabled={isSaving}>
