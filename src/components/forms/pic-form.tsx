@@ -291,14 +291,14 @@ export function PicForm({ children, picToEdit, picType }: PicFormProps) {
                                 />
                             )}
                         </div>
-                        </ScrollArea>
-                        <DialogFooter className="pt-4">
-                            <Button type="button" variant="ghost" onClick={() => setOpen(false)}>Batal</Button>
-                            <Button type="submit" disabled={isSaving}>
-                                {isSaving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                                {isEditMode ? "Simpan Perubahan" : "Simpan PIC"}
-                            </Button>
-                        </DialogFooter>
+                      </ScrollArea>
+                      <DialogFooter className="pt-4">
+                          <Button type="button" variant="ghost" onClick={() => setOpen(false)}>Batal</Button>
+                          <Button type="submit" disabled={isSaving}>
+                              {isSaving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                              {isEditMode ? "Simpan Perubahan" : "Simpan PIC"}
+                          </Button>
+                      </DialogFooter>
                     </form>
                  </Form>
             </TabsContent>
