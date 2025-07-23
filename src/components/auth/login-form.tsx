@@ -64,9 +64,12 @@ export function LoginForm() {
            errorMessage = 'Email atau password salah.';
            break;
         case 'auth/invalid-api-key':
-        case 'auth/api-key-not-valid.': // This is the actual code from the error
+        case 'auth/api-key-not-valid.': 
            errorMessage = 'Kunci API Firebase tidak valid. Pastikan konfigurasi sudah benar.';
            break;
+        case 'auth/configuration-not-found':
+            errorMessage = 'Konfigurasi Firebase tidak ditemukan. Periksa file .env.local Anda.';
+            break;
         default:
           errorMessage = 'Login gagal. Silakan coba lagi.';
           break;
