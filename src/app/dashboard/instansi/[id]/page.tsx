@@ -6,31 +6,35 @@ import { useData } from '@/context/data-context';
 import { PageHeader } from '@/components/shared/page-header';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { PksDataTable } from '@/app/dashboard/contracts/data-table-pks';
-import { PksColumns } from '@/app/dashboard/contracts/pks-columns';
+import { getPksColumns } from '@/app/dashboard/contracts/pks-columns';
 import { MouDataTable } from '@/app/dashboard/contracts/data-table-mou';
-import { MouColumns } from '@/app/dashboard/contracts/mou-columns';
+import { getMouColumns } from '@/app/dashboard/contracts/mou-columns';
 import { UpdatesDataTable } from '@/app/dashboard/updates/data-table';
-import { UpdatesColumns } from '@/app/dashboard/updates/columns';
+import { getUpdatesColumns } from '@/app/dashboard/updates/columns';
 import { Badge } from '@/components/ui/badge';
 import { format } from 'date-fns';
 import { id as idLocale } from 'date-fns/locale';
 import type { ColumnDef } from '@tanstack/react-table';
 import type { KontrakPks, KontrakMou, StatusPekerjaan, PicEksternal } from '@/lib/types';
 import { ExternalPicTable } from '../../pic/external-pic-table';
-import { ExternalPicColumns } from '../../pic/external-pic-columns';
+import { getExternalPicColumns } from '../../pic/external-pic-columns';
 import { User } from 'lucide-react';
-
-// Simplified columns for detail view (without actions)
-const pksDetailColumns = PksColumns().filter(c => c.id !== 'actions');
-const mouDetailColumns = MouColumns().filter(c => c.id !== 'actions');
-const updatesDetailColumns = UpdatesColumns().filter(c => c.id !== 'actions');
-const externalPicDetailColumns = ExternalPicColumns().filter(c => c.id !== 'actions');
-
 
 export default function InstansiDetailPage() {
   const params = useParams();
   const { id: instansiId } = params;
-  const { instansi, kontrakPks, kontrakMou, statusPekerjaan, users, picEksternal } = useData();
+  const { 
+    instansi, 
+    kontrakPks, 
+    kontrakMou, 
+    statusPekerjaan, 
+    users, 
+    picEksternal, 
+    deleteKontrakPks, 
+    deleteKontrakMou, 
+    deleteStatusPekerjaan,
+    deletePicEksternal 
+  } = useData();
 
   const currentInstansi = instansi.find(i => i.id === instansiId);
   const pic = users.find(u => u.id === currentInstansi?.internalPicId);
@@ -48,6 +52,11 @@ export default function InstansiDetailPage() {
       </main>
     );
   }
+  
+  const pksDetailColumns = getPksColumns({ instansi, deleteKontrakPks, showActions: false });
+  const mouDetailColumns = getMouColumns({ instansi, deleteKontrakMou, showActions: false });
+  const updatesDetailColumns = getUpdatesColumns({ instansi, deleteStatusPekerjaan, showActions: false });
+  const externalPicDetailColumns = getExternalPicColumns({ instansi, deletePicEksternal, showActions: false });
 
   return (
     <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">

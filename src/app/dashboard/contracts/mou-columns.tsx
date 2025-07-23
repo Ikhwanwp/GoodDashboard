@@ -1,7 +1,8 @@
+// src/app/dashboard/contracts/mou-columns.tsx
 "use client"
 
 import type { ColumnDef } from "@tanstack/react-table"
-import type { KontrakMou } from "@/lib/types"
+import type { KontrakMou, Instansi } from "@/lib/types"
 import { MoreHorizontal, ArrowUpDown } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import {
@@ -12,14 +13,17 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { format } from "date-fns"
-import { useData } from "@/context/data-context"
 import { ContractForm } from "@/components/forms/contract-form"
 import { DeleteConfirmation } from "@/components/shared/delete-confirmation"
 
-export const MouColumns = (): ColumnDef<KontrakMou>[] => {
-  const { instansi, deleteKontrakMou } = useData();
+type GetMouColumnsParams = {
+  instansi: Instansi[];
+  deleteKontrakMou: (id: string) => Promise<void>;
+  showActions?: boolean;
+}
 
-  return [
+export const getMouColumns = ({ instansi, deleteKontrakMou, showActions = true }: GetMouColumnsParams): ColumnDef<KontrakMou>[] => {
+  const columns: ColumnDef<KontrakMou>[] = [
     {
       accessorKey: "nomorMouPeruri",
       header: "Nomor MoU",
@@ -52,7 +56,10 @@ export const MouColumns = (): ColumnDef<KontrakMou>[] => {
       },
       cell: ({ row }) => format(row.original.tanggalBerakhir, "dd MMM yyyy"),
     },
-    {
+  ];
+
+  if (showActions) {
+    columns.push({
       id: "actions",
       cell: ({ row }) => {
         const contract = row.original
@@ -85,6 +92,8 @@ export const MouColumns = (): ColumnDef<KontrakMou>[] => {
           </DropdownMenu>
         )
       },
-    },
-  ]
+    });
+  }
+
+  return columns;
 }

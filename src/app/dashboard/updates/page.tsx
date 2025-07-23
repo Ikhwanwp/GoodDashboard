@@ -2,13 +2,13 @@
 
 import { PageHeader } from "@/components/shared/page-header";
 import { UpdatesDataTable } from "./data-table";
-import { UpdatesColumns } from "./columns";
+import { getUpdatesColumns } from "./columns";
 import { useData } from "@/context/data-context";
 import { StatusUpdateForm } from "@/components/forms/status-update-form";
 import { Skeleton } from "@/components/ui/skeleton";
 
 export default function UpdatesPage() {
-  const { statusPekerjaan, loading } = useData();
+  const { statusPekerjaan, loading, instansi, deleteStatusPekerjaan } = useData();
 
   if (loading) {
      return (
@@ -30,7 +30,7 @@ export default function UpdatesPage() {
       </PageHeader>
       
       <div className="container mx-auto py-2">
-        <UpdatesDataTable columns={UpdatesColumns()} data={statusPekerjaan} />
+        <UpdatesDataTable columns={getUpdatesColumns({ instansi, deleteStatusPekerjaan })} data={statusPekerjaan} />
       </div>
     </main>
   );

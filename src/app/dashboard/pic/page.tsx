@@ -9,12 +9,12 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { InternalPicTable } from "./internal-pic-table";
 import { InternalPicColumns } from "./internal-pic-columns";
 import { ExternalPicTable } from "./external-pic-table";
-import { ExternalPicColumns } from "./external-pic-columns";
+import { getExternalPicColumns } from "./external-pic-columns";
 import { PicForm } from "@/components/forms/pic-form";
 import { Skeleton } from "@/components/ui/skeleton";
 
 export default function PicPage() {
-  const { users, instansi, picEksternal, loading } = useData();
+  const { users, instansi, picEksternal, loading, deleteUser, deletePicEksternal } = useData();
   
   if (loading) {
      return (
@@ -99,7 +99,7 @@ export default function PicPage() {
             <CardDescription>Daftar penanggung jawab eksternal dari Kementrian/Lembaga.</CardDescription>
           </CardHeader>
           <CardContent>
-            <ExternalPicTable columns={ExternalPicColumns()} data={externalPics} />
+            <ExternalPicTable columns={getExternalPicColumns({ instansi, deletePicEksternal })} data={externalPics} />
           </CardContent>
         </Card>
       </section>

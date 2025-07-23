@@ -1,7 +1,8 @@
+// src/app/dashboard/contracts/pks-columns.tsx
 "use client"
 
 import type { ColumnDef } from "@tanstack/react-table"
-import type { KontrakPks } from "@/lib/types"
+import type { KontrakPks, Instansi } from "@/lib/types"
 import { MoreHorizontal, ArrowUpDown } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import {
@@ -13,14 +14,17 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { Badge } from "@/components/ui/badge"
 import { format } from "date-fns"
-import { useData } from "@/context/data-context"
 import { ContractForm } from "@/components/forms/contract-form"
 import { DeleteConfirmation } from "@/components/shared/delete-confirmation"
 
-export const PksColumns = (): ColumnDef<KontrakPks>[] => {
-  const { instansi, deleteKontrakPks } = useData();
+type GetPksColumnsParams = {
+  instansi: Instansi[];
+  deleteKontrakPks: (id: string) => Promise<void>;
+  showActions?: boolean;
+}
 
-  return [
+export const getPksColumns = ({ instansi, deleteKontrakPks, showActions = true }: GetPksColumnsParams): ColumnDef<KontrakPks>[] => {
+  const columns: ColumnDef<KontrakPks>[] = [
     {
       accessorKey: "nomorKontrakPeruri",
       header: "Nomor Kontrak",
@@ -65,7 +69,10 @@ export const PksColumns = (): ColumnDef<KontrakPks>[] => {
       },
       cell: ({ row }) => format(row.original.tanggalBerakhir, "dd MMM yyyy"),
     },
-    {
+  ];
+
+  if (showActions) {
+    columns.push({
       id: "actions",
       cell: ({ row }) => {
         const contract = row.original
@@ -98,6 +105,8 @@ export const PksColumns = (): ColumnDef<KontrakPks>[] => {
           </DropdownMenu>
         )
       },
-    },
-  ]
+    });
+  }
+  
+  return columns;
 }

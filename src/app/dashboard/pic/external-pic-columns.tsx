@@ -2,8 +2,7 @@
 "use client"
 
 import type { ColumnDef } from "@tanstack/react-table"
-import type { PicEksternal } from "@/lib/types"
-import { useData } from "@/context/data-context"
+import type { PicEksternal, Instansi } from "@/lib/types"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -16,10 +15,14 @@ import { MoreHorizontal } from "lucide-react"
 import { PicForm } from "@/components/forms/pic-form"
 import { DeleteConfirmation } from "@/components/shared/delete-confirmation"
 
-export const ExternalPicColumns = (): ColumnDef<PicEksternal>[] => {
-  const { instansi, deletePicEksternal } = useData();
-  
-  return [
+type GetExternalPicColumnsParams = {
+  instansi: Instansi[];
+  deletePicEksternal: (id: string) => Promise<void>;
+  showActions?: boolean;
+}
+
+export const getExternalPicColumns = ({ instansi, deletePicEksternal, showActions = true }: GetExternalPicColumnsParams): ColumnDef<PicEksternal>[] => {
+  const columns: ColumnDef<PicEksternal>[] = [
     {
       accessorKey: "namaPic",
       header: "Nama PIC",
@@ -44,7 +47,10 @@ export const ExternalPicColumns = (): ColumnDef<PicEksternal>[] => {
       accessorKey: "email",
       header: "Email",
     },
-    {
+  ];
+
+  if (showActions) {
+    columns.push({
       id: "actions",
       cell: ({ row }) => {
         const pic = row.original
@@ -77,6 +83,8 @@ export const ExternalPicColumns = (): ColumnDef<PicEksternal>[] => {
           </DropdownMenu>
         )
       },
-    },
-  ]
+    });
+  }
+  
+  return columns;
 }

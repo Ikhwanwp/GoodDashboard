@@ -5,15 +5,15 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { PksDataTable } from "./data-table-pks";
 import { MouDataTable } from "./data-table-mou";
 import { SphDataTable } from "./data-table-sph";
-import { PksColumns } from "./pks-columns";
-import { MouColumns } from "./mou-columns";
+import { getPksColumns } from "./pks-columns";
+import { getMouColumns } from "./mou-columns";
 import { SphColumns } from "./sph-columns";
 import { useData } from "@/context/data-context";
 import { ContractForm } from "@/components/forms/contract-form";
 import { Skeleton } from "@/components/ui/skeleton";
 
 export default function ContractsPage() {
-  const { kontrakPks, kontrakMou, dokumenSph, loading } = useData();
+  const { kontrakPks, kontrakMou, dokumenSph, loading, instansi, deleteKontrakPks, deleteKontrakMou } = useData();
 
   if (loading) {
     return (
@@ -43,10 +43,10 @@ export default function ContractsPage() {
             <TabsTrigger value="sph">Dokumen SPH</TabsTrigger>
           </TabsList>
           <TabsContent value="pks">
-            <PksDataTable columns={PksColumns()} data={kontrakPks} />
+            <PksDataTable columns={getPksColumns({ instansi, deleteKontrakPks })} data={kontrakPks} />
           </TabsContent>
           <TabsContent value="mou">
-            <MouDataTable columns={MouColumns()} data={kontrakMou} />
+            <MouDataTable columns={getMouColumns({ instansi, deleteKontrakMou })} data={kontrakMou} />
           </TabsContent>
           <TabsContent value="sph">
             <SphDataTable columns={SphColumns()} data={dokumenSph} />
