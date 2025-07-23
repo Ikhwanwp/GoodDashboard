@@ -50,22 +50,24 @@ function AuthWrapper({ children }: { children: React.ReactNode }) {
   const router = useRouter();
 
   useEffect(() => {
+    // If loading is finished and there's no user, redirect to login page.
+    // This prevents the redirect loop.
     if (!loading && !currentUser && pathname !== "/login") {
       router.push("/login");
     }
   }, [currentUser, loading, router, pathname]);
 
-  if (loading && !currentUser) {
+  // While loading, show a full-screen loader to prevent layout shifts or redirects.
+  if (loading) {
     return (
       <div className="flex h-screen w-full items-center justify-center">
         <Loader2 className="h-8 w-8 animate-spin" />
       </div>
     );
   }
-
+  
+  // If not loading and no user, it means the redirect is about to happen. Return null to avoid rendering children.
   if (!currentUser && pathname !== "/login") {
-    // This can happen briefly before the redirect, or if the user is logged out
-    // and the page is accessed directly. The useEffect above will handle the redirect.
     return null;
   }
   
