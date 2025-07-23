@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useEffect } from "react";
@@ -37,6 +38,7 @@ import { useData } from "@/context/data-context";
 import { useToast } from "@/hooks/use-toast";
 import { classifyUpdateAction } from "@/lib/actions";
 import type { StatusPekerjaan } from "@/lib/types";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 const formSchema = z.object({
   instansiId: z.string().min(1, "Instansi harus dipilih"),
@@ -149,7 +151,7 @@ export function StatusUpdateForm({ children, updateToEdit }: StatusUpdateFormPro
       <DialogTrigger asChild>
         {trigger}
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[600px]">
+      <DialogContent className="sm:max-w-2xl">
         <DialogHeader>
           <DialogTitle>{isEditMode ? 'Edit Status Pekerjaan' : 'Tambah Status Pekerjaan'}</DialogTitle>
           <DialogDescription>
@@ -158,108 +160,112 @@ export function StatusUpdateForm({ children, updateToEdit }: StatusUpdateFormPro
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-            <FormField
-              control={form.control}
-              name="instansiId"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Instansi</FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Pilih instansi terkait" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      {instansi.map(inst => (
-                        <SelectItem key={inst.id} value={inst.id}>
-                          {inst.namaInstansi}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="judulUpdate"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Judul Update</FormLabel>
-                  <FormControl>
-                    <Input placeholder="cth: Kick-off Meeting Proyek X" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="deskripsi"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Deskripsi</FormLabel>
-                  <FormControl>
-                    <Textarea rows={4} placeholder="Jelaskan detail update pekerjaan di sini..." {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            
-            <Card className="bg-secondary/50">
-              <CardContent className="p-4 space-y-4">
-                 <Button type="button" variant="outline" onClick={handleClassify} disabled={isClassifying}>
-                  {isClassifying ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Sparkles className="mr-2 h-4 w-4 text-accent" />}
-                  Klasifikasi dengan AI
-                </Button>
-                 <div className="grid grid-cols-2 gap-4">
+             <ScrollArea className="h-auto max-h-[65vh] pr-6">
+                <div className="space-y-4 py-4">
                     <FormField
-                      control={form.control}
-                      name="type"
-                      render={({ field }) => (
+                    control={form.control}
+                    name="instansiId"
+                    render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Tipe (AI)</FormLabel>
-                          <FormControl>
-                            <Input placeholder="cth: Project Update" {...field} readOnly className="bg-background"/>
-                          </FormControl>
-                          <FormMessage />
+                        <FormLabel>Instansi</FormLabel>
+                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                            <FormControl>
+                            <SelectTrigger>
+                                <SelectValue placeholder="Pilih instansi terkait" />
+                            </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                            {instansi.map(inst => (
+                                <SelectItem key={inst.id} value={inst.id}>
+                                {inst.namaInstansi}
+                                </SelectItem>
+                            ))}
+                            </SelectContent>
+                        </Select>
+                        <FormMessage />
                         </FormItem>
-                      )}
+                    )}
                     />
-                     <FormField
-                      control={form.control}
-                      name="subject"
-                      render={({ field }) => (
+                    <FormField
+                    control={form.control}
+                    name="judulUpdate"
+                    render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Subjek (AI)</FormLabel>
-                          <FormControl>
-                             <Input placeholder="cth: Project Kick-off" {...field} readOnly className="bg-background"/>
-                          </FormControl>
-                          <FormMessage />
+                        <FormLabel>Judul Update</FormLabel>
+                        <FormControl>
+                            <Input placeholder="cth: Kick-off Meeting Proyek X" {...field} />
+                        </FormControl>
+                        <FormMessage />
                         </FormItem>
-                      )}
+                    )}
                     />
-                 </div>
-              </CardContent>
-            </Card>
+                    <FormField
+                    control={form.control}
+                    name="deskripsi"
+                    render={({ field }) => (
+                        <FormItem>
+                        <FormLabel>Deskripsi</FormLabel>
+                        <FormControl>
+                            <Textarea rows={4} placeholder="Jelaskan detail update pekerjaan di sini..." {...field} />
+                        </FormControl>
+                        <FormMessage />
+                        </FormItem>
+                    )}
+                    />
+                    
+                    <Card className="bg-secondary/50">
+                    <CardContent className="p-4 space-y-4">
+                        <Button type="button" variant="outline" onClick={handleClassify} disabled={isClassifying}>
+                        {isClassifying ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Sparkles className="mr-2 h-4 w-4 text-accent" />}
+                        Klasifikasi dengan AI
+                        </Button>
+                        <div className="grid grid-cols-2 gap-4">
+                            <FormField
+                            control={form.control}
+                            name="type"
+                            render={({ field }) => (
+                                <FormItem>
+                                <FormLabel>Tipe (AI)</FormLabel>
+                                <FormControl>
+                                    <Input placeholder="cth: Project Update" {...field} readOnly className="bg-background"/>
+                                </FormControl>
+                                <FormMessage />
+                                </FormItem>
+                            )}
+                            />
+                            <FormField
+                            control={form.control}
+                            name="subject"
+                            render={({ field }) => (
+                                <FormItem>
+                                <FormLabel>Subjek (AI)</FormLabel>
+                                <FormControl>
+                                    <Input placeholder="cth: Project Kick-off" {...field} readOnly className="bg-background"/>
+                                </FormControl>
+                                <FormMessage />
+                                </FormItem>
+                            )}
+                            />
+                        </div>
+                    </CardContent>
+                    </Card>
 
-            <FormField
-              control={form.control}
-              name="linkMom"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Link MoM (Opsional)</FormLabel>
-                  <FormControl>
-                    <Input placeholder="https://docs.google.com/..." {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <DialogFooter>
+                    <FormField
+                    control={form.control}
+                    name="linkMom"
+                    render={({ field }) => (
+                        <FormItem>
+                        <FormLabel>Link MoM (Opsional)</FormLabel>
+                        <FormControl>
+                            <Input placeholder="https://docs.google.com/..." {...field} />
+                        </FormControl>
+                        <FormMessage />
+                        </FormItem>
+                    )}
+                    />
+                </div>
+             </ScrollArea>
+            <DialogFooter className="pt-4">
               <Button type="button" variant="ghost" onClick={() => setOpen(false)}>Batal</Button>
               <Button type="submit" disabled={isSaving}>
                 {isSaving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
@@ -272,3 +278,5 @@ export function StatusUpdateForm({ children, updateToEdit }: StatusUpdateFormPro
     </Dialog>
   );
 }
+
+    
