@@ -11,6 +11,7 @@ import { getMouColumns } from "./mou-columns";
 import { getSphColumns } from "./sph-columns";
 import { useData } from "@/context/data-context";
 import { ContractForm } from "@/components/forms/contract-form";
+import { SphForm } from "@/components/forms/sph-form";
 import { Skeleton } from "@/components/ui/skeleton";
 
 export default function ContractsPage() {
@@ -34,7 +35,10 @@ export default function ContractsPage() {
   return (
     <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">
       <PageHeader title="Manajemen Kontrak & SPH">
-        <ContractForm />
+        <div className="flex items-center gap-2">
+            <SphForm />
+            <ContractForm />
+        </div>
       </PageHeader>
       
       <div className="container mx-auto py-2">

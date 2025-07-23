@@ -37,6 +37,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { useData } from "@/context/data-context";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import type { User, PicEksternal } from "@/lib/types";
+import { cn } from "@/lib/utils";
 
 const internalPicSchema = z.object({
   nama: z.string().min(3, "Nama harus diisi"),
@@ -63,7 +64,7 @@ type PicFormProps = {
 export function PicForm({ children, picToEdit, picType }: PicFormProps) {
   const [open, setOpen] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
-  const { instansi, addUser, updateUser, addPicEksternal, updatePicEksternal } = useData();
+  const { instansi, users, addUser, updateUser, addPicEksternal, updatePicEksternal } = useData();
   const isEditMode = !!picToEdit;
 
   const internalForm = useForm<z.infer<typeof internalPicSchema>>({
@@ -185,28 +186,30 @@ export function PicForm({ children, picToEdit, picType }: PicFormProps) {
                                 </FormItem>
                             )}
                         />
-                        <FormField
-                            control={internalForm.control}
-                            name="email"
-                            render={({ field }) => (
-                                <FormItem>
-                                <FormLabel>Email</FormLabel>
-                                <FormControl><Input placeholder="cth: genta@peruri.co.id" {...field} /></FormControl>
-                                <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-                        <FormField
-                            control={internalForm.control}
-                            name="noHp"
-                            render={({ field }) => (
-                                <FormItem>
-                                <FormLabel>No. HP</FormLabel>
-                                <FormControl><Input placeholder="cth: 081234567890" {...field} /></FormControl>
-                                <FormMessage />
-                                </FormItem>
-                            )}
-                        />
+                        <div className="grid grid-cols-2 gap-4">
+                            <FormField
+                                control={internalForm.control}
+                                name="email"
+                                render={({ field }) => (
+                                    <FormItem>
+                                    <FormLabel>Email</FormLabel>
+                                    <FormControl><Input placeholder="cth: genta@peruri.co.id" {...field} /></FormControl>
+                                    <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                            <FormField
+                                control={internalForm.control}
+                                name="noHp"
+                                render={({ field }) => (
+                                    <FormItem>
+                                    <FormLabel>No. HP</FormLabel>
+                                    <FormControl><Input placeholder="cth: 081234567890" {...field} /></FormControl>
+                                    <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                        </div>
                         <FormField
                             control={internalForm.control}
                             name="role"
@@ -301,30 +304,43 @@ export function PicForm({ children, picToEdit, picType }: PicFormProps) {
             <TabsContent value="external">
                  <Form {...externalForm}>
                     <form onSubmit={externalForm.handleSubmit(onExternalSubmit)} className="space-y-4 py-4">
-                         <FormField
-                          control={externalForm.control}
-                          name="instansiId"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Instansi</FormLabel>
-                              <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                <FormControl>
-                                  <SelectTrigger>
-                                    <SelectValue placeholder="Pilih instansi terkait" />
-                                  </SelectTrigger>
-                                </FormControl>
-                                <SelectContent>
-                                  {instansi.map(inst => (
-                                    <SelectItem key={inst.id} value={inst.id}>
-                                      {inst.namaInstansi}
-                                    </SelectItem>
-                                  ))}
-                                </SelectContent>
-                              </Select>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
+                         <div className="grid grid-cols-2 gap-4">
+                            <FormField
+                            control={externalForm.control}
+                            name="instansiId"
+                            render={({ field }) => (
+                                <FormItem>
+                                <FormLabel>Instansi</FormLabel>
+                                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                    <FormControl>
+                                    <SelectTrigger>
+                                        <SelectValue placeholder="Pilih instansi terkait" />
+                                    </SelectTrigger>
+                                    </FormControl>
+                                    <SelectContent>
+                                    {instansi.map(inst => (
+                                        <SelectItem key={inst.id} value={inst.id}>
+                                        {inst.namaInstansi}
+                                        </SelectItem>
+                                    ))}
+                                    </SelectContent>
+                                </Select>
+                                <FormMessage />
+                                </FormItem>
+                            )}
+                            />
+                             <FormField
+                                control={externalForm.control}
+                                name="jabatan"
+                                render={({ field }) => (
+                                    <FormItem>
+                                    <FormLabel>Jabatan</FormLabel>
+                                    <FormControl><Input placeholder="cth: Kepala Divisi IT" {...field} /></FormControl>
+                                    <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                        </div>
                          <FormField
                             control={externalForm.control}
                             name="namaPic"
@@ -336,39 +352,30 @@ export function PicForm({ children, picToEdit, picType }: PicFormProps) {
                                 </FormItem>
                             )}
                         />
-                         <FormField
-                            control={externalForm.control}
-                            name="jabatan"
-                            render={({ field }) => (
-                                <FormItem>
-                                <FormLabel>Jabatan</FormLabel>
-                                <FormControl><Input placeholder="cth: Kepala Divisi IT" {...field} /></FormControl>
-                                <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-                        <FormField
-                            control={externalForm.control}
-                            name="email"
-                            render={({ field }) => (
-                                <FormItem>
-                                <FormLabel>Email</FormLabel>
-                                <FormControl><Input placeholder="cth: budi.s@kemenkeu.go.id" {...field} /></FormControl>
-                                <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-                        <FormField
-                            control={externalForm.control}
-                            name="noHp"
-                            render={({ field }) => (
-                                <FormItem>
-                                <FormLabel>No. HP</FormLabel>
-                                <FormControl><Input placeholder="cth: 081122334455" {...field} /></FormControl>
-                                <FormMessage />
-                                </FormItem>
-                            )}
-                        />
+                        <div className="grid grid-cols-2 gap-4">
+                            <FormField
+                                control={externalForm.control}
+                                name="email"
+                                render={({ field }) => (
+                                    <FormItem>
+                                    <FormLabel>Email</FormLabel>
+                                    <FormControl><Input placeholder="cth: budi.s@kemenkeu.go.id" {...field} /></FormControl>
+                                    <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                            <FormField
+                                control={externalForm.control}
+                                name="noHp"
+                                render={({ field }) => (
+                                    <FormItem>
+                                    <FormLabel>No. HP</FormLabel>
+                                    <FormControl><Input placeholder="cth: 081122334455" {...field} /></FormControl>
+                                    <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                        </div>
                          <DialogFooter className="pt-4">
                             <Button type="button" variant="ghost" onClick={() => setOpen(false)}>Batal</Button>
                             <Button type="submit" disabled={isSaving}>
