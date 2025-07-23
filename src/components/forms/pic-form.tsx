@@ -118,9 +118,6 @@ export function PicForm({ children, picToEdit, picType }: PicFormProps) {
         if (isEditMode && picToEdit && 'role' in picToEdit) {
           await updateUser(picToEdit.id, values);
         } else {
-          // You might need to handle user creation in Firebase Auth first,
-          // then add the user to the 'users' collection with the returned UID.
-          // This form currently only handles adding to 'users' collection.
           await addUser(values);
         }
         setOpen(false);
@@ -303,9 +300,8 @@ export function PicForm({ children, picToEdit, picType }: PicFormProps) {
             </TabsContent>
             <TabsContent value="external">
                  <Form {...externalForm}>
-                    <form onSubmit={externalForm.handleSubmit(onExternalSubmit)} className="space-y-4 py-4">
-                         <div className="grid grid-cols-2 gap-4">
-                            <FormField
+                    <form onSubmit={externalForm.handleSubmit(onExternalSubmit)} className="grid grid-cols-1 md:grid-cols-2 gap-4 py-4">
+                        <FormField
                             control={externalForm.control}
                             name="instansiId"
                             render={({ field }) => (
@@ -328,55 +324,54 @@ export function PicForm({ children, picToEdit, picType }: PicFormProps) {
                                 <FormMessage />
                                 </FormItem>
                             )}
-                            />
-                             <FormField
-                                control={externalForm.control}
-                                name="jabatan"
-                                render={({ field }) => (
-                                    <FormItem>
-                                    <FormLabel>Jabatan</FormLabel>
-                                    <FormControl><Input placeholder="cth: Kepala Divisi IT" {...field} /></FormControl>
-                                    <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
-                        </div>
-                         <FormField
+                        />
+                        <FormField
                             control={externalForm.control}
-                            name="namaPic"
+                            name="jabatan"
                             render={({ field }) => (
                                 <FormItem>
-                                <FormLabel>Nama Lengkap</FormLabel>
-                                <FormControl><Input placeholder="cth: Budi Santoso" {...field} /></FormControl>
+                                <FormLabel>Jabatan</FormLabel>
+                                <FormControl><Input placeholder="cth: Kepala Divisi IT" {...field} /></FormControl>
                                 <FormMessage />
                                 </FormItem>
                             )}
                         />
-                        <div className="grid grid-cols-2 gap-4">
-                            <FormField
-                                control={externalForm.control}
-                                name="email"
-                                render={({ field }) => (
-                                    <FormItem>
-                                    <FormLabel>Email</FormLabel>
-                                    <FormControl><Input placeholder="cth: budi.s@kemenkeu.go.id" {...field} /></FormControl>
-                                    <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
-                            <FormField
-                                control={externalForm.control}
-                                name="noHp"
-                                render={({ field }) => (
-                                    <FormItem>
-                                    <FormLabel>No. HP</FormLabel>
-                                    <FormControl><Input placeholder="cth: 081122334455" {...field} /></FormControl>
-                                    <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
+                        <div className="md:col-span-2">
+                          <FormField
+                              control={externalForm.control}
+                              name="namaPic"
+                              render={({ field }) => (
+                                  <FormItem>
+                                  <FormLabel>Nama Lengkap</FormLabel>
+                                  <FormControl><Input placeholder="cth: Budi Santoso" {...field} /></FormControl>
+                                  <FormMessage />
+                                  </FormItem>
+                              )}
+                          />
                         </div>
-                         <DialogFooter className="pt-4">
+                        <FormField
+                            control={externalForm.control}
+                            name="email"
+                            render={({ field }) => (
+                                <FormItem>
+                                <FormLabel>Email</FormLabel>
+                                <FormControl><Input placeholder="cth: budi.s@kemenkeu.go.id" {...field} /></FormControl>
+                                <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+                        <FormField
+                            control={externalForm.control}
+                            name="noHp"
+                            render={({ field }) => (
+                                <FormItem>
+                                <FormLabel>No. HP</FormLabel>
+                                <FormControl><Input placeholder="cth: 081122334455" {...field} /></FormControl>
+                                <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+                        <DialogFooter className="md:col-span-2 pt-4">
                             <Button type="button" variant="ghost" onClick={() => setOpen(false)}>Batal</Button>
                             <Button type="submit" disabled={isSaving}>
                                 {isSaving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
