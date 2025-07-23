@@ -1,3 +1,4 @@
+// src/app/dashboard/instansi/[id]/page.tsx
 "use client";
 
 import { useParams } from 'next/navigation';
@@ -5,27 +6,31 @@ import { useData } from '@/context/data-context';
 import { PageHeader } from '@/components/shared/page-header';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { PksDataTable } from '@/app/dashboard/contracts/data-table-pks';
-import { pksColumns } from '@/app/dashboard/contracts/pks-columns';
+import { PksColumns } from '@/app/dashboard/contracts/pks-columns';
 import { MouDataTable } from '@/app/dashboard/contracts/data-table-mou';
-import { mouColumns } from '@/app/dashboard/contracts/mou-columns';
+import { MouColumns } from '@/app/dashboard/contracts/mou-columns';
 import { UpdatesDataTable } from '@/app/dashboard/updates/data-table';
-import { columns as updatesColumns } from '@/app/dashboard/updates/columns';
+import { UpdatesColumns } from '@/app/dashboard/updates/columns';
 import { Badge } from '@/components/ui/badge';
 import { format } from 'date-fns';
 import { id as idLocale } from 'date-fns/locale';
 import type { ColumnDef } from '@tanstack/react-table';
-import type { KontrakPks, KontrakMou, StatusPekerjaan } from '@/lib/types';
+import type { KontrakPks, KontrakMou, StatusPekerjaan, PicEksternal } from '@/lib/types';
+import { ExternalPicTable } from '../../pic/external-pic-table';
+import { ExternalPicColumns } from '../../pic/external-pic-columns';
+import { User } from 'lucide-react';
 
 // Simplified columns for detail view (without actions)
-const pksDetailColumns: ColumnDef<KontrakPks>[] = pksColumns.filter(c => c.id !== 'actions');
-const mouDetailColumns: ColumnDef<KontrakMou>[] = mouColumns.filter(c => c.id !== 'actions');
-const updatesDetailColumns: ColumnDef<StatusPekerjaan>[] = updatesColumns.filter(c => c.id !== 'actions');
+const pksDetailColumns = PksColumns().filter(c => c.id !== 'actions');
+const mouDetailColumns = MouColumns().filter(c => c.id !== 'actions');
+const updatesDetailColumns = UpdatesColumns().filter(c => c.id !== 'actions');
+const externalPicDetailColumns = ExternalPicColumns().filter(c => c.id !== 'actions');
 
 
 export default function InstansiDetailPage() {
   const params = useParams();
   const { id: instansiId } = params;
-  const { instansi, kontrakPks, kontrakMou, statusPekerjaan, users } = useData();
+  const { instansi, kontrakPks, kontrakMou, statusPekerjaan, users, picEksternal } = useData();
 
   const currentInstansi = instansi.find(i => i.id === instansiId);
   const pic = users.find(u => u.id === currentInstansi?.internalPicId);
@@ -33,6 +38,7 @@ export default function InstansiDetailPage() {
   const filteredPks = kontrakPks.filter(k => k.instansiId === instansiId);
   const filteredMou = kontrakMou.filter(m => m.instansiId === instansiId);
   const filteredUpdates = statusPekerjaan.filter(s => s.instansiId === instansiId);
+  const filteredExternalPics = picEksternal.filter(p => p.instansiId === instansiId);
 
   if (!currentInstansi) {
     return (
@@ -48,43 +54,71 @@ export default function InstansiDetailPage() {
       <PageHeader title={currentInstansi.namaInstansi} />
 
       <div className="grid gap-8">
-        <Card>
-          <CardHeader>
-            <CardTitle>Detail Instansi</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-y-4 gap-x-2 text-sm">
-              <div>
-                <p className="font-semibold text-muted-foreground">Kode Instansi</p>
-                <p>{currentInstansi.kodeInstansi}</p>
-              </div>
-              <div>
-                <p className="font-semibold text-muted-foreground">Jenis Layanan</p>
-                <p>{currentInstansi.jenisLayanan}</p>
-              </div>
-              <div>
-                <p className="font-semibold text-muted-foreground">Status Kementrian</p>
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          <Card className="lg:col-span-2">
+            <CardHeader>
+              <CardTitle>Detail Instansi</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-y-4 gap-x-4 text-sm">
                 <div>
-                  <Badge variant={currentInstansi.statusKementrian === "STG Prioritas" ? "default" : "secondary"}>
-                    {currentInstansi.statusKementrian}
-                  </Badge>
+                  <p className="font-semibold text-muted-foreground">Kode Instansi</p>
+                  <p>{currentInstansi.kodeInstansi}</p>
+                </div>
+                <div>
+                  <p className="font-semibold text-muted-foreground">Jenis Layanan</p>
+                  <p>{currentInstansi.jenisLayanan}</p>
+                </div>
+                <div>
+                  <p className="font-semibold text-muted-foreground">Status Kementrian</p>
+                  <div>
+                    <Badge variant={currentInstansi.statusKementrian === "STG Prioritas" ? "default" : "secondary"}>
+                      {currentInstansi.statusKementrian}
+                    </Badge>
+                  </div>
+                </div>
+                <div>
+                  <p className="font-semibold text-muted-foreground">Ulang Tahun</p>
+                  <p>{format(currentInstansi.tanggalUlangTahun, 'dd MMMM yyyy', { locale: idLocale })}</p>
+                </div>
+                <div>
+                  <p className="font-semibold text-muted-foreground">PIC Internal</p>
+                  <p>{pic?.nama || 'N/A'}</p>
+                </div>
+                <div>
+                  <p className="font-semibold text-muted-foreground">Update Terakhir</p>
+                  <p>{format(currentInstansi.tanggalUpdateTerakhir, 'dd MMMM yyyy', { locale: idLocale })}</p>
                 </div>
               </div>
-              <div>
-                <p className="font-semibold text-muted-foreground">Ulang Tahun</p>
-                <p>{format(currentInstansi.tanggalUlangTahun, 'dd MMMM yyyy', { locale: idLocale })}</p>
-              </div>
-              <div>
-                <p className="font-semibold text-muted-foreground">PIC Internal</p>
-                <p>{pic?.nama || 'N/A'}</p>
-              </div>
-              <div>
-                <p className="font-semibold text-muted-foreground">Update Terakhir</p>
-                <p>{format(currentInstansi.tanggalUpdateTerakhir, 'dd MMMM yyyy', { locale: idLocale })}</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
+          <Card>
+             <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                    <User className="h-6 w-6"/>
+                    PIC Eksternal
+                </CardTitle>
+                <CardDescription>Kontak dari pihak {currentInstansi.namaInstansi}.</CardDescription>
+            </CardHeader>
+            <CardContent>
+                {filteredExternalPics.length > 0 ? (
+                    <ul className="space-y-3">
+                        {filteredExternalPics.map(pic => (
+                            <li key={pic.id} className="text-sm">
+                                <p className="font-semibold">{pic.namaPic}</p>
+                                <p className="text-muted-foreground">{pic.jabatan}</p>
+                                <p className="text-muted-foreground">{pic.email}</p>
+                                <p className="text-muted-foreground">{pic.noHp}</p>
+                            </li>
+                        ))}
+                    </ul>
+                ) : (
+                    <p className="text-sm text-center text-muted-foreground py-4">Belum ada data PIC Eksternal.</p>
+                )}
+            </CardContent>
+          </Card>
+        </div>
+
 
         <Card>
             <CardHeader>

@@ -6,7 +6,11 @@ import {
   flexRender,
   getCoreRowModel,
   getPaginationRowModel,
+  getSortedRowModel,
+  getFilteredRowModel,
   useReactTable,
+  type SortingState,
+  type ColumnFiltersState,
 } from "@tanstack/react-table"
 
 import {
@@ -18,6 +22,8 @@ import {
   TableRow,
 } from "@/components/ui/table"
 import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { useState } from "react"
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
@@ -28,15 +34,44 @@ export function ExternalPicTable<TData, TValue>({
   columns,
   data,
 }: DataTableProps<TData, TValue>) {
+  const [sorting, setSorting] = useState<SortingState>([])
+  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
+  
   const table = useReactTable({
     data,
     columns,
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
+    onSortingChange: setSorting,
+    getSortedRowModel: getSortedRowModel(),
+    onColumnFiltersChange: setColumnFilters,
+    getFilteredRowModel: getFilteredRowModel(),
+    state: {
+      sorting,
+      columnFilters,
+    },
   })
 
   return (
     <div>
+        <div className="flex items-center py-4 gap-4">
+            <Input
+            placeholder="Cari nama PIC..."
+            value={(table.getColumn("namaPic")?.getFilterValue() as string) ?? ""}
+            onChange={(event) =>
+                table.getColumn("namaPic")?.setFilterValue(event.target.value)
+            }
+            className="max-w-sm"
+            />
+             <Input
+            placeholder="Cari nama instansi..."
+            value={(table.getColumn("instansiId")?.getFilterValue() as string) ?? ""}
+            onChange={(event) =>
+                table.getColumn("instansiId")?.setFilterValue(event.target.value)
+            }
+            className="max-w-sm"
+            />
+        </div>
         <div className="rounded-md border">
         <Table>
             <TableHeader>
