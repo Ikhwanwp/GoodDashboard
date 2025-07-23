@@ -16,12 +16,12 @@ import { DeleteConfirmation } from "@/components/shared/delete-confirmation"
 import Link from "next/link"
 import { SphForm } from "@/components/forms/sph-form"
 
-type SphColumnsParams = {
+type GetSphColumnsParams = {
   instansi: Instansi[];
   deleteDokumenSph: (id: string) => Promise<void>;
 }
 
-export const SphColumns = ({ instansi, deleteDokumenSph }: SphColumnsParams): ColumnDef<DokumenSph>[] => {
+export const getSphColumns = ({ instansi, deleteDokumenSph }: GetSphColumnsParams): ColumnDef<DokumenSph>[] => {
   
   return [
     {
