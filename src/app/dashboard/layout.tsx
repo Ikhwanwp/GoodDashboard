@@ -47,6 +47,7 @@ const menuItems = [
 function AuthWrapper({ children }: { children: React.ReactNode }) {
   const { currentUser, loading, logout } = useData();
   const router = useRouter();
+  const pathname = usePathname();
 
   useEffect(() => {
     // If loading is finished and there's no user, redirect to login page.
@@ -95,7 +96,7 @@ function AuthWrapper({ children }: { children: React.ReactNode }) {
                 <SidebarMenuItem key={item.href}>
                   <SidebarMenuButton
                     asChild
-                    isActive={usePathname() === item.href}
+                    isActive={pathname === item.href}
                     tooltip={item.label}
                   >
                     <Link href={item.href}>
