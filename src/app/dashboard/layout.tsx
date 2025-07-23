@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import {
   Building2,
   FileText,
@@ -13,6 +13,7 @@ import {
   Clock,
   MessageSquareQuote,
   Contact,
+  Loader2,
 } from "lucide-react";
 
 import {
@@ -30,7 +31,8 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Logo } from "@/components/icons";
 import { Button } from "@/components/ui/button";
-import { DataProvider } from "@/context/data-context";
+import { DataProvider, useData } from "@/context/data-context";
+import { useEffect } from "react";
 
 const menuItems = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
@@ -41,15 +43,39 @@ const menuItems = [
   { href: "/dashboard/timeline", label: "Timeline", icon: Clock },
 ];
 
-export default function DashboardLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+function AuthWrapper({ children }: { children: React.ReactNode }) {
+  const { currentUser, currentUserLoading, logout } = useData();
   const pathname = usePathname();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (!currentUserLoading && !currentUser && pathname !== "/login") {
+      router.push("/login");
+    }
+  }, [currentUser, currentUserLoading, router, pathname]);
+
+  if (currentUserLoading) {
+    return (
+      <div className="flex h-screen w-full items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin" />
+      </div>
+    );
+  }
+
+  if (!currentUser) {
+    return null; // or a redirect component
+  }
+  
+  const getInitials = (name: string) => {
+    return name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
+  }
+
+  const handleLogout = async () => {
+    await logout();
+    router.push('/login');
+  }
 
   return (
-    <DataProvider>
       <SidebarProvider>
         <Sidebar>
           <SidebarHeader>
@@ -81,18 +107,16 @@ export default function DashboardLayout({
           <SidebarFooter>
              <div className="flex items-center gap-3 p-2 rounded-md transition-colors">
               <Avatar className="h-10 w-10">
-                <AvatarImage src="https://placehold.co/40x40.png" alt="@g-anugrah" data-ai-hint="profile picture" />
-                <AvatarFallback>GA</AvatarFallback>
+                <AvatarImage src={`https://placehold.co/40x40.png`} data-ai-hint="profile picture" />
+                <AvatarFallback>{getInitials(currentUser.nama)}</AvatarFallback>
               </Avatar>
               <div className="flex flex-col overflow-hidden whitespace-nowrap">
-                <span className="font-semibold text-sidebar-foreground">Genta Anugrah</span>
-                <span className="text-xs text-sidebar-foreground/70">PIC GA</span>
+                <span className="font-semibold text-sidebar-foreground">{currentUser.nama}</span>
+                <span className="text-xs text-sidebar-foreground/70">{currentUser.role}</span>
               </div>
-              <Link href="/login" className="ml-auto">
-                  <Button variant="ghost" size="icon" className="text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground">
-                      <LogOut className="w-4 h-4" />
-                  </Button>
-              </Link>
+                <Button onClick={handleLogout} variant="ghost" size="icon" className="text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground ml-auto">
+                    <LogOut className="w-4 h-4" />
+                </Button>
             </div>
           </SidebarFooter>
         </Sidebar>
@@ -103,6 +127,18 @@ export default function DashboardLayout({
           {children}
         </SidebarInset>
       </SidebarProvider>
+  );
+}
+
+
+export default function DashboardLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  return (
+    <DataProvider>
+      <AuthWrapper>{children}</AuthWrapper>
     </DataProvider>
   );
 }

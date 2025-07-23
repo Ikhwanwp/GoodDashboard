@@ -113,27 +113,34 @@ export function PicForm({ children, picToEdit, picType }: PicFormProps) {
   async function onInternalSubmit(values: z.infer<typeof internalPicSchema>) {
     setIsSaving(true);
     
-    if (isEditMode && picToEdit && 'role' in picToEdit) {
-      await updateUser(picToEdit.id, values);
-    } else {
-      await addUser(values);
+    try {
+        if (isEditMode && picToEdit && 'role' in picToEdit) {
+          await updateUser(picToEdit.id, values);
+        } else {
+          // You might need to handle user creation in Firebase Auth first,
+          // then add the user to the 'users' collection with the returned UID.
+          // This form currently only handles adding to 'users' collection.
+          await addUser(values);
+        }
+        setOpen(false);
+    } finally {
+        setIsSaving(false);
     }
-    
-    setIsSaving(false);
-    setOpen(false);
   }
 
   async function onExternalSubmit(values: z.infer<typeof externalPicSchema>) {
     setIsSaving(true);
     
-    if (isEditMode && picToEdit && 'namaPic' in picToEdit) {
-      await updatePicEksternal(picToEdit.id, values);
-    } else {
-       await addPicEksternal(values);
+    try {
+        if (isEditMode && picToEdit && 'namaPic' in picToEdit) {
+        await updatePicEksternal(picToEdit.id, values);
+        } else {
+        await addPicEksternal(values);
+        }
+        setOpen(false);
+    } finally {
+        setIsSaving(false);
     }
-    
-    setIsSaving(false);
-    setOpen(false);
   }
   
   const trigger = children ? (
@@ -239,6 +246,10 @@ export function PicForm({ children, picToEdit, picType }: PicFormProps) {
                                             control={internalForm.control}
                                             name="handledInstansiIds"
                                             render={({ field }) => {
+                                                const otherPic = instansi.find(i => i.id === item.id)?.internalPicId;
+                                                const isDisabled = otherPic && (!picToEdit || otherPic !== picToEdit.id);
+                                                const picName = users.find(u => u.id === otherPic)?.nama;
+
                                                 return (
                                                 <FormItem
                                                     key={item.id}
@@ -256,11 +267,15 @@ export function PicForm({ children, picToEdit, picType }: PicFormProps) {
                                                                 )
                                                             )
                                                         }}
+                                                        disabled={isDisabled}
                                                     />
                                                     </FormControl>
-                                                    <FormLabel className="font-normal">
-                                                        {item.namaInstansi} ({item.kodeInstansi})
-                                                    </FormLabel>
+                                                    <div className="flex flex-col">
+                                                        <FormLabel className={cn("font-normal", isDisabled && "text-muted-foreground")}>
+                                                            {item.namaInstansi} ({item.kodeInstansi})
+                                                        </FormLabel>
+                                                        {isDisabled && picName && <p className="text-xs text-muted-foreground">Dihandle oleh {picName}</p>}
+                                                    </div>
                                                 </FormItem>
                                                 )
                                             }}

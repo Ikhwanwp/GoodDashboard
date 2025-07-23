@@ -5,6 +5,8 @@ import { useForm } from "react-hook-form";
 import * as z from "zod";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { signInWithEmailAndPassword } from "firebase/auth";
+import { auth } from "@/lib/firebase-config";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -40,21 +42,38 @@ export function LoginForm() {
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setIsLoading(true);
-    // Mock Firebase login
-    console.log("Login attempt with:", values);
-    await new Promise(resolve => setTimeout(resolve, 1500));
-    
-    // Simulate a successful login
-    toast({
-      title: "Login Berhasil",
-      description: "Anda akan diarahkan ke dashboard.",
-    });
-
-    // In a real app, you would use Firebase Auth here.
-    // e.g., signInWithEmailAndPassword(auth, values.email, values.password)
-    router.push("/dashboard");
-    
-    setIsLoading(false);
+    try {
+      await signInWithEmailAndPassword(auth, values.email, values.password);
+      toast({
+        title: "Login Berhasil",
+        description: "Anda akan diarahkan ke dashboard.",
+      });
+      router.push("/dashboard");
+    } catch (error: any) {
+      console.error("Firebase Auth Error:", error);
+      let errorMessage = "Terjadi kesalahan saat login.";
+      switch (error.code) {
+        case 'auth/user-not-found':
+          errorMessage = 'Email tidak ditemukan.';
+          break;
+        case 'auth/wrong-password':
+          errorMessage = 'Password salah.';
+          break;
+        case 'auth/invalid-credential':
+           errorMessage = 'Email atau password salah.';
+           break;
+        default:
+          errorMessage = 'Login gagal. Silakan coba lagi.';
+          break;
+      }
+      toast({
+        variant: "destructive",
+        title: "Login Gagal",
+        description: errorMessage,
+      });
+    } finally {
+      setIsLoading(false);
+    }
   }
 
   return (

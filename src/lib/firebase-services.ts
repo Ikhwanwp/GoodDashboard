@@ -10,6 +10,7 @@ import {
   Timestamp,
   query,
   where,
+  writeBatch,
 } from 'firebase/firestore';
 import type {
     Instansi, InstansiFromDB,
@@ -45,14 +46,37 @@ export const addInstansiToDB = async (data: Omit<Instansi, 'id' | 'tanggalUpdate
     return await addDoc(instansiCollection, { ...data, tanggalUpdateTerakhir: serverTimestamp(), internalPicId: '' });
 }
 
-export const updateInstansiInDB = async (id: string, data: Partial<Omit<Instansi, 'id' | 'tanggalUpdateTerakhir'>>) => {
+export const updateInstansiInDB = async (id: string, data: Partial<Omit<Instansi, 'id'>>) => {
     const docRef = doc(db, 'instansi', id);
-    return await updateDoc(docRef, {...data, tanggalUpdateTerakhir: serverTimestamp()});
+    // Ensure we don't try to overwrite the id
+    const updateData = { ...data };
+    if ('id' in updateData) delete (updateData as any).id;
+    
+    // Only add timestamp if we are not just changing the PIC
+    if (!('internalPicId' in data && Object.keys(data).length === 1)) {
+        (updateData as any).tanggalUpdateTerakhir = serverTimestamp();
+    }
+    
+    return await updateDoc(docRef, updateData);
 }
 
 export const deleteInstansiFromDB = async (id: string) => {
-    const docRef = doc(db, 'instansi', id);
-    return await deleteDoc(docRef);
+    const batch = writeBatch(db);
+
+    // 1. Delete the instansi document itself
+    const instansiRef = doc(db, 'instansi', id);
+    batch.delete(instansiRef);
+
+    // 2. Query and delete related documents in other collections
+    const collectionsToDeleteFrom = ['kontrakPks', 'kontrakMou', 'dokumenSph', 'statusPekerjaan', 'picEksternal'];
+    for (const coll of collectionsToDeleteFrom) {
+        const q = query(collection(db, coll), where("instansiId", "==", id));
+        const snapshot = await getDocs(q);
+        snapshot.forEach(doc => batch.delete(doc.ref));
+    }
+    
+    // Commit the batch
+    await batch.commit();
 }
 
 
@@ -68,11 +92,22 @@ export const addUserToDB = async (data: Omit<User, 'id' | 'handledInstansiIds'>)
 }
 export const updateUserInDB = async (id: string, data: Partial<Omit<User, 'id'>>) => {
     const docRef = doc(db, 'users', id);
-    return await updateDoc(docRef, data);
+    const updateData = {...data};
+    if ('handledInstansiIds' in updateData) delete (updateData as any).handledInstansiIds;
+    return await updateDoc(docRef, updateData);
 }
 export const deleteUserFromDB = async (id: string) => {
     const docRef = doc(db, 'users', id);
-    return await deleteDoc(docRef);
+    // Also unassign this user from any instansi
+    const q = query(instansiCollection, where("internalPicId", "==", id));
+    const instansiSnapshot = await getDocs(q);
+    const batch = writeBatch(db);
+    instansiSnapshot.forEach(doc => {
+        batch.update(doc.ref, { internalPicId: '' });
+    });
+    
+    batch.delete(docRef);
+    await batch.commit();
 }
 
 
@@ -101,11 +136,15 @@ const kontrakPksCollection = collection(db, 'kontrakPks');
 
 export const getKontrakPks = async (): Promise<KontrakPks[]> => {
     const snapshot = await getDocs(kontrakPksCollection);
-    return snapshot.docs.map(doc => convertTimestamps<KontrakPks>({ ...doc.data(), id: doc.id } as KontrakPksFromDB));
+    return snapshot.docs.map(doc => {
+        const data = convertTimestamps<KontrakPks>({ ...doc.data(), id: doc.id } as KontrakPksFromDB);
+        // Automatically determine status
+        data.statusKontrak = new Date() > data.tanggalBerakhir ? 'Berakhir' : 'Aktif';
+        return data;
+    });
 };
-export const addKontrakPksToDB = async (data: Omit<KontrakPks, 'id' | 'statusKontrak' | 'picGaId'>) => {
-    // This logic assumes a PIC GA is assigned later, or through a different process.
-    return await addDoc(kontrakPksCollection, { ...data, picGaId: 'default-pic-id', statusKontrak: 'Aktif' });
+export const addKontrakPksToDB = async (data: Omit<KontrakPks, 'id' | 'statusKontrak'>) => {
+    return await addDoc(kontrakPksCollection, { ...data, statusKontrak: 'Aktif' }); // Status will be recalculated on fetch
 }
 export const updateKontrakPksInDB = async (id: string, data: Partial<Omit<KontrakPks, 'id'>>) => {
     const docRef = doc(db, 'kontrakPks', id);
@@ -123,8 +162,8 @@ export const getKontrakMou = async (): Promise<KontrakMou[]> => {
     const snapshot = await getDocs(kontrakMouCollection);
     return snapshot.docs.map(doc => convertTimestamps<KontrakMou>({ ...doc.data(), id: doc.id } as KontrakMouFromDB));
 };
-export const addKontrakMouToDB = async (data: Omit<KontrakMou, 'id' | 'picGaId'>) => {
-    return await addDoc(kontrakMouCollection, { ...data, picGaId: 'default-pic-id' });
+export const addKontrakMouToDB = async (data: Omit<KontrakMou, 'id'>) => {
+    return await addDoc(kontrakMouCollection, { ...data });
 }
 export const updateKontrakMouInDB = async (id: string, data: Partial<Omit<KontrakMou, 'id'>>) => {
     const docRef = doc(db, 'kontrakMou', id);
@@ -154,9 +193,13 @@ export const getStatusPekerjaan = async (): Promise<StatusPekerjaan[]> => {
 export const addStatusPekerjaanToDB = async (data: Omit<StatusPekerjaan, 'id' | 'tanggalUpdate'>) => {
     return await addDoc(statusPekerjaanCollection, { ...data, tanggalUpdate: serverTimestamp() });
 }
-export const updateStatusPekerjaanInDB = async (id: string, data: Partial<Omit<StatusPekerjaan, 'id' | 'tanggalUpdate'>>) => {
+export const updateStatusPekerjaanInDB = async (id: string, data: Partial<Omit<StatusPekerjaan, 'id'>>) => {
     const docRef = doc(db, 'statusPekerjaan', id);
-    return await updateDoc(docRef, { ...data, tanggalUpdate: serverTimestamp() });
+    const updateData = {...data};
+    if (Object.keys(updateData).length > 0) {
+        (updateData as any).tanggalUpdate = serverTimestamp();
+    }
+    return await updateDoc(docRef, updateData);
 }
 export const deleteStatusPekerjaanFromDB = async (id: string) => {
     const docRef = doc(db, 'statusPekerjaan', id);

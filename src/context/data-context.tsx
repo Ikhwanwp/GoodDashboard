@@ -3,6 +3,8 @@
 
 import { createContext, useContext, useState, ReactNode, useEffect, useCallback } from 'react';
 import type { Instansi, User, KontrakPks, KontrakMou, StatusPekerjaan, DokumenSph, PicEksternal } from '@/lib/types';
+import { onAuthStateChanged, signOut, type User as FirebaseUser } from 'firebase/auth';
+import { auth } from '@/lib/firebase-config';
 import {
     getInstansi, addInstansiToDB, updateInstansiInDB, deleteInstansiFromDB,
     getUsers, addUserToDB, updateUserInDB, deleteUserFromDB,
@@ -17,6 +19,9 @@ import { useToast } from "@/hooks/use-toast";
 type CollectionName = 'users' | 'instansi' | 'kontrakPks' | 'kontrakMou' | 'dokumenSph' | 'statusPekerjaan' | 'picEksternal';
 
 interface DataContextType {
+  currentUser: User | null;
+  currentUserLoading: boolean;
+  logout: () => Promise<void>;
   users: User[];
   instansi: Instansi[];
   kontrakPks: KontrakPks[];
@@ -56,6 +61,8 @@ interface DataContextType {
 const DataContext = createContext<DataContextType | undefined>(undefined);
 
 export function DataProvider({ children }: { children: ReactNode }) {
+  const [currentUser, setCurrentUser] = useState<User | null>(null);
+  const [currentUserLoading, setCurrentUserLoading] = useState<boolean>(true);
   const [users, setUsers] = useState<User[]>([]);
   const [instansi, setInstansi] = useState<Instansi[]>([]);
   const [kontrakPks, setKontrakPks] = useState<KontrakPks[]>([]);
@@ -96,10 +103,12 @@ export function DataProvider({ children }: { children: ReactNode }) {
             picEksternal: setPicEksternal,
         };
 
-        await Promise.all(collections.map(async (collectionName) => {
+        const fetchPromises = collections.map(async (collectionName) => {
             const data = await dataFetchers[collectionName]();
             setters[collectionName](data);
-        }));
+        });
+
+        await Promise.all(fetchPromises);
 
     } catch (err) {
       setError(err as Error);
@@ -117,8 +126,37 @@ export function DataProvider({ children }: { children: ReactNode }) {
   }, [toast]);
 
   useEffect(() => {
-    fetchData();
+    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser: FirebaseUser | null) => {
+      setCurrentUserLoading(true);
+      if (firebaseUser) {
+        // Fetch all data if user is logged in
+        await fetchData(); 
+        const userList = await getUsers();
+        const userData = userList.find(u => u.id === firebaseUser.uid);
+        if (userData) {
+          setCurrentUser(userData);
+        } else {
+          // This case might happen if the user exists in Auth but not in 'users' collection
+          console.error("User not found in 'users' collection:", firebaseUser.uid);
+          setCurrentUser(null);
+        }
+      } else {
+        setCurrentUser(null);
+        setUsers([]);
+        setInstansi([]);
+        setKontrakPks([]);
+        setKontrakMou([]);
+        setDokumenSph([]);
+        setStatusPekerjaan([]);
+        setPicEksternal([]);
+        setLoading(false);
+      }
+      setCurrentUserLoading(false);
+    });
+
+    return () => unsubscribe();
   }, [fetchData]);
+
 
   const createApiFunction = <T extends any[], U>(
     apiCall: (...args: T) => Promise<U>,
@@ -136,10 +174,23 @@ export function DataProvider({ children }: { children: ReactNode }) {
         title: "Operasi Gagal",
         description: (err as Error).message || "Terjadi kesalahan pada server.",
       });
+      throw err;
     }
   };
 
+  const logout = async () => {
+    await signOut(auth);
+    setCurrentUser(null);
+    // Optionally clear all data on logout
+    setUsers([]);
+    setInstansi([]);
+    // ... reset all other state arrays
+  };
+
   const value: DataContextType = {
+    currentUser,
+    currentUserLoading,
+    logout,
     users,
     instansi,
     kontrakPks,
@@ -152,8 +203,8 @@ export function DataProvider({ children }: { children: ReactNode }) {
     reloadData: fetchData,
     // Instansi
     addInstansi: createApiFunction(addInstansiToDB, "Instansi baru berhasil ditambahkan.", ['instansi']),
-    updateInstansi: createApiFunction(updateInstansiInDB, "Data instansi berhasil diperbarui.", ['instansi']),
-    deleteInstansi: createApiFunction(deleteInstansiFromDB, "Data instansi telah dihapus.", ['instansi']),
+    updateInstansi: createApiFunction(updateInstansiInDB, "Data instansi berhasil diperbarui.", ['instansi', 'users']),
+    deleteInstansi: createApiFunction(deleteInstansiFromDB, "Data instansi telah dihapus.", ['instansi', 'kontrakPks', 'kontrakMou', 'dokumenSph', 'statusPekerjaan', 'picEksternal']),
     // Kontrak PKS
     addKontrakPks: createApiFunction(addKontrakPksToDB, "Kontrak PKS baru berhasil ditambahkan.", ['kontrakPks']),
     updateKontrakPks: createApiFunction(updateKontrakPksInDB, "Kontrak PKS berhasil diperbarui.", ['kontrakPks']),
@@ -171,17 +222,18 @@ export function DataProvider({ children }: { children: ReactNode }) {
     updateUser: async (id: string, data: Partial<User>) => {
         try {
             const collectionsToUpdate: CollectionName[] = ['users'];
+            // This is a complex operation: find which instansi to update
+            const user = users.find(u => u.id === id);
+            const originalHandledIds = instansi.filter(i => i.internalPicId === id).map(i => i.id);
+            
+            const updateData: Partial<User> = { role: data.role, nama: data.nama, email: data.email, noHp: data.noHp };
+            await updateUserInDB(id, updateData);
+            
             if (data.handledInstansiIds) {
-                // This is a complex operation: find which instansi to update
-                const user = users.find(u => u.id === id);
-                const originalHandledIds = instansi.filter(i => i.internalPicId === id).map(i => i.id);
                 const newHandledIds = data.handledInstansiIds;
-                
                 const idsToAssign = newHandledIds.filter(i => !originalHandledIds.includes(i));
                 const idsToUnassign = originalHandledIds.filter(i => !newHandledIds.includes(i));
-                
-                await updateUserInDB(id, { role: data.role, nama: data.nama, email: data.email, noHp: data.noHp });
-                
+
                 const updatePromises: Promise<any>[] = [];
                 for (const instansiId of idsToAssign) {
                     updatePromises.push(updateInstansiInDB(instansiId, { internalPicId: id }));
@@ -193,10 +245,8 @@ export function DataProvider({ children }: { children: ReactNode }) {
                 if (updatePromises.length > 0) {
                     collectionsToUpdate.push('instansi');
                 }
-
-            } else {
-                 await updateUserInDB(id, data);
             }
+            
             toast({ title: "Sukses", description: "PIC Internal berhasil diperbarui." });
             await fetchData(collectionsToUpdate);
         } catch(err) {
@@ -206,6 +256,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
                 title: "Operasi Gagal",
                 description: (err as Error).message || "Terjadi kesalahan pada server.",
             });
+            throw err;
         }
     },
     deleteUser: createApiFunction(deleteUserFromDB, "PIC Internal telah dihapus.", ['users', 'instansi']),

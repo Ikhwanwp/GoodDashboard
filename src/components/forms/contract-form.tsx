@@ -121,28 +121,32 @@ export function ContractForm({ children, contractToEdit, contractType }: Contrac
     setIsSaving(true);
     const dataToSubmit = { ...values, keterangan: values.keterangan || "", linkDokumen: values.linkDokumen || "" };
     
-    if (isEditMode && 'judulKontrak' in contractToEdit) {
-      await updateKontrakPks(contractToEdit.id, dataToSubmit);
-    } else {
-      await addKontrakPks(dataToSubmit);
+    try {
+      if (isEditMode && 'judulKontrak' in contractToEdit) {
+        await updateKontrakPks(contractToEdit.id, dataToSubmit);
+      } else {
+        await addKontrakPks(dataToSubmit);
+      }
+      setOpen(false);
+    } finally {
+      setIsSaving(false);
     }
-    
-    setIsSaving(false);
-    setOpen(false);
   }
 
   async function onMouSubmit(values: z.infer<typeof mouSchema>) {
     setIsSaving(true);
     const dataToSubmit = { ...values, keterangan: values.keterangan || "" };
 
-    if (isEditMode && 'isiMou' in contractToEdit) {
-      await updateKontrakMou(contractToEdit.id, dataToSubmit);
-    } else {
-      await addKontrakMou(dataToSubmit);
+    try {
+      if (isEditMode && 'isiMou' in contractToEdit) {
+        await updateKontrakMou(contractToEdit.id, dataToSubmit);
+      } else {
+        await addKontrakMou(dataToSubmit);
+      }
+      setOpen(false);
+    } finally {
+      setIsSaving(false);
     }
-    
-    setIsSaving(false);
-    setOpen(false);
   }
   
   const trigger = children ? (
