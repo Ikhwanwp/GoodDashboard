@@ -1,3 +1,4 @@
+
 "use client";
 
 import { PageHeader } from "@/components/shared/page-header";
@@ -17,7 +18,8 @@ export default function InstansiPage() {
           <Skeleton className="h-10 w-36" />
         </PageHeader>
         <div className="container mx-auto py-2">
-          <Skeleton className="h-96 w-full" />
+           <Skeleton className="h-12 w-full mb-4" />
+           <Skeleton className="h-96 w-full" />
         </div>
       </main>
     )

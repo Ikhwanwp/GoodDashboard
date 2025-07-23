@@ -1,3 +1,4 @@
+
 // src/app/dashboard/instansi/[id]/page.tsx
 "use client";
 
@@ -19,6 +20,7 @@ import type { KontrakPks, KontrakMou, StatusPekerjaan, PicEksternal } from '@/li
 import { ExternalPicTable } from '../../pic/external-pic-table';
 import { getExternalPicColumns } from '../../pic/external-pic-columns';
 import { User } from 'lucide-react';
+import { Skeleton } from '@/components/ui/skeleton';
 
 export default function InstansiDetailPage() {
   const params = useParams();
@@ -33,8 +35,26 @@ export default function InstansiDetailPage() {
     deleteKontrakPks, 
     deleteKontrakMou, 
     deleteStatusPekerjaan,
-    deletePicEksternal 
+    deletePicEksternal,
+    loading,
   } = useData();
+
+  if (loading) {
+    return (
+      <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">
+        <PageHeader title={<Skeleton className="h-9 w-72" />} />
+        <div className="grid gap-8">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <Skeleton className="lg:col-span-2 h-64" />
+            <Skeleton className="h-64" />
+          </div>
+          <Skeleton className="h-80 w-full" />
+          <Skeleton className="h-80 w-full" />
+          <Skeleton className="h-80 w-full" />
+        </div>
+      </main>
+    );
+  }
 
   const currentInstansi = instansi.find(i => i.id === instansiId);
   const pic = users.find(u => u.id === currentInstansi?.internalPicId);
