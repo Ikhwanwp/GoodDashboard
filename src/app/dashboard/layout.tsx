@@ -1,3 +1,4 @@
+
 "use client";
 
 import Link from "next/link";
@@ -63,7 +64,9 @@ function AuthWrapper({ children }: { children: React.ReactNode }) {
   }
 
   if (!currentUser) {
-    return null; // or a redirect component
+    // This can happen briefly before the redirect, or if the user is logged out
+    // and the page is accessed directly. The useEffect above will handle the redirect.
+    return null;
   }
   
   const getInitials = (name: string) => {
