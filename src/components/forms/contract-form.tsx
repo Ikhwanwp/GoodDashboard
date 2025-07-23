@@ -47,6 +47,7 @@ const pksSchema = z.object({
   judulKontrak: z.string().min(3, "Judul minimal 3 karakter"),
   tanggalMulai: z.date({ required_error: "Tanggal mulai harus diisi" }),
   tanggalBerakhir: z.date({ required_error: "Tanggal berakhir harus diisi" }),
+  picGaId: z.string().min(1, "PIC GA harus dipilih"),
   ruangLingkup: z.string().min(1, "Ruang lingkup harus diisi"),
   keterangan: z.string().optional(),
   linkDokumen: z.string().url().optional().or(z.literal('')),
@@ -58,6 +59,7 @@ const mouSchema = z.object({
   isiMou: z.string().min(10, "Isi MoU minimal 10 karakter"),
   tanggalMulai: z.date({ required_error: "Tanggal mulai harus diisi" }),
   tanggalBerakhir: z.date({ required_error: "Tanggal berakhir harus diisi" }),
+  picGaId: z.string().min(1, "PIC GA harus dipilih"),
   ruangLingkup: z.string().min(1, "Ruang lingkup harus diisi"),
   keterangan: z.string().optional(),
 });
@@ -71,8 +73,9 @@ type ContractFormProps = {
 export function ContractForm({ children, contractToEdit, contractType }: ContractFormProps) {
   const [open, setOpen] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
-  const { instansi, addKontrakPks, addKontrakMou, updateKontrakPks, updateKontrakMou } = useData();
+  const { instansi, users, addKontrakPks, addKontrakMou, updateKontrakPks, updateKontrakMou } = useData();
   const isEditMode = !!contractToEdit;
+  const picGaUsers = users.filter(u => u.role === 'PIC GA');
 
   const pksForm = useForm<z.infer<typeof pksSchema>>({
     resolver: zodResolver(pksSchema),
@@ -100,6 +103,7 @@ export function ContractForm({ children, contractToEdit, contractType }: Contrac
             ruangLingkup: "",
             keterangan: "",
             linkDokumen: "",
+            picGaId: "",
         });
         mouForm.reset({
             instansiId: "",
@@ -107,6 +111,7 @@ export function ContractForm({ children, contractToEdit, contractType }: Contrac
             isiMou: "",
             ruangLingkup: "",
             keterangan: "",
+            picGaId: "",
         });
       }
     }
@@ -119,7 +124,6 @@ export function ContractForm({ children, contractToEdit, contractType }: Contrac
     if (isEditMode && 'judulKontrak' in contractToEdit) {
       await updateKontrakPks(contractToEdit.id, dataToSubmit);
     } else {
-      // picGaId is handled by the service now
       await addKontrakPks(dataToSubmit);
     }
     
@@ -176,7 +180,7 @@ export function ContractForm({ children, contractToEdit, contractType }: Contrac
                           control={pksForm.control}
                           name="instansiId"
                           render={({ field }) => (
-                            <FormItem className="col-span-2">
+                            <FormItem>
                               <FormLabel>Instansi</FormLabel>
                               <Select onValueChange={field.onChange} defaultValue={field.value}>
                                 <FormControl>
@@ -188,6 +192,30 @@ export function ContractForm({ children, contractToEdit, contractType }: Contrac
                                   {instansi.map(inst => (
                                     <SelectItem key={inst.id} value={inst.id}>
                                       {inst.namaInstansi}
+                                    </SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                         <FormField
+                          control={pksForm.control}
+                          name="picGaId"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>PIC GA</FormLabel>
+                              <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                <FormControl>
+                                  <SelectTrigger>
+                                    <SelectValue placeholder="Pilih PIC GA" />
+                                  </SelectTrigger>
+                                </FormControl>
+                                <SelectContent>
+                                  {picGaUsers.map(user => (
+                                    <SelectItem key={user.id} value={user.id}>
+                                      {user.nama}
                                     </SelectItem>
                                   ))}
                                 </SelectContent>
@@ -323,7 +351,7 @@ export function ContractForm({ children, contractToEdit, contractType }: Contrac
                           control={mouForm.control}
                           name="instansiId"
                           render={({ field }) => (
-                            <FormItem className="col-span-2">
+                            <FormItem>
                               <FormLabel>Instansi</FormLabel>
                               <Select onValueChange={field.onChange} defaultValue={field.value}>
                                 <FormControl>
@@ -335,6 +363,30 @@ export function ContractForm({ children, contractToEdit, contractType }: Contrac
                                   {instansi.map(inst => (
                                     <SelectItem key={inst.id} value={inst.id}>
                                       {inst.namaInstansi}
+                                    </SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                         <FormField
+                          control={mouForm.control}
+                          name="picGaId"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>PIC GA</FormLabel>
+                              <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                <FormControl>
+                                  <SelectTrigger>
+                                    <SelectValue placeholder="Pilih PIC GA" />
+                                  </SelectTrigger>
+                                </FormControl>
+                                <SelectContent>
+                                  {picGaUsers.map(user => (
+                                    <SelectItem key={user.id} value={user.id}>
+                                      {user.nama}
                                     </SelectItem>
                                   ))}
                                 </SelectContent>

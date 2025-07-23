@@ -14,6 +14,8 @@ import {
 } from '@/lib/firebase-services';
 import { useToast } from "@/hooks/use-toast";
 
+type CollectionName = 'users' | 'instansi' | 'kontrakPks' | 'kontrakMou' | 'dokumenSph' | 'statusPekerjaan' | 'picEksternal';
+
 interface DataContextType {
   users: User[];
   instansi: Instansi[];
@@ -24,17 +26,17 @@ interface DataContextType {
   picEksternal: PicEksternal[];
   loading: boolean;
   error: Error | null;
-  reloadData: () => void;
+  reloadData: (collections?: CollectionName[]) => Promise<void>;
   // Instansi
   addInstansi: (data: Omit<Instansi, 'id' | 'tanggalUpdateTerakhir' | 'internalPicId'>) => Promise<void>;
   updateInstansi: (id: string, data: Partial<Instansi>) => Promise<void>;
   deleteInstansi: (id: string) => Promise<void>;
   // Kontrak PKS
-  addKontrakPks: (data: Omit<KontrakPks, 'id' | 'statusKontrak'>) => Promise<void>;
+  addKontrakPks: (data: Omit<KontrakPks, 'id' | 'statusKontrak' | 'picGaId'>) => Promise<void>;
   updateKontrakPks: (id: string, data: Partial<KontrakPks>) => Promise<void>;
   deleteKontrakPks: (id: string) => Promise<void>;
   // Kontrak MoU
-  addKontrakMou: (data: Omit<KontrakMou, 'id'>) => Promise<void>;
+  addKontrakMou: (data: Omit<KontrakMou, 'id' | 'picGaId'>) => Promise<void>;
   updateKontrakMou: (id: string, data: Partial<KontrakMou>) => Promise<void>;
   deleteKontrakMou: (id: string) => Promise<void>;
   // Status Pekerjaan
@@ -65,34 +67,40 @@ export function DataProvider({ children }: { children: ReactNode }) {
   const [error, setError] = useState<Error | null>(null);
   const { toast } = useToast();
 
-  const fetchData = useCallback(async () => {
-    setLoading(true);
+  const fetchData = useCallback(async (collectionsToReload?: CollectionName[]) => {
+    if (!collectionsToReload) {
+        setLoading(true);
+    }
     setError(null);
     try {
-      const [
-        usersData,
-        instansiData,
-        kontrakPksData,
-        kontrakMouData,
-        dokumenSphData,
-        statusPekerjaanData,
-        picEksternalData
-      ] = await Promise.all([
-        getUsers(),
-        getInstansi(),
-        getKontrakPks(),
-        getKontrakMou(),
-        getDokumenSph(),
-        getStatusPekerjaan(),
-        getPicEksternal()
-      ]);
-      setUsers(usersData);
-      setInstansi(instansiData);
-      setKontrakPks(kontrakPksData);
-      setKontrakMou(kontrakMouData);
-      setDokumenSph(dokumenSphData);
-      setStatusPekerjaan(statusPekerjaanData);
-      setPicEksternal(picEksternalData);
+        const allCollections: CollectionName[] = ['users', 'instansi', 'kontrakPks', 'kontrakMou', 'dokumenSph', 'statusPekerjaan', 'picEksternal'];
+        const collections = collectionsToReload || allCollections;
+
+        const dataFetchers = {
+            users: getUsers,
+            instansi: getInstansi,
+            kontrakPks: getKontrakPks,
+            kontrakMou: getKontrakMou,
+            dokumenSph: getDokumenSph,
+            statusPekerjaan: getStatusPekerjaan,
+            picEksternal: getPicEksternal,
+        };
+
+        const setters: { [key in CollectionName]: React.Dispatch<React.SetStateAction<any[]>> } = {
+            users: setUsers,
+            instansi: setInstansi,
+            kontrakPks: setKontrakPks,
+            kontrakMou: setKontrakMou,
+            dokumenSph: setDokumenSph,
+            statusPekerjaan: setStatusPekerjaan,
+            picEksternal: setPicEksternal,
+        };
+
+        await Promise.all(collections.map(async (collectionName) => {
+            const data = await dataFetchers[collectionName]();
+            setters[collectionName](data);
+        }));
+
     } catch (err) {
       setError(err as Error);
       console.error(err);
@@ -102,7 +110,9 @@ export function DataProvider({ children }: { children: ReactNode }) {
           description: "Tidak dapat terhubung ke database. Silakan coba lagi nanti."
       })
     } finally {
-      setLoading(false);
+      if (!collectionsToReload) {
+        setLoading(false);
+      }
     }
   }, [toast]);
 
@@ -112,12 +122,13 @@ export function DataProvider({ children }: { children: ReactNode }) {
 
   const createApiFunction = <T extends any[], U>(
     apiCall: (...args: T) => Promise<U>,
-    successMessage: string
+    successMessage: string,
+    collectionsToReload: CollectionName[]
   ) => async (...args: T): Promise<void> => {
     try {
       await apiCall(...args);
       toast({ title: "Sukses", description: successMessage });
-      await fetchData(); // Reload all data
+      await fetchData(collectionsToReload); // Reload only relevant data
     } catch (err) {
       console.error(err);
       toast({
@@ -128,7 +139,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const value = {
+  const value: DataContextType = {
     users,
     instansi,
     kontrakPks,
@@ -140,25 +151,26 @@ export function DataProvider({ children }: { children: ReactNode }) {
     error,
     reloadData: fetchData,
     // Instansi
-    addInstansi: createApiFunction(addInstansiToDB, "Instansi baru berhasil ditambahkan."),
-    updateInstansi: createApiFunction(updateInstansiInDB, "Data instansi berhasil diperbarui."),
-    deleteInstansi: createApiFunction(deleteInstansiFromDB, "Data instansi telah dihapus."),
+    addInstansi: createApiFunction(addInstansiToDB, "Instansi baru berhasil ditambahkan.", ['instansi']),
+    updateInstansi: createApiFunction(updateInstansiInDB, "Data instansi berhasil diperbarui.", ['instansi']),
+    deleteInstansi: createApiFunction(deleteInstansiFromDB, "Data instansi telah dihapus.", ['instansi']),
     // Kontrak PKS
-    addKontrakPks: createApiFunction(addKontrakPksToDB, "Kontrak PKS baru berhasil ditambahkan."),
-    updateKontrakPks: createApiFunction(updateKontrakPksInDB, "Kontrak PKS berhasil diperbarui."),
-    deleteKontrakPks: createApiFunction(deleteKontrakPksFromDB, "Kontrak PKS telah dihapus."),
+    addKontrakPks: createApiFunction(addKontrakPksToDB, "Kontrak PKS baru berhasil ditambahkan.", ['kontrakPks']),
+    updateKontrakPks: createApiFunction(updateKontrakPksInDB, "Kontrak PKS berhasil diperbarui.", ['kontrakPks']),
+    deleteKontrakPks: createApiFunction(deleteKontrakPksFromDB, "Kontrak PKS telah dihapus.", ['kontrakPks']),
     // Kontrak MoU
-    addKontrakMou: createApiFunction(addKontrakMouToDB, "Kontrak MoU baru berhasil ditambahkan."),
-    updateKontrakMou: createApiFunction(updateKontrakMouInDB, "Kontrak MoU berhasil diperbarui."),
-    deleteKontrakMou: createApiFunction(deleteKontrakMouFromDB, "Kontrak MoU telah dihapus."),
+    addKontrakMou: createApiFunction(addKontrakMouToDB, "Kontrak MoU baru berhasil ditambahkan.", ['kontrakMou']),
+    updateKontrakMou: createApiFunction(updateKontrakMouInDB, "Kontrak MoU berhasil diperbarui.", ['kontrakMou']),
+    deleteKontrakMou: createApiFunction(deleteKontrakMouFromDB, "Kontrak MoU telah dihapus.", ['kontrakMou']),
     // Status Pekerjaan
-    addStatusPekerjaan: createApiFunction(addStatusPekerjaanToDB, "Status pekerjaan baru berhasil ditambahkan."),
-    updateStatusPekerjaan: createApiFunction(updateStatusPekerjaanInDB, "Status pekerjaan berhasil diperbarui."),
-    deleteStatusPekerjaan: createApiFunction(deleteStatusPekerjaanFromDB, "Status pekerjaan telah dihapus."),
+    addStatusPekerjaan: createApiFunction(addStatusPekerjaanToDB, "Status pekerjaan baru berhasil ditambahkan.", ['statusPekerjaan']),
+    updateStatusPekerjaan: createApiFunction(updateStatusPekerjaanInDB, "Status pekerjaan berhasil diperbarui.", ['statusPekerjaan']),
+    deleteStatusPekerjaan: createApiFunction(deleteStatusPekerjaanFromDB, "Status pekerjaan telah dihapus.", ['statusPekerjaan']),
     // User
-    addUser: createApiFunction(addUserToDB, "PIC Internal baru berhasil ditambahkan."),
+    addUser: createApiFunction(addUserToDB, "PIC Internal baru berhasil ditambahkan.", ['users']),
     updateUser: async (id: string, data: Partial<User>) => {
         try {
+            const collectionsToUpdate: CollectionName[] = ['users'];
             if (data.handledInstansiIds) {
                 // This is a complex operation: find which instansi to update
                 const user = users.find(u => u.id === id);
@@ -168,21 +180,25 @@ export function DataProvider({ children }: { children: ReactNode }) {
                 const idsToAssign = newHandledIds.filter(i => !originalHandledIds.includes(i));
                 const idsToUnassign = originalHandledIds.filter(i => !newHandledIds.includes(i));
                 
-                // Firestore doesn't support this transactionally easily without cloud functions
-                // For now, we update the user and then update the instansi docs one by one
-                // This is not atomic.
                 await updateUserInDB(id, { role: data.role, nama: data.nama, email: data.email, noHp: data.noHp });
+                
+                const updatePromises: Promise<any>[] = [];
                 for (const instansiId of idsToAssign) {
-                    await updateInstansiInDB(instansiId, { internalPicId: id });
+                    updatePromises.push(updateInstansiInDB(instansiId, { internalPicId: id }));
                 }
                  for (const instansiId of idsToUnassign) {
-                    await updateInstansiInDB(instansiId, { internalPicId: '' }); // or a default user
+                    updatePromises.push(updateInstansiInDB(instansiId, { internalPicId: '' }));
                 }
+                await Promise.all(updatePromises);
+                if (updatePromises.length > 0) {
+                    collectionsToUpdate.push('instansi');
+                }
+
             } else {
                  await updateUserInDB(id, data);
             }
             toast({ title: "Sukses", description: "PIC Internal berhasil diperbarui." });
-            await fetchData();
+            await fetchData(collectionsToUpdate);
         } catch(err) {
              console.error(err);
             toast({
@@ -192,11 +208,11 @@ export function DataProvider({ children }: { children: ReactNode }) {
             });
         }
     },
-    deleteUser: createApiFunction(deleteUserFromDB, "PIC Internal telah dihapus."),
+    deleteUser: createApiFunction(deleteUserFromDB, "PIC Internal telah dihapus.", ['users', 'instansi']),
     // PIC Eksternal
-    addPicEksternal: createApiFunction(addPicEksternalToDB, "PIC Eksternal baru berhasil ditambahkan."),
-    updatePicEksternal: createApiFunction(updatePicEksternalInDB, "PIC Eksternal berhasil diperbarui."),
-    deletePicEksternal: createApiFunction(deletePicEksternalFromDB, "PIC Eksternal telah dihapus."),
+    addPicEksternal: createApiFunction(addPicEksternalToDB, "PIC Eksternal baru berhasil ditambahkan.", ['picEksternal']),
+    updatePicEksternal: createApiFunction(updatePicEksternalInDB, "PIC Eksternal berhasil diperbarui.", ['picEksternal']),
+    deletePicEksternal: createApiFunction(deletePicEksternalFromDB, "PIC Eksternal telah dihapus.", ['picEksternal']),
   };
 
   return <DataContext.Provider value={value}>{children}</DataContext.Provider>;

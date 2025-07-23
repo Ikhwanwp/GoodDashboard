@@ -41,11 +41,8 @@ export const getInstansi = async (): Promise<Instansi[]> => {
 };
 
 export const addInstansiToDB = async (data: Omit<Instansi, 'id' | 'tanggalUpdateTerakhir' | 'internalPicId'>) => {
-    // Assuming a default PIC for new instansi, can be changed
-    const picGa = await getDocs(query(collection(db, 'users'), where('role', '==', 'PIC GA')));
-    const picGaId = picGa.docs.length > 0 ? picGa.docs[0].id : 'default-pic-id';
-
-    return await addDoc(instansiCollection, { ...data, tanggalUpdateTerakhir: serverTimestamp(), internalPicId: picGaId });
+    // PIC GA logic is simplified. A default PIC should be assigned or handled separately.
+    return await addDoc(instansiCollection, { ...data, tanggalUpdateTerakhir: serverTimestamp(), internalPicId: '' });
 }
 
 export const updateInstansiInDB = async (id: string, data: Partial<Omit<Instansi, 'id' | 'tanggalUpdateTerakhir'>>) => {
@@ -106,10 +103,9 @@ export const getKontrakPks = async (): Promise<KontrakPks[]> => {
     const snapshot = await getDocs(kontrakPksCollection);
     return snapshot.docs.map(doc => convertTimestamps<KontrakPks>({ ...doc.data(), id: doc.id } as KontrakPksFromDB));
 };
-export const addKontrakPksToDB = async (data: Omit<KontrakPks, 'id' | 'statusKontrak'>) => {
-    const picGa = await getDocs(query(collection(db, 'users'), where('role', '==', 'PIC GA')));
-    const picGaId = picGa.docs.length > 0 ? picGa.docs[0].id : 'default-pic-id';
-    return await addDoc(kontrakPksCollection, { ...data, picGaId, statusKontrak: 'Aktif' });
+export const addKontrakPksToDB = async (data: Omit<KontrakPks, 'id' | 'statusKontrak' | 'picGaId'>) => {
+    // This logic assumes a PIC GA is assigned later, or through a different process.
+    return await addDoc(kontrakPksCollection, { ...data, picGaId: 'default-pic-id', statusKontrak: 'Aktif' });
 }
 export const updateKontrakPksInDB = async (id: string, data: Partial<Omit<KontrakPks, 'id'>>) => {
     const docRef = doc(db, 'kontrakPks', id);
@@ -127,10 +123,8 @@ export const getKontrakMou = async (): Promise<KontrakMou[]> => {
     const snapshot = await getDocs(kontrakMouCollection);
     return snapshot.docs.map(doc => convertTimestamps<KontrakMou>({ ...doc.data(), id: doc.id } as KontrakMouFromDB));
 };
-export const addKontrakMouToDB = async (data: Omit<KontrakMou, 'id'>) => {
-    const picGa = await getDocs(query(collection(db, 'users'), where('role', '==', 'PIC GA')));
-    const picGaId = picGa.docs.length > 0 ? picGa.docs[0].id : 'default-pic-id';
-    return await addDoc(kontrakMouCollection, { ...data, picGaId });
+export const addKontrakMouToDB = async (data: Omit<KontrakMou, 'id' | 'picGaId'>) => {
+    return await addDoc(kontrakMouCollection, { ...data, picGaId: 'default-pic-id' });
 }
 export const updateKontrakMouInDB = async (id: string, data: Partial<Omit<KontrakMou, 'id'>>) => {
     const docRef = doc(db, 'kontrakMou', id);
