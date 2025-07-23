@@ -77,7 +77,8 @@ export function DataProvider({ children }: { children: ReactNode }) {
   const { toast } = useToast();
 
   const fetchData = useCallback(async (collectionsToReload?: CollectionName[]) => {
-    if (!collectionsToReload) {
+    const isFullReload = !collectionsToReload;
+    if (isFullReload) {
         setLoading(true);
     }
     setError(null);
@@ -123,7 +124,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
           description: "Tidak dapat terhubung ke database. Silakan coba lagi nanti."
       })
     } finally {
-      if (!collectionsToReload) {
+      if (isFullReload) {
         setLoading(false);
       }
     }
@@ -133,18 +134,20 @@ export function DataProvider({ children }: { children: ReactNode }) {
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser: FirebaseUser | null) => {
       setLoading(true);
       if (firebaseUser) {
-        // Fetch all data if user is logged in
-        await fetchData(); 
         const userList = await getUsers();
         const userData = userList.find(u => u.id === firebaseUser.uid);
+        
         if (userData) {
           setCurrentUser(userData);
+          // Fetch all other data after confirming user
+          await fetchData();
         } else {
           console.error("User not found in 'users' collection:", firebaseUser.uid);
+          await signOut(auth); // Sign out if user is not in our DB
           setCurrentUser(null);
-          await signOut(auth);
         }
       } else {
+        // No firebase user, so clear all data
         setCurrentUser(null);
         setUsers([]);
         setInstansi([]);
@@ -158,7 +161,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
     });
 
     return () => unsubscribe();
-  }, [fetchData]);
+  }, []);
 
 
   const createApiFunction = <T extends any[], U>(
@@ -183,7 +186,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
 
   const logout = async () => {
     await signOut(auth);
-    setCurrentUser(null);
+    // State will be cleared by the onAuthStateChanged listener
   };
 
   const value: DataContextType = {
@@ -224,7 +227,6 @@ export function DataProvider({ children }: { children: ReactNode }) {
     updateUser: async (id: string, data: Partial<User>) => {
         try {
             const collectionsToUpdate: CollectionName[] = ['users'];
-            // This is a complex operation: find which instansi to update
             const user = users.find(u => u.id === id);
             const originalHandledIds = instansi.filter(i => i.internalPicId === id).map(i => i.id);
             
