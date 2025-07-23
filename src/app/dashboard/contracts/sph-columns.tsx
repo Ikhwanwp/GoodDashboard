@@ -1,8 +1,8 @@
 "use client"
 
 import type { ColumnDef } from "@tanstack/react-table"
-import type { DokumenSph } from "@/lib/types"
-import { MoreHorizontal, ArrowUpDown, Link as LinkIcon } from "lucide-react"
+import type { DokumenSph, Instansi } from "@/lib/types"
+import { MoreHorizontal, ArrowUpDown, Link as LinkIcon, Trash2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import {
   DropdownMenu,
@@ -12,13 +12,17 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { format } from "date-fns"
-import { useData } from "@/context/data-context"
-// import { DeleteConfirmation } from "@/components/shared/delete-confirmation"
+import { DeleteConfirmation } from "@/components/shared/delete-confirmation"
 import Link from "next/link"
+import { SphForm } from "@/components/forms/sph-form"
 
-export const SphColumns = (): ColumnDef<DokumenSph>[] => {
-  const { instansi } = useData();
+type SphColumnsParams = {
+  instansi: Instansi[];
+  deleteDokumenSph: (id: string) => Promise<void>;
+}
 
+export const SphColumns = ({ instansi, deleteDokumenSph }: SphColumnsParams): ColumnDef<DokumenSph>[] => {
+  
   return [
     {
       accessorKey: "nomorSuratPeruri",
@@ -31,6 +35,10 @@ export const SphColumns = (): ColumnDef<DokumenSph>[] => {
           const sphInstansi = instansi.find(i => i.id === row.original.instansiId);
           return <div className="font-medium">{sphInstansi?.namaInstansi || 'N/A'}</div>;
       },
+      filterFn: (row, id, value) => {
+        const sphInstansi = instansi.find(i => i.id === row.original.instansiId);
+        return sphInstansi?.namaInstansi.toLowerCase().includes(value.toLowerCase()) || false;
+      }
     },
     {
       accessorKey: "perihal",
@@ -72,8 +80,7 @@ export const SphColumns = (): ColumnDef<DokumenSph>[] => {
       id: "actions",
       cell: ({ row }) => {
         const sph = row.original
-        // const { deleteDokumenSph } = useData() // Placeholder for future delete functionality
-
+        
         return (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -84,20 +91,18 @@ export const SphColumns = (): ColumnDef<DokumenSph>[] => {
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               <DropdownMenuLabel>Actions</DropdownMenuLabel>
-              <DropdownMenuItem onClick={() => navigator.clipboard.writeText(sph.id)}>
-                Copy ID
-              </DropdownMenuItem>
-              {/*
-              <DropdownMenuItem>Edit SPH</DropdownMenuItem>
+              <SphForm sphToEdit={sph}>
+                <DropdownMenuItem onSelect={(e) => e.preventDefault()}>Edit SPH</DropdownMenuItem>
+              </SphForm>
               <DeleteConfirmation
-                onConfirm={() => console.log("Deleting SPH", sph.id)}
+                onConfirm={() => deleteDokumenSph(sph.id)}
                 itemName={sph.perihal}
               >
-                <DropdownMenuItem onSelect={(e) => e.preventDefault()} className="text-destructive">
+                <DropdownMenuItem onSelect={(e) => e.preventDefault()} className="text-destructive flex items-center">
+                  <Trash2 className="mr-2 h-4 w-4"/>
                   Hapus
                 </DropdownMenuItem>
               </DeleteConfirmation>
-              */}
             </DropdownMenuContent>
           </DropdownMenu>
         )

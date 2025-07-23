@@ -13,7 +13,7 @@ import { ContractForm } from "@/components/forms/contract-form";
 import { Skeleton } from "@/components/ui/skeleton";
 
 export default function ContractsPage() {
-  const { kontrakPks, kontrakMou, dokumenSph, loading, instansi, deleteKontrakPks, deleteKontrakMou } = useData();
+  const { kontrakPks, kontrakMou, dokumenSph, loading, instansi, deleteKontrakPks, deleteKontrakMou, deleteDokumenSph } = useData();
 
   if (loading) {
     return (
@@ -49,7 +49,7 @@ export default function ContractsPage() {
             <MouDataTable columns={getMouColumns({ instansi, deleteKontrakMou })} data={kontrakMou} />
           </TabsContent>
           <TabsContent value="sph">
-            <SphDataTable columns={SphColumns()} data={dokumenSph} />
+            <SphDataTable columns={SphColumns({ instansi, deleteDokumenSph })} data={dokumenSph} />
           </TabsContent>
         </Tabs>
       </div>

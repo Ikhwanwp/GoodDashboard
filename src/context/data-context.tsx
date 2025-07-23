@@ -11,7 +11,7 @@ import {
     getPicEksternal, addPicEksternalToDB, updatePicEksternalInDB, deletePicEksternalFromDB,
     getKontrakPks, addKontrakPksToDB, updateKontrakPksInDB, deleteKontrakPksFromDB,
     getKontrakMou, addKontrakMouToDB, updateKontrakMouInDB, deleteKontrakMouFromDB,
-    getDokumenSph,
+    getDokumenSph, addDokumenSphToDB, updateDokumenSphInDB, deleteDokumenSphFromDB,
     getStatusPekerjaan, addStatusPekerjaanToDB, updateStatusPekerjaanInDB, deleteStatusPekerjaanFromDB
 } from '@/lib/firebase-services';
 import { useToast } from "@/hooks/use-toast";
@@ -37,13 +37,17 @@ interface DataContextType {
   updateInstansi: (id: string, data: Partial<Instansi>) => Promise<void>;
   deleteInstansi: (id: string) => Promise<void>;
   // Kontrak PKS
-  addKontrakPks: (data: Omit<KontrakPks, 'id' | 'statusKontrak' | 'picGaId'>) => Promise<void>;
+  addKontrakPks: (data: Omit<KontrakPks, 'id' | 'statusKontrak' >) => Promise<void>;
   updateKontrakPks: (id: string, data: Partial<KontrakPks>) => Promise<void>;
   deleteKontrakPks: (id: string) => Promise<void>;
   // Kontrak MoU
-  addKontrakMou: (data: Omit<KontrakMou, 'id' | 'picGaId'>) => Promise<void>;
+  addKontrakMou: (data: Omit<KontrakMou, 'id' >) => Promise<void>;
   updateKontrakMou: (id: string, data: Partial<KontrakMou>) => Promise<void>;
   deleteKontrakMou: (id: string) => Promise<void>;
+  // Dokumen SPH
+  addDokumenSph: (data: Omit<DokumenSph, 'id'>) => Promise<void>;
+  updateDokumenSph: (id: string, data: Partial<DokumenSph>) => Promise<void>;
+  deleteDokumenSph: (id: string) => Promise<void>;
   // Status Pekerjaan
   addStatusPekerjaan: (data: Omit<StatusPekerjaan, 'id' | 'tanggalUpdate'>) => Promise<void>;
   updateStatusPekerjaan: (id: string, data: Partial<StatusPekerjaan>) => Promise<void>;
@@ -104,10 +108,12 @@ export function DataProvider({ children }: { children: ReactNode }) {
         };
 
         const fetchPromises = collections.map(async (collectionName) => {
-            const data = await dataFetchers[collectionName]();
-            setters[collectionName](data);
+            if (dataFetchers[collectionName]) { // Check if fetcher exists
+                const data = await dataFetchers[collectionName]();
+                setters[collectionName](data);
+            }
         });
-
+        
         await Promise.all(fetchPromises);
 
     } catch (err) {
@@ -213,6 +219,10 @@ export function DataProvider({ children }: { children: ReactNode }) {
     addKontrakMou: createApiFunction(addKontrakMouToDB, "Kontrak MoU baru berhasil ditambahkan.", ['kontrakMou']),
     updateKontrakMou: createApiFunction(updateKontrakMouInDB, "Kontrak MoU berhasil diperbarui.", ['kontrakMou']),
     deleteKontrakMou: createApiFunction(deleteKontrakMouFromDB, "Kontrak MoU telah dihapus.", ['kontrakMou']),
+    // Dokumen SPH
+    addDokumenSph: createApiFunction(addDokumenSphToDB, "SPH baru berhasil ditambahkan.", ['dokumenSph']),
+    updateDokumenSph: createApiFunction(updateDokumenSphInDB, "SPH berhasil diperbarui.", ['dokumenSph']),
+    deleteDokumenSph: createApiFunction(deleteDokumenSphFromDB, "SPH telah dihapus.", ['dokumenSph']),
     // Status Pekerjaan
     addStatusPekerjaan: createApiFunction(addStatusPekerjaanToDB, "Status pekerjaan baru berhasil ditambahkan.", ['statusPekerjaan']),
     updateStatusPekerjaan: createApiFunction(updateStatusPekerjaanInDB, "Status pekerjaan berhasil diperbarui.", ['statusPekerjaan']),

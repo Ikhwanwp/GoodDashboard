@@ -181,7 +181,17 @@ export const getDokumenSph = async (): Promise<DokumenSph[]> => {
     const snapshot = await getDocs(dokumenSphCollection);
     return snapshot.docs.map(doc => convertTimestamps<DokumenSph>({ ...doc.data(), id: doc.id } as DokumenSphFromDB));
 };
-// Add, Update, Delete for SPH can be added here if needed
+export const addDokumenSphToDB = async (data: Omit<DokumenSph, 'id'>) => {
+    return await addDoc(dokumenSphCollection, data);
+}
+export const updateDokumenSphInDB = async (id: string, data: Partial<Omit<DokumenSph, 'id'>>) => {
+    const docRef = doc(db, 'dokumenSph', id);
+    return await updateDoc(docRef, data);
+}
+export const deleteDokumenSphFromDB = async (id: string) => {
+    const docRef = doc(db, 'dokumenSph', id);
+    return await deleteDoc(docRef);
+}
 
 
 // --- Status Pekerjaan Services ---

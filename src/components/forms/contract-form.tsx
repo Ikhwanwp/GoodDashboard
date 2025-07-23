@@ -39,6 +39,7 @@ import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import type { KontrakPks, KontrakMou } from "@/lib/types";
+import { SphForm } from "./sph-form";
 
 const pksSchema = z.object({
   instansiId: z.string().min(1, "Instansi harus dipilih"),
@@ -154,10 +155,18 @@ export function ContractForm({ children, contractToEdit, contractType }: Contrac
       {children}
     </div>
   ) : (
-    <Button className="bg-primary hover:bg-primary/90">
-      <PlusCircle className="mr-2 h-4 w-4" />
-      Tambah Kontrak
-    </Button>
+    <div className="flex gap-2">
+      <SphForm>
+        <Button variant="outline">
+            <PlusCircle className="mr-2 h-4 w-4" />
+            Tambah SPH
+        </Button>
+      </SphForm>
+      <Button className="bg-primary hover:bg-primary/90">
+        <PlusCircle className="mr-2 h-4 w-4" />
+        Tambah Kontrak
+      </Button>
+    </div>
   );
 
   return (
