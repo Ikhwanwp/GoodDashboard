@@ -38,7 +38,18 @@ export const getUpdatesColumns = ({ instansi, deleteStatusPekerjaan, showActions
           </Button>
         )
       },
-      cell: ({ row }) => format(row.original.tanggalEvent, "dd MMM yyyy"),
+      cell: ({ row }) => {
+        const tanggal = row.original.tanggalEvent;
+        // Check if the date is valid before formatting
+        if (!tanggal || !(tanggal instanceof Date)) {
+          return <span className="text-muted-foreground">N/A</span>;
+        }
+        try {
+          return format(tanggal, "dd MMM yyyy");
+        } catch (error) {
+          return <span className="text-destructive">Invalid Date</span>;
+        }
+      },
     },
     {
       accessorKey: "instansiId",
