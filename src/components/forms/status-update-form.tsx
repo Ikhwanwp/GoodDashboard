@@ -98,12 +98,13 @@ export function StatusUpdateForm({ children, updateToEdit }: StatusUpdateFormPro
       if(isEditMode && updateToEdit) {
         form.reset({
           ...updateToEdit,
+          kontrakId: updateToEdit.kontrakId || "none",
           tanggalEvent: new Date(updateToEdit.tanggalEvent)
         });
       } else {
         form.reset({
           instansiId: "",
-          kontrakId: "",
+          kontrakId: "none",
           judulUpdate: "",
           deskripsi: "",
           tanggalEvent: new Date(),
@@ -117,7 +118,7 @@ export function StatusUpdateForm({ children, updateToEdit }: StatusUpdateFormPro
 
   useEffect(() => {
     // Reset contract if institution changes
-    form.setValue("kontrakId", "");
+    form.setValue("kontrakId", "none");
   }, [selectedInstansiId, form]);
 
   const handleClassify = async () => {
@@ -157,7 +158,7 @@ export function StatusUpdateForm({ children, updateToEdit }: StatusUpdateFormPro
     setIsSaving(true);
     const dataToSubmit = {
       ...values,
-      kontrakId: values.kontrakId || "",
+      kontrakId: values.kontrakId === 'none' ? "" : values.kontrakId,
       linkMom: values.linkMom || "",
       type: values.type || "",
       subject: values.subject || "",
@@ -207,7 +208,7 @@ export function StatusUpdateForm({ children, updateToEdit }: StatusUpdateFormPro
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Instansi</FormLabel>
-                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <Select onValueChange={field.onChange} value={field.value}>
                           <FormControl>
                             <SelectTrigger>
                               <SelectValue placeholder="Pilih instansi terkait" />
@@ -231,7 +232,7 @@ export function StatusUpdateForm({ children, updateToEdit }: StatusUpdateFormPro
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Kontrak Terkait (Opsional)</FormLabel>
-                        <Select onValueChange={field.onChange} defaultValue={field.value} disabled={!selectedInstansiId || availableContracts.length === 0}>
+                        <Select onValueChange={field.onChange} value={field.value} disabled={!selectedInstansiId || availableContracts.length === 0}>
                           <FormControl>
                             <SelectTrigger>
                               <SelectValue placeholder={
@@ -244,7 +245,7 @@ export function StatusUpdateForm({ children, updateToEdit }: StatusUpdateFormPro
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent>
-                            <SelectItem value="">Umum (Tidak terikat kontrak)</SelectItem>
+                            <SelectItem value="none">Umum (Tidak terikat kontrak)</SelectItem>
                             {availableContracts.map(c => (
                               <SelectItem key={c.id} value={c.id}>
                                 {c.name}
@@ -264,7 +265,7 @@ export function StatusUpdateForm({ children, updateToEdit }: StatusUpdateFormPro
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Judul Update</FormLabel>
-                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <Select onValueChange={field.onChange} value={field.value}>
                           <FormControl>
                             <SelectTrigger>
                               <SelectValue placeholder="Pilih judul" />
@@ -403,3 +404,5 @@ export function StatusUpdateForm({ children, updateToEdit }: StatusUpdateFormPro
     </Dialog>
   );
 }
+
+    
