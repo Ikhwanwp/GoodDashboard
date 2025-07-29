@@ -163,7 +163,6 @@ export function StatusUpdateForm({ children, updateToEdit }: StatusUpdateFormPro
     </Button>
   );
 
-
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
@@ -178,165 +177,165 @@ export function StatusUpdateForm({ children, updateToEdit }: StatusUpdateFormPro
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)}>
-             <ScrollArea className="h-auto max-h-[65vh] pr-6">
-                <div className="space-y-4 py-4">
-                    <FormField
-                      control={form.control}
-                      name="instansiId"
-                      render={({ field }) => (
-                          <FormItem>
-                          <FormLabel>Instansi</FormLabel>
-                          <Select onValueChange={field.onChange} defaultValue={field.value}>
-                              <FormControl>
-                              <SelectTrigger>
-                                  <SelectValue placeholder="Pilih instansi terkait" />
-                              </SelectTrigger>
-                              </FormControl>
-                              <SelectContent>
-                              {instansi.map(inst => (
-                                  <SelectItem key={inst.id} value={inst.id}>
-                                  {inst.namaInstansi}
-                                  </SelectItem>
-                              ))}
-                              </SelectContent>
-                          </Select>
-                          <FormMessage />
-                          </FormItem>
-                      )}
-                    />
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <FormField
-                          control={form.control}
-                          name="judulUpdate"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Judul Update</FormLabel>
-                              <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                <FormControl>
-                                  <SelectTrigger>
-                                    <SelectValue placeholder="Pilih judul" />
-                                  </SelectTrigger>
-                                </FormControl>
-                                <SelectContent>
-                                  {judulUpdateOptions.map(option => (
-                                    <SelectItem key={option} value={option}>
-                                      {option}
-                                    </SelectItem>
-                                  ))}
-                                </SelectContent>
-                              </Select>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                         <FormField
-                            control={form.control}
-                            name="tanggalEvent"
-                            render={({ field }) => (
-                              <FormItem className="flex flex-col">
-                                <FormLabel>Tanggal Event</FormLabel>
-                                <Popover>
-                                  <PopoverTrigger asChild>
-                                    <FormControl>
-                                      <Button
-                                        variant={"outline"}
-                                        className={cn(
-                                          "w-full pl-3 text-left font-normal",
-                                          !field.value && "text-muted-foreground"
-                                        )}
-                                      >
-                                        {field.value ? (
-                                          format(field.value, "PPP")
-                                        ) : (
-                                          <span>Pilih tanggal</span>
-                                        )}
-                                        <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                                      </Button>
-                                    </FormControl>
-                                  </PopoverTrigger>
-                                  <PopoverContent className="w-auto p-0" align="start">
-                                    <Calendar
-                                      mode="single"
-                                      selected={field.value}
-                                      onSelect={field.onChange}
-                                      captionLayout="dropdown-buttons"
-                                      fromYear={2015}
-                                      toYear={new Date().getFullYear() + 5}
-                                      initialFocus
-                                    />
-                                  </PopoverContent>
-                                </Popover>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-                    </div>
-                    <FormField
-                      control={form.control}
-                      name="deskripsi"
-                      render={({ field }) => (
-                          <FormItem>
-                          <FormLabel>Deskripsi</FormLabel>
-                          <FormControl>
-                              <Textarea rows={4} placeholder="Jelaskan detail update pekerjaan di sini..." {...field} />
-                          </FormControl>
-                          <FormMessage />
-                          </FormItem>
-                      )}
-                    />
-                    
-                    <Card className="bg-secondary/50">
-                    <CardContent className="p-4 space-y-4">
-                        <Button type="button" variant="outline" onClick={handleClassify} disabled={isClassifying}>
-                        {isClassifying ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Sparkles className="mr-2 h-4 w-4 text-accent" />}
-                        Klasifikasi dengan AI
-                        </Button>
-                        <div className="grid grid-cols-2 gap-4">
-                            <FormField
-                            control={form.control}
-                            name="type"
-                            render={({ field }) => (
-                                <FormItem>
-                                <FormLabel>Tipe (AI)</FormLabel>
-                                <FormControl>
-                                    <Input placeholder="cth: Project Update" {...field} readOnly className="bg-background"/>
-                                </FormControl>
-                                <FormMessage />
-                                </FormItem>
-                            )}
-                            />
-                            <FormField
-                            control={form.control}
-                            name="subject"
-                            render={({ field }) => (
-                                <FormItem>
-                                <FormLabel>Subjek (AI)</FormLabel>
-                                <FormControl>
-                                    <Input placeholder="cth: Project Kick-off" {...field} readOnly className="bg-background"/>
-                                </FormControl>
-                                <FormMessage />
-                                </FormItem>
-                            )}
-                            />
-                        </div>
-                    </CardContent>
-                    </Card>
-
-                    <FormField
-                    control={form.control}
-                    name="linkMom"
-                    render={({ field }) => (
-                        <FormItem>
-                        <FormLabel>Link MoM (Opsional)</FormLabel>
+            <ScrollArea className="h-auto max-h-[65vh] pr-6">
+              <div className="space-y-4 py-4">
+                <FormField
+                  control={form.control}
+                  name="instansiId"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Instansi</FormLabel>
+                      <Select onValueChange={field.onChange} defaultValue={field.value}>
                         <FormControl>
-                            <Input placeholder="https://docs.google.com/..." {...field} />
+                          <SelectTrigger>
+                            <SelectValue placeholder="Pilih instansi terkait" />
+                          </SelectTrigger>
                         </FormControl>
+                        <SelectContent>
+                          {instansi.map(inst => (
+                            <SelectItem key={inst.id} value={inst.id}>
+                              {inst.namaInstansi}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <FormField
+                    control={form.control}
+                    name="judulUpdate"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Judul Update</FormLabel>
+                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Pilih judul" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            {judulUpdateOptions.map(option => (
+                              <SelectItem key={option} value={option}>
+                                {option}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
                         <FormMessage />
-                        </FormItem>
+                      </FormItem>
                     )}
-                    />
+                  />
+                  <FormField
+                    control={form.control}
+                    name="tanggalEvent"
+                    render={({ field }) => (
+                      <FormItem className="flex flex-col">
+                        <FormLabel>Tanggal Event</FormLabel>
+                        <Popover>
+                          <PopoverTrigger asChild>
+                            <FormControl>
+                              <Button
+                                variant={"outline"}
+                                className={cn(
+                                  "w-full pl-3 text-left font-normal",
+                                  !field.value && "text-muted-foreground"
+                                )}
+                              >
+                                {field.value ? (
+                                  format(field.value, "PPP")
+                                ) : (
+                                  <span>Pilih tanggal</span>
+                                )}
+                                <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                              </Button>
+                            </FormControl>
+                          </PopoverTrigger>
+                          <PopoverContent className="w-auto p-0" align="start">
+                            <Calendar
+                              mode="single"
+                              selected={field.value}
+                              onSelect={field.onChange}
+                              captionLayout="dropdown-buttons"
+                              fromYear={2015}
+                              toYear={new Date().getFullYear() + 5}
+                              initialFocus
+                            />
+                          </PopoverContent>
+                        </Popover>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
                 </div>
-             </ScrollArea>
+                <FormField
+                  control={form.control}
+                  name="deskripsi"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Deskripsi</FormLabel>
+                      <FormControl>
+                        <Textarea rows={4} placeholder="Jelaskan detail update pekerjaan di sini..." {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <Card className="bg-secondary/50">
+                  <CardContent className="p-4 space-y-4">
+                    <Button type="button" variant="outline" onClick={handleClassify} disabled={isClassifying}>
+                      {isClassifying ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Sparkles className="mr-2 h-4 w-4 text-accent" />}
+                      Klasifikasi dengan AI
+                    </Button>
+                    <div className="grid grid-cols-2 gap-4">
+                      <FormField
+                        control={form.control}
+                        name="type"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Tipe (AI)</FormLabel>
+                            <FormControl>
+                              <Input placeholder="cth: Project Update" {...field} readOnly className="bg-background" />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={form.control}
+                        name="subject"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Subjek (AI)</FormLabel>
+                            <FormControl>
+                              <Input placeholder="cth: Project Kick-off" {...field} readOnly className="bg-background" />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
+                  </CardContent>
+                </Card>
+
+                <FormField
+                  control={form.control}
+                  name="linkMom"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Link MoM (Opsional)</FormLabel>
+                      <FormControl>
+                        <Input placeholder="https://docs.google.com/..." {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+            </ScrollArea>
             <DialogFooter className="pt-4">
               <Button type="button" variant="ghost" onClick={() => setOpen(false)}>Batal</Button>
               <Button type="submit" disabled={isSaving}>
