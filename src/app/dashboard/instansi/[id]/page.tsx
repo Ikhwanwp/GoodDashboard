@@ -108,7 +108,7 @@ export default function InstansiDetailPage() {
                 </div>
                 <div>
                   <p className="font-semibold text-muted-foreground">Ulang Tahun</p>
-                  <p>{format(currentInstansi.tanggalUlangTahun, 'dd MMMM yyyy', { locale: idLocale })}</p>
+                  <p>{currentInstansi.tanggalUlangTahun ? format(currentInstansi.tanggalUlangTahun, 'dd MMMM yyyy', { locale: idLocale }) : 'N/A'}</p>
                 </div>
                 <div>
                   <p className="font-semibold text-muted-foreground">PIC Internal</p>
@@ -116,7 +116,7 @@ export default function InstansiDetailPage() {
                 </div>
                 <div>
                   <p className="font-semibold text-muted-foreground">Update Terakhir</p>
-                  <p>{format(currentInstansi.tanggalUpdateTerakhir, 'dd MMMM yyyy', { locale: idLocale })}</p>
+                  <p>{currentInstansi.tanggalUpdateTerakhir ? format(currentInstansi.tanggalUpdateTerakhir, 'dd MMMM yyyy', { locale: idLocale }) : 'N/A'}</p>
                 </div>
               </div>
             </CardContent>
