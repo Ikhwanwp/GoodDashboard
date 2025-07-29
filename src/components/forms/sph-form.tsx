@@ -121,9 +121,9 @@ export function SphForm({ children, sphToEdit }: SphFormProps) {
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)}>
-            <ScrollArea className="h-auto max-h-[60vh] pr-6">
-              <div className="space-y-4 py-4">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col h-full">
+            <ScrollArea className="flex-grow -mx-6">
+              <div className="space-y-4 py-4 px-6">
                 <FormField
                   control={form.control}
                   name="instansiId"
@@ -205,7 +205,7 @@ export function SphForm({ children, sphToEdit }: SphFormProps) {
                 />
               </div>
             </ScrollArea>
-            <DialogFooter className="pt-4">
+            <DialogFooter>
               <Button type="button" variant="ghost" onClick={() => setOpen(false)}>Batal</Button>
               <Button type="submit" disabled={isSaving}>
                 {isSaving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}

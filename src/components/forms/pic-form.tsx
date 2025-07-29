@@ -164,15 +164,15 @@ export function PicForm({ children, picToEdit, picType }: PicFormProps) {
             {isEditMode ? "Ubah detail PIC yang sudah ada." : "Pilih jenis PIC (Internal atau Eksternal) dan isi detailnya."}
           </DialogDescription>
         </DialogHeader>
-        <Tabs defaultValue={picType || 'internal'} className="w-full">
+        <Tabs defaultValue={picType || 'internal'} className="w-full flex flex-col overflow-hidden flex-grow">
             <TabsList className="grid w-full grid-cols-2">
                 <TabsTrigger value="internal" disabled={isEditMode && picType === 'external'}>PIC Internal</TabsTrigger>
                 <TabsTrigger value="external" disabled={isEditMode && picType === 'internal'}>PIC Eksternal</TabsTrigger>
             </TabsList>
-            <TabsContent value="internal">
+            <TabsContent value="internal" className="flex-grow overflow-auto -mx-6">
                  <Form {...internalForm}>
-                    <form onSubmit={internalForm.handleSubmit(onInternalSubmit)}>
-                      <ScrollArea className="h-auto max-h-[60vh] pr-6">
+                    <form onSubmit={internalForm.handleSubmit(onInternalSubmit)} className="flex flex-col h-full">
+                      <ScrollArea className="flex-grow px-6">
                         <div className="space-y-4 py-4">
                             <FormField
                                 control={internalForm.control}
@@ -292,7 +292,7 @@ export function PicForm({ children, picToEdit, picType }: PicFormProps) {
                             )}
                         </div>
                       </ScrollArea>
-                      <DialogFooter className="pt-4">
+                      <DialogFooter className="px-6 pb-6">
                           <Button type="button" variant="ghost" onClick={() => setOpen(false)}>Batal</Button>
                           <Button type="submit" disabled={isSaving}>
                               {isSaving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
@@ -302,11 +302,12 @@ export function PicForm({ children, picToEdit, picType }: PicFormProps) {
                     </form>
                  </Form>
             </TabsContent>
-            <TabsContent value="external">
+            <TabsContent value="external" className="flex-grow overflow-auto -mx-6">
                  <Form {...externalForm}>
-                    <form onSubmit={externalForm.handleSubmit(onExternalSubmit)}>
-                       <ScrollArea className="h-auto max-h-[60vh] pr-6">
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 py-4">
+                    <form onSubmit={externalForm.handleSubmit(onExternalSubmit)} className="flex flex-col h-full">
+                       <ScrollArea className="flex-grow px-6">
+                        <div className="space-y-4 py-4">
+                           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div className="md:col-span-2">
                                 <FormField
                                     control={externalForm.control}
@@ -378,8 +379,9 @@ export function PicForm({ children, picToEdit, picType }: PicFormProps) {
                                 )}
                             />
                         </div>
+                        </div>
                        </ScrollArea>
-                        <DialogFooter className="md:col-span-2 pt-4">
+                        <DialogFooter className="px-6 pb-6">
                             <Button type="button" variant="ghost" onClick={() => setOpen(false)}>Batal</Button>
                             <Button type="submit" disabled={isSaving}>
                                 {isSaving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}

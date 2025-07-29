@@ -198,9 +198,9 @@ export function StatusUpdateForm({ children, updateToEdit }: StatusUpdateFormPro
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)}>
-            <ScrollArea className="h-auto max-h-[65vh] pr-6">
-              <div className="space-y-4 py-4">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col h-full overflow-hidden">
+            <ScrollArea className="flex-grow -mx-6">
+              <div className="space-y-4 py-4 px-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <FormField
                     control={form.control}
@@ -391,7 +391,7 @@ export function StatusUpdateForm({ children, updateToEdit }: StatusUpdateFormPro
                 />
               </div>
             </ScrollArea>
-            <DialogFooter className="pt-4">
+            <DialogFooter>
               <Button type="button" variant="ghost" onClick={() => setOpen(false)}>Batal</Button>
               <Button type="submit" disabled={isSaving}>
                 {isSaving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
@@ -404,5 +404,3 @@ export function StatusUpdateForm({ children, updateToEdit }: StatusUpdateFormPro
     </Dialog>
   );
 }
-
-    
