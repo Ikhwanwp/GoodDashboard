@@ -26,19 +26,19 @@ type GetUpdatesColumnsParams = {
 export const getUpdatesColumns = ({ instansi, deleteStatusPekerjaan, showActions = true }: GetUpdatesColumnsParams): ColumnDef<StatusPekerjaan>[] => {
   const columns: ColumnDef<StatusPekerjaan>[] = [
     {
-      accessorKey: "tanggalUpdate",
+      accessorKey: "tanggalEvent",
       header: ({ column }) => {
         return (
           <Button
             variant="ghost"
             onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
           >
-            Tanggal
+            Tgl Event
             <ArrowUpDown className="ml-2 h-4 w-4" />
           </Button>
         )
       },
-      cell: ({ row }) => format(row.original.tanggalUpdate, "dd MMM yyyy"),
+      cell: ({ row }) => format(row.original.tanggalEvent, "dd MMM yyyy"),
     },
     {
       accessorKey: "instansiId",
@@ -65,6 +65,11 @@ export const getUpdatesColumns = ({ instansi, deleteStatusPekerjaan, showActions
       accessorKey: "subject",
       header: "Subjek (AI)",
       cell: ({ row }) => <div className="max-w-xs truncate">{row.original.subject || <span className="text-muted-foreground">N/A</span>}</div>,
+    },
+    {
+        accessorKey: "tanggalUpdate",
+        header: "Tgl Update",
+        cell: ({ row }) => format(row.original.tanggalUpdate, "dd MMM yyyy"),
     },
   ];
 

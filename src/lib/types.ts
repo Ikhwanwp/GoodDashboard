@@ -98,6 +98,7 @@ export interface StatusPekerjaan {
     id: string;
     instansiId: string;
     tanggalUpdate: Date;
+    tanggalEvent: Date; // New field for the event date
     judulUpdate: string;
     deskripsi: string;
     linkMom?: string;
@@ -105,8 +106,9 @@ export interface StatusPekerjaan {
     type?: string;
     subject?: string;
 }
-export interface StatusPekerjaanFromDB extends Omit<StatusPekerjaan, 'tanggalUpdate'> {
+export interface StatusPekerjaanFromDB extends Omit<StatusPekerjaan, 'tanggalUpdate' | 'tanggalEvent'> {
     tanggalUpdate: Timestamp;
+    tanggalEvent: Timestamp;
 }
 
 // For timeline aggregation

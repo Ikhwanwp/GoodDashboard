@@ -49,7 +49,7 @@ interface DataContextType {
   deleteDokumenSph: (id: string) => Promise<void>;
   // Status Pekerjaan
   addStatusPekerjaan: (data: Omit<StatusPekerjaan, 'id' | 'tanggalUpdate'>) => Promise<void>;
-  updateStatusPekerjaan: (id: string, data: Partial<StatusPekerjaan>) => Promise<void>;
+  updateStatusPekerjaan: (id: string, data: Partial<Omit<StatusPekerjaan, 'id' | 'tanggalUpdate'>>) => Promise<void>;
   deleteStatusPekerjaan: (id: string) => Promise<void>;
   // User (Internal PIC)
   addUser: (data: Omit<User, 'id'>) => Promise<void>;
