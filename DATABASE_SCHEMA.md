@@ -105,10 +105,11 @@ Stores work status updates for each institution.
 - **Document ID**: `auto-generated`
 - **Fields**:
   - `instansiId`: `string` (Reference to a document ID in the `instansi` collection)
-  - `tanggalUpdate`: `timestamp`
+  - `kontrakId`: `string` (Optional, reference to a document in `kontrakPks` or `kontrakMou`)
+  - `tanggalUpdate`: `timestamp` (When the update was saved to the system)
+  - `tanggalEvent`: `timestamp` (When the actual event happened)
   - `judulUpdate`: `string`
   - `deskripsi`: `string`
   - `linkMom`: `string` (Optional URL to Meeting Minutes)
   - `type`: `string` (Optional, from AI classification)
   - `subject`: `string` (Optional, from AI classification)
-
