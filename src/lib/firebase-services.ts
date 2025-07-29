@@ -206,13 +206,9 @@ export const addStatusPekerjaanToDB = async (data: Omit<StatusPekerjaan, 'id' | 
 export const updateStatusPekerjaanInDB = async (id: string, data: Partial<Omit<StatusPekerjaan, 'id' | 'tanggalUpdate'>>) => {
     const docRef = doc(db, 'statusPekerjaan', id);
     const updateData: Partial<StatusPekerjaan & { tanggalUpdate: any }> = {...data};
-
-    // Only update the timestamp if there are changes other than just the timestamp itself
-    const hasOtherChanges = Object.keys(updateData).some(key => key !== 'tanggalUpdate');
-
-    if (hasOtherChanges) {
-        updateData.tanggalUpdate = serverTimestamp();
-    }
+    
+    // Always update the timestamp on every save.
+    updateData.tanggalUpdate = serverTimestamp();
     
     return await updateDoc(docRef, updateData);
 }

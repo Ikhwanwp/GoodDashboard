@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
@@ -37,7 +37,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { useData } from "@/context/data-context";
 import { useToast } from "@/hooks/use-toast";
 import { classifyUpdateAction } from "@/lib/actions";
-import type { StatusPekerjaan } from "@/lib/types";
+import type { StatusPekerjaan, KontrakPks, KontrakMou } from "@/lib/types";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
@@ -54,6 +54,7 @@ const judulUpdateOptions = [
 
 const formSchema = z.object({
   instansiId: z.string().min(1, "Instansi harus dipilih"),
+  kontrakId: z.string().optional(),
   judulUpdate: z.string().min(1, "Judul update harus dipilih"),
   deskripsi: z.string().min(10, "Deskripsi minimal 10 karakter"),
   tanggalEvent: z.date({ required_error: "Tanggal event harus diisi." }),
@@ -72,12 +73,25 @@ export function StatusUpdateForm({ children, updateToEdit }: StatusUpdateFormPro
   const [isSaving, setIsSaving] = useState(false);
   const [isClassifying, setIsClassifying] = useState(false);
   const { toast } = useToast();
-  const { instansi, addStatusPekerjaan, updateStatusPekerjaan } = useData();
+  const { instansi, kontrakPks, kontrakMou, addStatusPekerjaan, updateStatusPekerjaan } = useData();
   const isEditMode = !!updateToEdit;
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
   });
+
+  const selectedInstansiId = form.watch("instansiId");
+
+  const availableContracts = useMemo(() => {
+    if (!selectedInstansiId) return [];
+    const pksContracts = kontrakPks
+      .filter(k => k.instansiId === selectedInstansiId)
+      .map(k => ({ id: k.id, name: `PKS: ${k.judulKontrak}` }));
+    const mouContracts = kontrakMou
+      .filter(m => m.instansiId === selectedInstansiId)
+      .map(m => ({ id: m.id, name: `MoU: ${m.isiMou}` }));
+    return [...pksContracts, ...mouContracts];
+  }, [selectedInstansiId, kontrakPks, kontrakMou]);
 
   useEffect(() => {
     if (open) {
@@ -89,6 +103,7 @@ export function StatusUpdateForm({ children, updateToEdit }: StatusUpdateFormPro
       } else {
         form.reset({
           instansiId: "",
+          kontrakId: "",
           judulUpdate: "",
           deskripsi: "",
           tanggalEvent: new Date(),
@@ -99,6 +114,11 @@ export function StatusUpdateForm({ children, updateToEdit }: StatusUpdateFormPro
       }
     }
   }, [open, isEditMode, updateToEdit, form]);
+
+  useEffect(() => {
+    // Reset contract if institution changes
+    form.setValue("kontrakId", "");
+  }, [selectedInstansiId, form]);
 
   const handleClassify = async () => {
     setIsClassifying(true);
@@ -137,6 +157,7 @@ export function StatusUpdateForm({ children, updateToEdit }: StatusUpdateFormPro
     setIsSaving(true);
     const dataToSubmit = {
       ...values,
+      kontrakId: values.kontrakId || "",
       linkMom: values.linkMom || "",
       type: values.type || "",
       subject: values.subject || "",
@@ -179,30 +200,63 @@ export function StatusUpdateForm({ children, updateToEdit }: StatusUpdateFormPro
           <form onSubmit={form.handleSubmit(onSubmit)}>
             <ScrollArea className="h-auto max-h-[65vh] pr-6">
               <div className="space-y-4 py-4">
-                <FormField
-                  control={form.control}
-                  name="instansiId"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Instansi</FormLabel>
-                      <Select onValueChange={field.onChange} defaultValue={field.value}>
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Pilih instansi terkait" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          {instansi.map(inst => (
-                            <SelectItem key={inst.id} value={inst.id}>
-                              {inst.namaInstansi}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <FormField
+                    control={form.control}
+                    name="instansiId"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Instansi</FormLabel>
+                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Pilih instansi terkait" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            {instansi.map(inst => (
+                              <SelectItem key={inst.id} value={inst.id}>
+                                {inst.namaInstansi}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="kontrakId"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Kontrak Terkait (Opsional)</FormLabel>
+                        <Select onValueChange={field.onChange} defaultValue={field.value} disabled={!selectedInstansiId || availableContracts.length === 0}>
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder={
+                                !selectedInstansiId 
+                                ? "Pilih instansi dulu" 
+                                : availableContracts.length === 0 
+                                ? "Tidak ada kontrak"
+                                : "Pilih kontrak"
+                              } />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            <SelectItem value="">Umum (Tidak terikat kontrak)</SelectItem>
+                            {availableContracts.map(c => (
+                              <SelectItem key={c.id} value={c.id}>
+                                {c.name}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <FormField
                     control={form.control}

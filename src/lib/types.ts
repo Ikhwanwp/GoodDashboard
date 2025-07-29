@@ -97,6 +97,7 @@ export interface DokumenSphFromDB extends Omit<DokumenSph, 'tanggal'> {
 export interface StatusPekerjaan {
     id: string;
     instansiId: string;
+    kontrakId?: string; // Optional: To link to a specific contract
     tanggalUpdate: Date;
     tanggalEvent: Date; // New field for the event date
     judulUpdate: string;
@@ -114,6 +115,7 @@ export interface StatusPekerjaanFromDB extends Omit<StatusPekerjaan, 'tanggalUpd
 // For timeline aggregation
 export type TimelineEvent = {
   instansiId: string;
+  kontrakId?: string;
   date: Date;
   type: 'PKS' | 'MoU' | 'SPH' | 'Update';
   title: string;

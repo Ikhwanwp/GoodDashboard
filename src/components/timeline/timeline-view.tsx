@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useMemo } from 'react';
-import type { Instansi, TimelineEvent } from '@/lib/types';
+import type { Instansi, TimelineEvent, KontrakMou, KontrakPks } from '@/lib/types';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useData } from '@/context/data-context';
@@ -14,61 +14,75 @@ interface TimelineViewProps {
 }
 
 export function TimelineView({ instansiList }: TimelineViewProps) {
-  const [selectedInstansi, setSelectedInstansi] = useState<string | null>(null);
+  const [selectedInstansiId, setSelectedInstansiId] = useState<string | null>(null);
+  const [selectedKontrakId, setSelectedKontrakId] = useState<string>('all');
   const { kontrakPks, kontrakMou, dokumenSph, statusPekerjaan } = useData();
 
+  const availableContracts = useMemo(() => {
+    if (!selectedInstansiId) return [];
+    const pks: (KontrakPks & {type: 'PKS'})[] = kontrakPks
+        .filter(k => k.instansiId === selectedInstansiId)
+        .map(k => ({...k, type: 'PKS'}));
+    const mou: (KontrakMou & {type: 'MoU'})[] = kontrakMou
+        .filter(m => m.instansiId === selectedInstansiId)
+        .map(m => ({...m, type: 'MoU'}));
+    return [...pks, ...mou];
+  }, [selectedInstansiId, kontrakPks, kontrakMou]);
+
   const timelineEvents = useMemo((): TimelineEvent[] => {
-    if (!selectedInstansi) return [];
+    if (!selectedInstansiId) return [];
 
-    const pksEvents: TimelineEvent[] = kontrakPks
-      .filter(k => k.instansiId === selectedInstansi)
+    let filteredPks = kontrakPks.filter(k => k.instansiId === selectedInstansiId);
+    let filteredMou = kontrakMou.filter(m => m.instansiId === selectedInstansiId);
+
+    if (selectedKontrakId !== 'all') {
+        filteredPks = filteredPks.filter(k => k.id === selectedKontrakId);
+        filteredMou = filteredMou.filter(m => m.id === selectedKontrakId);
+    }
+
+    const pksEvents: TimelineEvent[] = filteredPks
       .flatMap(k => ([
-        { instansiId: k.instansiId, date: k.tanggalMulai, type: 'PKS', title: `Mulai PKS: ${k.judulKontrak}`, description: `Nomor: ${k.nomorKontrakPeruri}`, icon: Handshake },
-        { instansiId: k.instansiId, date: k.tanggalBerakhir, type: 'PKS', title: `Berakhir PKS: ${k.judulKontrak}`, description: `Status: ${k.statusKontrak}`, icon: Handshake },
+        { instansiId: k.instansiId, kontrakId: k.id, date: k.tanggalMulai, type: 'PKS', title: `Mulai PKS: ${k.judulKontrak}`, description: `Nomor: ${k.nomorKontrakPeruri}`, icon: Handshake },
+        { instansiId: k.instansiId, kontrakId: k.id, date: k.tanggalBerakhir, type: 'PKS', title: `Berakhir PKS: ${k.judulKontrak}`, description: `Status: ${k.statusKontrak}`, icon: Handshake },
       ]));
 
-    const mouEvents: TimelineEvent[] = kontrakMou
-      .filter(m => m.instansiId === selectedInstansi)
+    const mouEvents: TimelineEvent[] = filteredMou
       .flatMap(m => ([
-         { instansiId: m.instansiId, date: m.tanggalMulai, type: 'MoU', title: `Mulai MoU: ${m.isiMou}`, description: `Nomor: ${m.nomorMouPeruri}`, icon: FileText },
-         { instansiId: m.instansiId, date: m.tanggalBerakhir, type: 'MoU', title: `Berakhir MoU: ${m.isiMou}`, description: 'MoU telah berakhir', icon: FileText },
+         { instansiId: m.instansiId, kontrakId: m.id, date: m.tanggalMulai, type: 'MoU', title: `Mulai MoU: ${m.isiMou}`, description: `Nomor: ${m.nomorMouPeruri}`, icon: FileText },
+         { instansiId: m.instansiId, kontrakId: m.id, date: m.tanggalBerakhir, type: 'MoU', title: `Berakhir MoU: ${m.isiMou}`, description: 'MoU telah berakhir', icon: FileText },
       ]));
 
-    const sphEvents: TimelineEvent[] = dokumenSph
-      .filter(s => s.instansiId === selectedInstansi)
-      .map(s => ({ instansiId: s.instansiId, date: s.tanggal, type: 'SPH', title: `SPH: ${s.perihal}`, description: `Nomor: ${s.nomorSuratPeruri}`, icon: FileArchive }));
+    const sphEvents: TimelineEvent[] = selectedKontrakId === 'all' 
+        ? dokumenSph
+            .filter(s => s.instansiId === selectedInstansiId)
+            .map(s => ({ instansiId: s.instansiId, date: s.tanggal, type: 'SPH', title: `SPH: ${s.perihal}`, description: `Nomor: ${s.nomorSuratPeruri}`, icon: FileArchive }))
+        : [];
 
     const statusEvents: TimelineEvent[] = statusPekerjaan
-      .filter(u => u.instansiId === selectedInstansi)
-      .map(u => ({ instansiId: u.instansiId, date: u.tanggalUpdate, type: 'Update', title: u.judulUpdate, description: u.deskripsi, icon: MessageSquareQuote }));
+      .filter(u => {
+        if (u.instansiId !== selectedInstansiId) return false;
+        if (selectedKontrakId === 'all') return true;
+        // Show update if it's linked to the selected contract OR if it's a general update (no contractId)
+        return u.kontrakId === selectedKontrakId || !u.kontrakId;
+      })
+      .map(u => ({ instansiId: u.instansiId, kontrakId: u.kontrakId, date: u.tanggalUpdate, type: 'Update', title: u.judulUpdate, description: u.deskripsi, icon: MessageSquareQuote }));
 
     return [...pksEvents, ...mouEvents, ...sphEvents, ...statusEvents].sort((a, b) => b.date.getTime() - a.date.getTime());
 
-  }, [selectedInstansi, kontrakPks, kontrakMou, dokumenSph, statusPekerjaan]);
+  }, [selectedInstansiId, selectedKontrakId, kontrakPks, kontrakMou, dokumenSph, statusPekerjaan]);
 
-  const EventIcon = ({ type }: { type: TimelineEvent['type']}) => {
-    const icons = {
-      PKS: <Handshake className="h-5 w-5 text-white" />,
-      MoU: <FileText className="h-5 w-5 text-white" />,
-      SPH: <FileArchive className="h-5 w-5 text-white" />,
-      Update: <MessageSquareQuote className="h-5 w-5 text-white" />,
-    }
-    const colors = {
-      PKS: 'bg-blue-500',
-      MoU: 'bg-green-500',
-      SPH: 'bg-yellow-500',
-      Update: 'bg-purple-500',
-    }
-    return <div className={`flex h-10 w-10 items-center justify-center rounded-full ${colors[type]}`}>{icons[type]}</div>
+  const handleInstansiChange = (instansiId: string) => {
+    setSelectedInstansiId(instansiId);
+    setSelectedKontrakId('all'); // Reset contract filter when institution changes
   }
 
   return (
     <Card>
       <CardHeader>
         <CardTitle>Timeline Aktivitas</CardTitle>
-        <CardDescription>Pilih K/L untuk melihat riwayat aktivitas secara kronologis.</CardDescription>
-        <div className="pt-4">
-          <Select onValueChange={setSelectedInstansi}>
+        <CardDescription>Pilih K/L dan kontrak untuk melihat riwayat aktivitas secara kronologis.</CardDescription>
+        <div className="pt-4 flex flex-col md:flex-row gap-4">
+          <Select onValueChange={handleInstansiChange}>
             <SelectTrigger className="w-full md:w-[300px]">
               <SelectValue placeholder="Pilih K/L..." />
             </SelectTrigger>
@@ -80,10 +94,27 @@ export function TimelineView({ instansiList }: TimelineViewProps) {
               ))}
             </SelectContent>
           </Select>
+          <Select 
+            value={selectedKontrakId} 
+            onValueChange={setSelectedKontrakId}
+            disabled={!selectedInstansiId || availableContracts.length === 0}
+          >
+            <SelectTrigger className="w-full md:w-[400px]">
+              <SelectValue placeholder="Pilih Kontrak..." />
+            </SelectTrigger>
+            <SelectContent>
+                <SelectItem value="all">Semua Kontrak</SelectItem>
+                {availableContracts.map(c => (
+                    <SelectItem key={c.id} value={c.id}>
+                        {c.type}: {c.type === 'PKS' ? c.judulKontrak : c.isiMou}
+                    </SelectItem>
+                ))}
+            </SelectContent>
+          </Select>
         </div>
       </CardHeader>
       <CardContent>
-        {selectedInstansi ? (
+        {selectedInstansiId ? (
           timelineEvents.length > 0 ? (
             <div className="relative pl-6 after:absolute after:inset-y-0 after:w-px after:bg-border after:left-0">
               {timelineEvents.map((event, index) => (
@@ -104,7 +135,7 @@ export function TimelineView({ instansiList }: TimelineViewProps) {
             </div>
           ) : (
             <div className="text-center text-muted-foreground py-16">
-              <p>Tidak ada data aktivitas untuk K/L ini.</p>
+              <p>Tidak ada data aktivitas untuk filter ini.</p>
             </div>
           )
         ) : (
