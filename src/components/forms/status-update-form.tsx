@@ -117,9 +117,12 @@ export function StatusUpdateForm({ children, updateToEdit }: StatusUpdateFormPro
   }, [open, isEditMode, updateToEdit, form]);
 
   useEffect(() => {
-    // Reset contract if institution changes
-    form.setValue("kontrakId", "none");
-  }, [selectedInstansiId, form]);
+    // Reset contract if institution changes and it's not edit mode
+    if (!isEditMode) {
+      form.setValue("kontrakId", "none");
+    }
+  }, [selectedInstansiId, form, isEditMode]);
+
 
   const handleClassify = async () => {
     setIsClassifying(true);
@@ -198,9 +201,9 @@ export function StatusUpdateForm({ children, updateToEdit }: StatusUpdateFormPro
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col h-full overflow-hidden">
-            <ScrollArea className="flex-grow -mx-6">
-              <div className="space-y-4 py-4 px-6">
+          <form id="status-update-form" onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col h-full overflow-hidden">
+            <ScrollArea className="flex-grow pr-6">
+              <div className="space-y-4 py-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <FormField
                     control={form.control}
@@ -287,7 +290,7 @@ export function StatusUpdateForm({ children, updateToEdit }: StatusUpdateFormPro
                     control={form.control}
                     name="tanggalEvent"
                     render={({ field }) => (
-                      <FormItem className="flex flex-col">
+                      <FormItem className="flex flex-col pt-2">
                         <FormLabel>Tanggal Event</FormLabel>
                         <Popover>
                           <PopoverTrigger asChild>
@@ -391,15 +394,15 @@ export function StatusUpdateForm({ children, updateToEdit }: StatusUpdateFormPro
                 />
               </div>
             </ScrollArea>
-            <DialogFooter>
-              <Button type="button" variant="ghost" onClick={() => setOpen(false)}>Batal</Button>
-              <Button type="submit" disabled={isSaving}>
-                {isSaving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                {isEditMode ? 'Simpan Perubahan' : 'Simpan'}
-              </Button>
-            </DialogFooter>
           </form>
         </Form>
+        <DialogFooter>
+          <Button type="button" variant="ghost" onClick={() => setOpen(false)}>Batal</Button>
+          <Button type="submit" form="status-update-form" disabled={isSaving}>
+            {isSaving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+            {isEditMode ? 'Simpan Perubahan' : 'Simpan'}
+          </Button>
+        </DialogFooter>
       </DialogContent>
     </Dialog>
   );

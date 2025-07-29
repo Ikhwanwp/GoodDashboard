@@ -121,9 +121,9 @@ export function SphForm({ children, sphToEdit }: SphFormProps) {
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col h-full">
-            <ScrollArea className="flex-grow -mx-6">
-              <div className="space-y-4 py-4 px-6">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+            <ScrollArea className="max-h-[60vh]">
+              <div className="space-y-4 pr-6">
                 <FormField
                   control={form.control}
                   name="instansiId"
@@ -174,7 +174,7 @@ export function SphForm({ children, sphToEdit }: SphFormProps) {
                   control={form.control}
                   name="tanggal"
                   render={({ field }) => (
-                    <FormItem className="flex flex-col">
+                    <FormItem className="flex flex-col pt-2">
                         <FormLabel>Tanggal SPH</FormLabel>
                         <Popover><PopoverTrigger asChild>
                         <FormControl>
