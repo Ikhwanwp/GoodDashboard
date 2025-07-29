@@ -3,9 +3,9 @@
 
 import { useState, useEffect } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
+import { useForm, type FieldName } from "react-hook-form";
 import * as z from "zod";
-import { CalendarIcon, Loader2, PlusCircle } from "lucide-react";
+import { CalendarIcon, Loader2, PlusCircle, ArrowLeft } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -72,6 +72,10 @@ type ContractFormProps = {
   contractType?: 'pks' | 'mou';
 }
 
+const pksStep1Fields: FieldName<z.infer<typeof pksSchema>>[] = ["instansiId", "picGaId", "judulKontrak", "nomorKontrakPeruri", "nomorKontrakKl"];
+const pksStep2Fields: FieldName<z.infer<typeof pksSchema>>[] = ["tanggalMulai", "tanggalBerakhir", "ruangLingkup", "keterangan", "linkDokumen"];
+
+
 export function ContractForm({ children, contractToEdit, contractType }: ContractFormProps) {
   const [open, setOpen] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
@@ -79,14 +83,38 @@ export function ContractForm({ children, contractToEdit, contractType }: Contrac
   const isEditMode = !!contractToEdit;
   const picGaUsers = users.filter(u => u.role === 'PIC GA');
   const [activeTab, setActiveTab] = useState(contractType || 'pks');
+  const [currentStep, setCurrentStep] = useState(0);
 
   const pksForm = useForm<z.infer<typeof pksSchema>>({
     resolver: zodResolver(pksSchema),
+    mode: "onChange",
   });
 
   const mouForm = useForm<z.infer<typeof mouSchema>>({
     resolver: zodResolver(mouSchema),
   });
+
+  const resetForms = () => {
+    pksForm.reset({
+        instansiId: "",
+        nomorKontrakPeruri: "",
+        nomorKontrakKl: "",
+        judulKontrak: "",
+        ruangLingkup: "",
+        keterangan: "",
+        linkDokumen: "",
+        picGaId: "",
+    });
+    mouForm.reset({
+        instansiId: "",
+        nomorMouPeruri: "",
+        isiMou: "",
+        ruangLingkup: "",
+        keterangan: "",
+        picGaId: "",
+    });
+    setCurrentStep(0);
+  }
 
   useEffect(() => {
     if (open) {
@@ -100,24 +128,7 @@ export function ContractForm({ children, contractToEdit, contractType }: Contrac
           mouForm.reset(contractToEdit);
         }
       } else {
-        pksForm.reset({
-            instansiId: "",
-            nomorKontrakPeruri: "",
-            nomorKontrakKl: "",
-            judulKontrak: "",
-            ruangLingkup: "",
-            keterangan: "",
-            linkDokumen: "",
-            picGaId: "",
-        });
-        mouForm.reset({
-            instansiId: "",
-            nomorMouPeruri: "",
-            isiMou: "",
-            ruangLingkup: "",
-            keterangan: "",
-            picGaId: "",
-        });
+        resetForms();
       }
     }
   }, [open, isEditMode, contractToEdit, pksForm, mouForm]);
@@ -153,6 +164,18 @@ export function ContractForm({ children, contractToEdit, contractType }: Contrac
       setIsSaving(false);
     }
   }
+
+  const handleNext = async () => {
+    const fieldsToValidate = currentStep === 0 ? pksStep1Fields : pksStep2Fields;
+    const isValid = await pksForm.trigger(fieldsToValidate);
+    if (isValid) {
+      setCurrentStep(prev => prev + 1);
+    }
+  }
+
+  const handleBack = () => {
+    setCurrentStep(prev => prev - 1);
+  }
   
   const trigger = children ? (
     <div onClick={() => setOpen(true)} className="w-full">
@@ -177,16 +200,16 @@ export function ContractForm({ children, contractToEdit, contractType }: Contrac
             {isEditMode ? "Ubah detail kontrak yang sudah ada." : "Pilih jenis kontrak (PKS atau MoU) dan isi detailnya."}
           </DialogDescription>
         </DialogHeader>
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full flex flex-col overflow-hidden">
+        <Tabs value={activeTab} onValueChange={(tab) => { setActiveTab(tab); resetForms(); }} className="w-full">
             <TabsList className="grid w-full grid-cols-2">
                 <TabsTrigger value="pks" disabled={isEditMode && contractType === 'mou'}>Kontrak PKS</TabsTrigger>
                 <TabsTrigger value="mou" disabled={isEditMode && contractType === 'pks'}>Kontrak MoU</TabsTrigger>
             </TabsList>
-            <TabsContent value="pks" className="flex-grow overflow-hidden mt-0">
+            <TabsContent value="pks" className="mt-4">
               <Form {...pksForm}>
-                <form id="pks-form" onSubmit={pksForm.handleSubmit(onPksSubmit)} className="h-full flex flex-col">
-                    <ScrollArea className="flex-grow">
-                        <div className="space-y-4 py-4 px-1">
+                <form id="pks-form" onSubmit={pksForm.handleSubmit(onPksSubmit)}>
+                    {currentStep === 0 && (
+                       <div className="space-y-4">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <FormField
                                 control={pksForm.control}
@@ -272,6 +295,10 @@ export function ContractForm({ children, contractToEdit, contractType }: Contrac
                                 )}
                             />
                         </div>
+                       </div>
+                    )}
+                    {currentStep === 1 && (
+                      <div className="space-y-4">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <FormField
                             control={pksForm.control}
@@ -383,15 +410,15 @@ export function ContractForm({ children, contractToEdit, contractType }: Contrac
                             </FormItem>
                             )}
                         />
-                        </div>
-                    </ScrollArea>
+                      </div>
+                    )}
                 </form>
               </Form>
             </TabsContent>
-            <TabsContent value="mou" className="flex-grow overflow-hidden mt-0">
+            <TabsContent value="mou" className="mt-4">
                 <Form {...mouForm}>
-                    <form id="mou-form" onSubmit={mouForm.handleSubmit(onMouSubmit)} className="h-full flex flex-col">
-                        <ScrollArea className="flex-grow">
+                    <form id="mou-form" onSubmit={mouForm.handleSubmit(onMouSubmit)}>
+                        <ScrollArea className="max-h-[60vh] -mr-6 pr-6">
                             <div className="space-y-4 py-4 px-1">
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <FormField
@@ -540,13 +567,35 @@ export function ContractForm({ children, contractToEdit, contractType }: Contrac
             </TabsContent>
         </Tabs>
         <DialogFooter>
-            <Button type="button" variant="ghost" onClick={() => setOpen(false)}>Batal</Button>
-            <Button type="submit" form={activeTab === 'pks' ? 'pks-form' : 'mou-form'} disabled={isSaving}>
-                {isSaving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                {isEditMode ? "Simpan Perubahan" : (activeTab === 'pks' ? "Simpan PKS" : "Simpan MoU")}
-            </Button>
+             {activeTab === 'pks' && currentStep > 0 && (
+                <Button type="button" variant="ghost" onClick={handleBack}>
+                    <ArrowLeft className="mr-2 h-4 w-4" />
+                    Kembali
+                </Button>
+            )}
+            <div className="flex-grow" /> 
+            <Button type="button" variant="outline" onClick={() => setOpen(false)}>Batal</Button>
+            {activeTab === 'pks' && (isEditMode || currentStep < 1) && (
+                 <Button type="button" onClick={isEditMode ? pksForm.handleSubmit(onPksSubmit) : handleNext} disabled={isSaving}>
+                     {isSaving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : (isEditMode ? "Simpan Perubahan" : "Selanjutnya")}
+                 </Button>
+            )}
+             {activeTab === 'pks' && !isEditMode && currentStep === 1 && (
+                 <Button type="submit" form="pks-form" disabled={isSaving}>
+                     {isSaving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : "Simpan PKS"}
+                 </Button>
+            )}
+
+            {activeTab === 'mou' && (
+                 <Button type="submit" form="mou-form" disabled={isSaving}>
+                    {isSaving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                    {isEditMode ? "Simpan Perubahan" : "Simpan MoU"}
+                 </Button>
+            )}
+
         </DialogFooter>
       </DialogContent>
     </Dialog>
   );
 }
+
