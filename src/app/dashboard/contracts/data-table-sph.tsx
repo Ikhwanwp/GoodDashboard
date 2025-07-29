@@ -53,12 +53,20 @@ export function SphDataTable<TData, TValue>({
 
   return (
     <div>
-        <div className="flex items-center py-4">
+        <div className="flex items-center py-4 gap-4">
             <Input
             placeholder="Cari perihal SPH..."
             value={(table.getColumn("perihal")?.getFilterValue() as string) ?? ""}
             onChange={(event) =>
                 table.getColumn("perihal")?.setFilterValue(event.target.value)
+            }
+            className="max-w-sm"
+            />
+            <Input
+            placeholder="Cari nama instansi..."
+            value={(table.getColumn("instansiId")?.getFilterValue() as string) ?? ""}
+            onChange={(event) =>
+                table.getColumn("instansiId")?.setFilterValue(event.target.value)
             }
             className="max-w-sm"
             />

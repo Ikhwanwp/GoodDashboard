@@ -53,15 +53,23 @@ export function MouDataTable<TData, TValue>({
 
   return (
     <div>
-        <div className="flex items-center py-4">
+        <div className="flex items-center py-4 gap-4">
             <Input
-            placeholder="Cari tentang mou..."
+            placeholder="Cari tentang MoU..."
             value={(table.getColumn("isiMou")?.getFilterValue() as string) ?? ""}
             onChange={(event) =>
                 table.getColumn("isiMou")?.setFilterValue(event.target.value)
             }
             className="max-w-sm"
             />
+             <Input
+              placeholder="Cari nama instansi..."
+              value={(table.getColumn("instansiId")?.getFilterValue() as string) ?? ""}
+              onChange={(event) =>
+                  table.getColumn("instansiId")?.setFilterValue(event.target.value)
+              }
+              className="max-w-sm"
+              />
         </div>
         <div className="rounded-md border">
         <Table>

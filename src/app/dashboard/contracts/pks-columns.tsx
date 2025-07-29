@@ -36,6 +36,10 @@ export const getPksColumns = ({ instansi, deleteKontrakPks, showActions = true }
         const i = instansi.find(i => i.id === row.original.instansiId);
         return <div className="font-medium">{i?.namaInstansi || 'N/A'}</div>;
       },
+      filterFn: (row, id, value) => {
+        const i = instansi.find(i => i.id === row.original.instansiId);
+        return i?.namaInstansi.toLowerCase().includes(value.toLowerCase()) || false;
+      },
     },
     {
       accessorKey: "judulKontrak",

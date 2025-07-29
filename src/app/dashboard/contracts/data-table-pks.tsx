@@ -53,12 +53,20 @@ export function PksDataTable<TData, TValue>({
 
   return (
     <div>
-        <div className="flex items-center py-4">
+        <div className="flex items-center py-4 gap-4">
             <Input
             placeholder="Cari judul kontrak..."
             value={(table.getColumn("judulKontrak")?.getFilterValue() as string) ?? ""}
             onChange={(event) =>
                 table.getColumn("judulKontrak")?.setFilterValue(event.target.value)
+            }
+            className="max-w-sm"
+            />
+            <Input
+            placeholder="Cari nama instansi..."
+            value={(table.getColumn("instansiId")?.getFilterValue() as string) ?? ""}
+            onChange={(event) =>
+                table.getColumn("instansiId")?.setFilterValue(event.target.value)
             }
             className="max-w-sm"
             />
