@@ -121,9 +121,9 @@ export function SphForm({ children, sphToEdit }: SphFormProps) {
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-            <ScrollArea className="max-h-[60vh]">
-              <div className="space-y-4 pr-6">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col h-full overflow-hidden">
+            <ScrollArea className="flex-grow pr-6 -mr-6">
+              <div className="space-y-4 py-4">
                 <FormField
                   control={form.control}
                   name="instansiId"
@@ -174,13 +174,13 @@ export function SphForm({ children, sphToEdit }: SphFormProps) {
                   control={form.control}
                   name="tanggal"
                   render={({ field }) => (
-                    <FormItem className="flex flex-col pt-2">
+                    <FormItem className="flex flex-col">
                         <FormLabel>Tanggal SPH</FormLabel>
                         <Popover><PopoverTrigger asChild>
                         <FormControl>
-                            <Button variant={"outline"} className={cn("w-full pl-3 text-left font-normal", !field.value && "text-muted-foreground")}>
+                            <Button variant={"outline"} className={cn("w-full justify-start text-left font-normal", !field.value && "text-muted-foreground")}>
+                            <CalendarIcon className="mr-2 h-4 w-4" />
                             {field.value ? (format(field.value, "PPP")) : (<span>Pilih tanggal</span>)}
-                            <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
                             </Button>
                         </FormControl>
                         </PopoverTrigger>
@@ -205,7 +205,7 @@ export function SphForm({ children, sphToEdit }: SphFormProps) {
                 />
               </div>
             </ScrollArea>
-            <DialogFooter>
+            <DialogFooter className="mt-4">
               <Button type="button" variant="ghost" onClick={() => setOpen(false)}>Batal</Button>
               <Button type="submit" disabled={isSaving}>
                 {isSaving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
