@@ -183,12 +183,12 @@ export function ContractForm({ children, contractToEdit, contractType }: Contrac
           </DialogDescription>
         </DialogHeader>
 
-        <Tabs value={activeTab} onValueChange={(tab) => { setActiveTab(tab); resetForms(); }} className="w-full flex-grow flex flex-col overflow-hidden">
+        <Tabs value={activeTab} onValueChange={(tab) => { setActiveTab(tab); resetForms(); }} className="w-full flex-grow flex flex-col">
             <TabsList className="grid w-full grid-cols-2">
                 <TabsTrigger value="pks" disabled={isEditMode && contractType === 'mou'}>Kontrak PKS</TabsTrigger>
                 <TabsTrigger value="mou" disabled={isEditMode && contractType === 'pks'}>Kontrak MoU</TabsTrigger>
             </TabsList>
-            <TabsContent value="pks" className="mt-4 flex-grow overflow-hidden">
+            <TabsContent value="pks" className="mt-4 flex-grow">
               <Form {...pksForm}>
                 <form id="pks-form" onSubmit={pksForm.handleSubmit(onPksSubmit)} className="flex flex-col h-full">
                   <ScrollArea className="flex-grow pr-6 -mr-6">
@@ -394,7 +394,7 @@ export function ContractForm({ children, contractToEdit, contractType }: Contrac
                 </form>
               </Form>
             </TabsContent>
-            <TabsContent value="mou" className="mt-4 flex-grow overflow-hidden">
+            <TabsContent value="mou" className="mt-4 flex-grow">
                 <Form {...mouForm}>
                     <form id="mou-form" onSubmit={mouForm.handleSubmit(onMouSubmit)} className="flex flex-col h-full">
                        <ScrollArea className="flex-grow pr-6 -mr-6">
