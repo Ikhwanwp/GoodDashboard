@@ -175,7 +175,7 @@ export function ContractForm({ children, contractToEdit, contractType }: Contrac
       <DialogTrigger asChild>
         {trigger}
       </DialogTrigger>
-      <DialogContent className="sm:max-w-3xl">
+      <DialogContent className="sm:max-w-3xl overflow-hidden">
         <DialogHeader>
           <DialogTitle>{isEditMode ? "Edit Kontrak" : "Tambah Kontrak Baru"}</DialogTitle>
           <DialogDescription>
@@ -183,16 +183,15 @@ export function ContractForm({ children, contractToEdit, contractType }: Contrac
           </DialogDescription>
         </DialogHeader>
 
-        <Tabs value={activeTab} onValueChange={(tab) => { setActiveTab(tab); resetForms(); }} className="w-full flex-grow flex flex-col">
+        <Tabs value={activeTab} onValueChange={(tab) => { setActiveTab(tab); resetForms(); }} className="w-full flex-grow flex flex-col overflow-hidden">
             <TabsList className="grid w-full grid-cols-2">
                 <TabsTrigger value="pks" disabled={isEditMode && contractType === 'mou'}>Kontrak PKS</TabsTrigger>
                 <TabsTrigger value="mou" disabled={isEditMode && contractType === 'pks'}>Kontrak MoU</TabsTrigger>
             </TabsList>
-            <TabsContent value="pks" className="mt-4 flex-grow">
+            <TabsContent value="pks" className="mt-4 flex-1 overflow-y-auto pr-6">
               <Form {...pksForm}>
                 <form id="pks-form" onSubmit={pksForm.handleSubmit(onPksSubmit)} className="flex flex-col h-full">
-                  <ScrollArea className="flex-grow pr-6 -mr-6">
-                    <div className="space-y-4">
+                <div className="space-y-4">
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <FormField
                             control={pksForm.control}
@@ -390,15 +389,13 @@ export function ContractForm({ children, contractToEdit, contractType }: Contrac
                           )}
                       />
                     </div>
-                  </ScrollArea>
                 </form>
               </Form>
             </TabsContent>
-            <TabsContent value="mou" className="mt-4 flex-grow">
+            <TabsContent value="mou" className="mt-4 flex-1 overflow-y-auto pr-6">
                 <Form {...mouForm}>
                     <form id="mou-form" onSubmit={mouForm.handleSubmit(onMouSubmit)} className="flex flex-col h-full">
-                       <ScrollArea className="flex-grow pr-6 -mr-6">
-                            <div className="space-y-4">
+                    <div className="space-y-4">
                               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                   <FormField
                                       control={mouForm.control}
@@ -540,7 +537,6 @@ export function ContractForm({ children, contractToEdit, contractType }: Contrac
                                   )}
                               />
                             </div>
-                        </ScrollArea>
                     </form>
                 </Form>
             </TabsContent>
