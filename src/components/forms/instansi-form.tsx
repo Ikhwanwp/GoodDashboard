@@ -14,6 +14,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
+  DialogPortal,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import {
@@ -38,7 +39,7 @@ import { useData } from "@/context/data-context";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import type { Instansi } from "@/lib/types";
-import { ScrollArea } from "../ui/scroll-area";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 const formSchema = z.object({
   namaInstansi: z.string().min(3, "Nama instansi minimal 3 karakter"),
@@ -119,9 +120,9 @@ export function InstansiForm({ children, instansiToEdit }: InstansiFormProps) {
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="flex-grow overflow-auto">
-            <ScrollArea className="h-full pr-6 -mr-6">
-              <div className="space-y-4 py-4">
+          <form onSubmit={form.handleSubmit(onSubmit)} id="instansi-form" className="flex-grow flex flex-col overflow-auto">
+            <ScrollArea className="flex-grow">
+              <div className="space-y-4 py-4 pr-6">
                 <FormField
                   control={form.control}
                   name="namaInstansi"
@@ -197,18 +198,20 @@ export function InstansiForm({ children, instansiToEdit }: InstansiFormProps) {
                                     </Button>
                                 </FormControl>
                             </PopoverTrigger>
-                            <PopoverContent className="w-auto p-0" align="start">
-                                <Calendar
-                                    mode="single"
-                                    selected={field.value}
-                                    onSelect={field.onChange}
-                                    captionLayout="dropdown-buttons"
-                                    fromYear={1945}
-                                    toYear={new Date().getFullYear()}
-                                    disabled={(date) => date > new Date() || date < new Date("1900-01-01")}
-                                    initialFocus
-                                />
-                            </PopoverContent>
+                            <DialogPortal>
+                                <PopoverContent className="w-auto p-0" align="start">
+                                    <Calendar
+                                        mode="single"
+                                        selected={field.value}
+                                        onSelect={field.onChange}
+                                        captionLayout="dropdown-buttons"
+                                        fromYear={1945}
+                                        toYear={new Date().getFullYear()}
+                                        disabled={(date) => date > new Date() || date < new Date("1900-01-01")}
+                                        initialFocus
+                                    />
+                                </PopoverContent>
+                            </DialogPortal>
                         </Popover>
                         <FormMessage />
                     </FormItem>
@@ -216,15 +219,15 @@ export function InstansiForm({ children, instansiToEdit }: InstansiFormProps) {
                 />
               </div>
             </ScrollArea>
-            <DialogFooter className="mt-auto pt-4">
-              <Button type="button" variant="ghost" onClick={() => setOpen(false)}>Batal</Button>
-              <Button type="submit" disabled={isSaving}>
-                {isSaving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                {isEditMode ? "Simpan Perubahan" : "Simpan"}
-              </Button>
-            </DialogFooter>
           </form>
         </Form>
+        <DialogFooter className="mt-auto pt-4 border-t">
+            <Button type="button" variant="ghost" onClick={() => setOpen(false)}>Batal</Button>
+            <Button type="submit" form="instansi-form" disabled={isSaving}>
+            {isSaving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+            {isEditMode ? "Simpan Perubahan" : "Simpan"}
+            </Button>
+        </DialogFooter>
       </DialogContent>
     </Dialog>
   );

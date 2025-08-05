@@ -14,6 +14,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
+  DialogPortal,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import {
@@ -201,9 +202,9 @@ export function StatusUpdateForm({ children, updateToEdit }: StatusUpdateFormPro
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
-          <form id="status-update-form" onSubmit={form.handleSubmit(onSubmit)} className="flex-grow overflow-auto">
-            <ScrollArea className="h-full pr-6 -mr-6">
-              <div className="space-y-4 py-4">
+          <form id="status-update-form" onSubmit={form.handleSubmit(onSubmit)} className="flex-grow flex flex-col overflow-auto">
+            <ScrollArea className="flex-grow">
+              <div className="space-y-4 py-4 pr-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <FormField
                     control={form.control}
@@ -311,17 +312,19 @@ export function StatusUpdateForm({ children, updateToEdit }: StatusUpdateFormPro
                               </Button>
                             </FormControl>
                           </PopoverTrigger>
-                          <PopoverContent className="w-auto p-0" align="start">
-                            <Calendar
-                              mode="single"
-                              selected={field.value}
-                              onSelect={field.onChange}
-                              captionLayout="dropdown-buttons"
-                              fromYear={2015}
-                              toYear={new Date().getFullYear() + 5}
-                              initialFocus
-                            />
-                          </PopoverContent>
+                          <DialogPortal>
+                            <PopoverContent className="w-auto p-0" align="start">
+                                <Calendar
+                                mode="single"
+                                selected={field.value}
+                                onSelect={field.onChange}
+                                captionLayout="dropdown-buttons"
+                                fromYear={2015}
+                                toYear={new Date().getFullYear() + 5}
+                                initialFocus
+                                />
+                            </PopoverContent>
+                          </DialogPortal>
                         </Popover>
                         <FormMessage />
                       </FormItem>
@@ -396,7 +399,7 @@ export function StatusUpdateForm({ children, updateToEdit }: StatusUpdateFormPro
             </ScrollArea>
           </form>
         </Form>
-        <DialogFooter className="mt-auto pt-4">
+        <DialogFooter className="mt-auto pt-4 border-t">
           <Button type="button" variant="ghost" onClick={() => setOpen(false)}>Batal</Button>
           <Button type="submit" form="status-update-form" disabled={isSaving}>
             {isSaving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}

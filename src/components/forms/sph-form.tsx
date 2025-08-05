@@ -14,6 +14,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
+  DialogPortal,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import {
@@ -122,8 +123,8 @@ export function SphForm({ children, sphToEdit }: SphFormProps) {
         </DialogHeader>
         <Form {...form}>
           <form id="sph-form" onSubmit={form.handleSubmit(onSubmit)} className="flex-grow overflow-auto">
-            <ScrollArea className="h-full pr-6 -mr-6">
-              <div className="space-y-4 py-4">
+            <ScrollArea className="flex-grow">
+              <div className="space-y-4 py-4 pr-6">
                 <FormField
                   control={form.control}
                   name="instansiId"
@@ -176,24 +177,27 @@ export function SphForm({ children, sphToEdit }: SphFormProps) {
                   render={({ field }) => (
                     <FormItem className="flex flex-col">
                         <FormLabel>Tanggal SPH</FormLabel>
-                        <Popover><PopoverTrigger asChild>
-                        <FormControl>
-                            <Button variant={"outline"} className={cn("w-full justify-start text-left font-normal", !field.value && "text-muted-foreground")}>
-                            <CalendarIcon className="mr-2 h-4 w-4" />
-                            {field.value ? (format(field.value, "PPP")) : (<span>Pilih tanggal</span>)}
-                            </Button>
-                        </FormControl>
-                        </PopoverTrigger>
-                        <PopoverContent className="w-auto p-0" align="start">
-                            <Calendar 
-                              mode="single" 
-                              selected={field.value} 
-                              onSelect={field.onChange} 
-                              captionLayout="dropdown-buttons"
-                              fromYear={2015}
-                              toYear={new Date().getFullYear() + 5}
-                              initialFocus />
-                        </PopoverContent>
+                        <Popover>
+                            <PopoverTrigger asChild>
+                                <FormControl>
+                                    <Button variant={"outline"} className={cn("w-full justify-start text-left font-normal", !field.value && "text-muted-foreground")}>
+                                    <CalendarIcon className="mr-2 h-4 w-4" />
+                                    {field.value ? (format(field.value, "PPP")) : (<span>Pilih tanggal</span>)}
+                                    </Button>
+                                </FormControl>
+                            </PopoverTrigger>
+                            <DialogPortal>
+                                <PopoverContent className="w-auto p-0" align="start">
+                                    <Calendar 
+                                    mode="single" 
+                                    selected={field.value} 
+                                    onSelect={field.onChange} 
+                                    captionLayout="dropdown-buttons"
+                                    fromYear={2015}
+                                    toYear={new Date().getFullYear() + 5}
+                                    initialFocus />
+                                </PopoverContent>
+                            </DialogPortal>
                         </Popover>
                         <FormMessage />
                     </FormItem>
@@ -214,7 +218,7 @@ export function SphForm({ children, sphToEdit }: SphFormProps) {
             </ScrollArea>
           </form>
         </Form>
-         <DialogFooter className="mt-auto pt-4">
+         <DialogFooter className="mt-auto pt-4 border-t">
             <Button type="button" variant="ghost" onClick={() => setOpen(false)}>Batal</Button>
             <Button type="submit" form="sph-form" disabled={isSaving}>
               {isSaving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}

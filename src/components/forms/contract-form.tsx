@@ -14,6 +14,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
+  DialogPortal,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import {
@@ -224,7 +225,7 @@ export function ContractForm({ children, contractToEdit, contractType }: {
             
             <TabsContent value="pks" className="mt-0 flex-grow">
               <Form {...pksForm}>
-                <form id="pks-form" onSubmit={pksForm.handleSubmit(onPksSubmit)} className="flex flex-col h-full">
+                <form id="pks-form" onSubmit={pksForm.handleSubmit(onPksSubmit)} className="h-full flex flex-col">
                   <ScrollArea className="flex-grow">
                     <div className="space-y-4 py-4 pr-6">
                       {currentStep === 1 && (
@@ -243,8 +244,8 @@ export function ContractForm({ children, contractToEdit, contractType }: {
                       {currentStep === 2 && (
                          <div className="space-y-4">
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <FormField control={pksForm.control} name="tanggalMulai" render={({ field }) => (<FormItem className="flex flex-col"><FormLabel>Tanggal Mulai</FormLabel><Popover><PopoverTrigger asChild><FormControl><Button variant={"outline"} className={cn("w-full justify-start text-left font-normal", !field.value && "text-muted-foreground")}><CalendarIcon className="mr-2 h-4 w-4" />{field.value ? (format(field.value, "PPP")) : (<span>Pilih tanggal</span>)}</Button></FormControl></PopoverTrigger><PopoverContent className="w-auto p-0" align="start"><Calendar mode="single" selected={field.value} onSelect={field.onChange} captionLayout="dropdown-buttons" fromYear={2015} toYear={new Date().getFullYear() + 10} initialFocus /></PopoverContent></Popover><FormMessage /></FormItem>)} />
-                            <FormField control={pksForm.control} name="tanggalBerakhir" render={({ field }) => (<FormItem className="flex flex-col"><FormLabel>Tanggal Berakhir</FormLabel><Popover><PopoverTrigger asChild><FormControl><Button variant={"outline"} className={cn("w-full justify-start text-left font-normal", !field.value && "text-muted-foreground")}><CalendarIcon className="mr-2 h-4 w-4" />{field.value ? (format(field.value, "PPP")) : (<span>Pilih tanggal</span>)}</Button></FormControl></PopoverTrigger><PopoverContent className="w-auto p-0" align="start"><Calendar mode="single" selected={field.value} onSelect={field.onChange} captionLayout="dropdown-buttons" fromYear={2015} toYear={new Date().getFullYear() + 10} initialFocus /></PopoverContent></Popover><FormMessage /></FormItem>)} />
+                            <FormField control={pksForm.control} name="tanggalMulai" render={({ field }) => (<FormItem className="flex flex-col"><FormLabel>Tanggal Mulai</FormLabel><Popover><PopoverTrigger asChild><FormControl><Button variant={"outline"} className={cn("w-full justify-start text-left font-normal", !field.value && "text-muted-foreground")}><CalendarIcon className="mr-2 h-4 w-4" />{field.value ? (format(field.value, "PPP")) : (<span>Pilih tanggal</span>)}</Button></FormControl></PopoverTrigger><DialogPortal><PopoverContent className="w-auto p-0" align="start"><Calendar mode="single" selected={field.value} onSelect={field.onChange} captionLayout="dropdown-buttons" fromYear={2015} toYear={new Date().getFullYear() + 10} initialFocus /></PopoverContent></DialogPortal></Popover><FormMessage /></FormItem>)} />
+                            <FormField control={pksForm.control} name="tanggalBerakhir" render={({ field }) => (<FormItem className="flex flex-col"><FormLabel>Tanggal Berakhir</FormLabel><Popover><PopoverTrigger asChild><FormControl><Button variant={"outline"} className={cn("w-full justify-start text-left font-normal", !field.value && "text-muted-foreground")}><CalendarIcon className="mr-2 h-4 w-4" />{field.value ? (format(field.value, "PPP")) : (<span>Pilih tanggal</span>)}</Button></FormControl></PopoverTrigger><DialogPortal><PopoverContent className="w-auto p-0" align="start"><Calendar mode="single" selected={field.value} onSelect={field.onChange} captionLayout="dropdown-buttons" fromYear={2015} toYear={new Date().getFullYear() + 10} initialFocus /></PopoverContent></DialogPortal></Popover><FormMessage /></FormItem>)} />
                           </div>
                           <FormField control={pksForm.control} name="ruangLingkup" render={({ field }) => (<FormItem><FormLabel>Ruang Lingkup</FormLabel><FormControl><Textarea placeholder="Jelaskan ruang lingkup pekerjaan..." {...field} /></FormControl><FormMessage /></FormItem>)} />
                           <FormField control={pksForm.control} name="keterangan" render={({ field }) => (<FormItem><FormLabel>Keterangan (Opsional)</FormLabel><FormControl><Textarea placeholder="Informasi tambahan..." {...field} /></FormControl><FormMessage /></FormItem>)} />
@@ -259,7 +260,7 @@ export function ContractForm({ children, contractToEdit, contractType }: {
 
             <TabsContent value="mou" className="mt-0 flex-grow">
                  <Form {...mouForm}>
-                    <form id="mou-form" onSubmit={mouForm.handleSubmit(onMouSubmit)} className="flex flex-col h-full">
+                    <form id="mou-form" onSubmit={mouForm.handleSubmit(onMouSubmit)} className="h-full flex flex-col">
                        <ScrollArea className="flex-grow">
                          <div className="space-y-4 py-4 pr-6">
                             {currentStep === 1 && (
@@ -275,8 +276,8 @@ export function ContractForm({ children, contractToEdit, contractType }: {
                              {currentStep === 2 && (
                                 <div className="space-y-4">
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    <FormField control={mouForm.control} name="tanggalMulai" render={({ field }) => (<FormItem className="flex flex-col"><FormLabel>Tanggal Mulai</FormLabel><Popover><PopoverTrigger asChild><FormControl><Button variant={"outline"} className={cn("w-full justify-start text-left font-normal", !field.value && "text-muted-foreground")}><CalendarIcon className="mr-2 h-4 w-4" />{field.value ? (format(field.value, "PPP")) : (<span>Pilih tanggal</span>)}</Button></FormControl></PopoverTrigger><PopoverContent className="w-auto p-0" align="start"><Calendar mode="single" selected={field.value} onSelect={field.onChange} captionLayout="dropdown-buttons" fromYear={2015} toYear={new Date().getFullYear() + 10} initialFocus /></PopoverContent></Popover><FormMessage /></FormItem>)} />
-                                    <FormField control={mouForm.control} name="tanggalBerakhir" render={({ field }) => (<FormItem className="flex flex-col"><FormLabel>Tanggal Berakhir</FormLabel><Popover><PopoverTrigger asChild><FormControl><Button variant={"outline"} className={cn("w-full justify-start text-left font-normal", !field.value && "text-muted-foreground")}><CalendarIcon className="mr-2 h-4 w-4" />{field.value ? (format(field.value, "PPP")) : (<span>Pilih tanggal</span>)}</Button></FormControl></PopoverTrigger><PopoverContent className="w-auto p-0" align="start"><Calendar mode="single" selected={field.value} onSelect={field.onChange} captionLayout="dropdown-buttons" fromYear={2015} toYear={new Date().getFullYear() + 10} initialFocus /></PopoverContent></Popover><FormMessage /></FormItem>)} />
+                                    <FormField control={mouForm.control} name="tanggalMulai" render={({ field }) => (<FormItem className="flex flex-col"><FormLabel>Tanggal Mulai</FormLabel><Popover><PopoverTrigger asChild><FormControl><Button variant={"outline"} className={cn("w-full justify-start text-left font-normal", !field.value && "text-muted-foreground")}><CalendarIcon className="mr-2 h-4 w-4" />{field.value ? (format(field.value, "PPP")) : (<span>Pilih tanggal</span>)}</Button></FormControl></PopoverTrigger><DialogPortal><PopoverContent className="w-auto p-0" align="start"><Calendar mode="single" selected={field.value} onSelect={field.onChange} captionLayout="dropdown-buttons" fromYear={2015} toYear={new Date().getFullYear() + 10} initialFocus /></PopoverContent></DialogPortal></Popover><FormMessage /></FormItem>)} />
+                                    <FormField control={mouForm.control} name="tanggalBerakhir" render={({ field }) => (<FormItem className="flex flex-col"><FormLabel>Tanggal Berakhir</FormLabel><Popover><PopoverTrigger asChild><FormControl><Button variant={"outline"} className={cn("w-full justify-start text-left font-normal", !field.value && "text-muted-foreground")}><CalendarIcon className="mr-2 h-4 w-4" />{field.value ? (format(field.value, "PPP")) : (<span>Pilih tanggal</span>)}</Button></FormControl></PopoverTrigger><DialogPortal><PopoverContent className="w-auto p-0" align="start"><Calendar mode="single" selected={field.value} onSelect={field.onChange} captionLayout="dropdown-buttons" fromYear={2015} toYear={new Date().getFullYear() + 10} initialFocus /></PopoverContent></DialogPortal></Popover><FormMessage /></FormItem>)} />
                                 </div>
                                 <FormField control={mouForm.control} name="ruangLingkup" render={({ field }) => (<FormItem><FormLabel>Ruang Lingkup</FormLabel><FormControl><Textarea placeholder="Jelaskan ruang lingkup MoU..." {...field} /></FormControl><FormMessage /></FormItem>)} />
                                 <FormField control={mouForm.control} name="keterangan" render={({ field }) => (<FormItem><FormLabel>Keterangan (Opsional)</FormLabel><FormControl><Textarea placeholder="Informasi tambahan..." {...field} /></FormControl><FormMessage /></FormItem>)} />
@@ -288,7 +289,7 @@ export function ContractForm({ children, contractToEdit, contractType }: {
                  </Form>
             </TabsContent>
         </Tabs>
-        <DialogFooter className="mt-auto pt-4">
+        <DialogFooter className="mt-auto pt-4 border-t">
             <div className="w-full flex justify-between items-center">
                 <Button type="button" variant="outline" onClick={() => setOpen(false)}>Batal</Button>
                 
