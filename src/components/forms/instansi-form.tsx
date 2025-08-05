@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useEffect } from "react";
@@ -37,6 +38,7 @@ import { useData } from "@/context/data-context";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import type { Instansi } from "@/lib/types";
+import { ScrollArea } from "../ui/scroll-area";
 
 const formSchema = z.object({
   namaInstansi: z.string().min(3, "Nama instansi minimal 3 karakter"),
@@ -109,7 +111,7 @@ export function InstansiForm({ children, instansiToEdit }: InstansiFormProps) {
       <DialogTrigger asChild>
         {trigger}
       </DialogTrigger>
-      <DialogContent className="sm:max-w-lg">
+      <DialogContent className="sm:max-w-lg flex flex-col">
         <DialogHeader>
           <DialogTitle>{isEditMode ? "Edit Instansi" : "Tambah Instansi Baru"}</DialogTitle>
           <DialogDescription>
@@ -117,97 +119,104 @@ export function InstansiForm({ children, instansiToEdit }: InstansiFormProps) {
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-            <FormField
-              control={form.control}
-              name="namaInstansi"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Nama Instansi</FormLabel>
-                  <FormControl>
-                    <Input placeholder="cth: Kementerian Keuangan" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-             <FormField
-              control={form.control}
-              name="kodeInstansi"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Kode Instansi</FormLabel>
-                  <FormControl>
-                    <Input placeholder="cth: KEMENKEU" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-             <FormField
-              control={form.control}
-              name="jenisLayanan"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Jenis Layanan</FormLabel>
-                  <FormControl>
-                    <Input placeholder="cth: Digital Seal" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="statusKementrian"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Status Kementrian</FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Pilih status" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      <SelectItem value="STG Prioritas">STG Prioritas</SelectItem>
-                      <SelectItem value="Non Prioritas">Non Prioritas</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-             <FormField
-              control={form.control}
-              name="tanggalUlangTahun"
-              render={({ field }) => (
-                <FormItem className="flex flex-col">
-                    <FormLabel>Tanggal Ulang Tahun</FormLabel>
-                    <Popover>
-                        <PopoverTrigger asChild>
-                            <FormControl>
-                                <Button variant={"outline"} className={cn("w-full pl-3 text-left font-normal", !field.value && "text-muted-foreground")}>
-                                {field.value ? (format(field.value, "PPP")) : (<span>Pilih tanggal</span>)}
-                                <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                                </Button>
-                            </FormControl>
-                        </PopoverTrigger>
-                        <PopoverContent className="w-auto p-0" align="start">
-                            <Calendar
-                                mode="single"
-                                selected={field.value}
-                                onSelect={field.onChange}
-                                disabled={(date) => date > new Date() || date < new Date("1900-01-01")}
-                                initialFocus
-                            />
-                        </PopoverContent>
-                    </Popover>
-                    <FormMessage />
-                </FormItem>
-              )}
-            />
-            <DialogFooter>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="flex-grow overflow-auto">
+            <ScrollArea className="h-full pr-6 -mr-6">
+              <div className="space-y-4 py-4">
+                <FormField
+                  control={form.control}
+                  name="namaInstansi"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Nama Instansi</FormLabel>
+                      <FormControl>
+                        <Input placeholder="cth: Kementerian Keuangan" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="kodeInstansi"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Kode Instansi</FormLabel>
+                      <FormControl>
+                        <Input placeholder="cth: KEMENKEU" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="jenisLayanan"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Jenis Layanan</FormLabel>
+                      <FormControl>
+                        <Input placeholder="cth: Digital Seal" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="statusKementrian"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Status Kementrian</FormLabel>
+                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Pilih status" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="STG Prioritas">STG Prioritas</SelectItem>
+                          <SelectItem value="Non Prioritas">Non Prioritas</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="tanggalUlangTahun"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-col">
+                        <FormLabel>Tanggal Ulang Tahun</FormLabel>
+                        <Popover>
+                            <PopoverTrigger asChild>
+                                <FormControl>
+                                    <Button variant={"outline"} className={cn("w-full pl-3 text-left font-normal", !field.value && "text-muted-foreground")}>
+                                    {field.value ? (format(field.value, "PPP")) : (<span>Pilih tanggal</span>)}
+                                    <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                                    </Button>
+                                </FormControl>
+                            </PopoverTrigger>
+                            <PopoverContent className="w-auto p-0" align="start">
+                                <Calendar
+                                    mode="single"
+                                    selected={field.value}
+                                    onSelect={field.onChange}
+                                    captionLayout="dropdown-buttons"
+                                    fromYear={1945}
+                                    toYear={new Date().getFullYear()}
+                                    disabled={(date) => date > new Date() || date < new Date("1900-01-01")}
+                                    initialFocus
+                                />
+                            </PopoverContent>
+                        </Popover>
+                        <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+            </ScrollArea>
+            <DialogFooter className="mt-auto pt-4">
               <Button type="button" variant="ghost" onClick={() => setOpen(false)}>Batal</Button>
               <Button type="submit" disabled={isSaving}>
                 {isSaving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}

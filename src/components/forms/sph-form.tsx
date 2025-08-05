@@ -113,7 +113,7 @@ export function SphForm({ children, sphToEdit }: SphFormProps) {
       <DialogTrigger asChild>
         {trigger}
       </DialogTrigger>
-      <DialogContent className="sm:max-w-lg">
+      <DialogContent className="sm:max-w-lg flex flex-col">
         <DialogHeader>
           <DialogTitle>{isEditMode ? "Edit Dokumen SPH" : "Tambah Dokumen SPH Baru"}</DialogTitle>
           <DialogDescription>
@@ -121,8 +121,8 @@ export function SphForm({ children, sphToEdit }: SphFormProps) {
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col h-full overflow-hidden">
-            <ScrollArea className="flex-grow pr-6 -mr-6">
+          <form id="sph-form" onSubmit={form.handleSubmit(onSubmit)} className="flex-grow overflow-auto">
+            <ScrollArea className="h-full pr-6 -mr-6">
               <div className="space-y-4 py-4">
                 <FormField
                   control={form.control}
@@ -185,7 +185,14 @@ export function SphForm({ children, sphToEdit }: SphFormProps) {
                         </FormControl>
                         </PopoverTrigger>
                         <PopoverContent className="w-auto p-0" align="start">
-                            <Calendar mode="single" selected={field.value} onSelect={field.onChange} initialFocus />
+                            <Calendar 
+                              mode="single" 
+                              selected={field.value} 
+                              onSelect={field.onChange} 
+                              captionLayout="dropdown-buttons"
+                              fromYear={2015}
+                              toYear={new Date().getFullYear() + 5}
+                              initialFocus />
                         </PopoverContent>
                         </Popover>
                         <FormMessage />
@@ -205,15 +212,15 @@ export function SphForm({ children, sphToEdit }: SphFormProps) {
                 />
               </div>
             </ScrollArea>
-            <DialogFooter className="mt-4">
-              <Button type="button" variant="ghost" onClick={() => setOpen(false)}>Batal</Button>
-              <Button type="submit" disabled={isSaving}>
-                {isSaving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                {isEditMode ? "Simpan Perubahan" : "Simpan SPH"}
-              </Button>
-            </DialogFooter>
           </form>
         </Form>
+         <DialogFooter className="mt-auto pt-4">
+            <Button type="button" variant="ghost" onClick={() => setOpen(false)}>Batal</Button>
+            <Button type="submit" form="sph-form" disabled={isSaving}>
+              {isSaving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              {isEditMode ? "Simpan Perubahan" : "Simpan SPH"}
+            </Button>
+          </DialogFooter>
       </DialogContent>
     </Dialog>
   );

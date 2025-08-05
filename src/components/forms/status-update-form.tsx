@@ -193,7 +193,7 @@ export function StatusUpdateForm({ children, updateToEdit }: StatusUpdateFormPro
       <DialogTrigger asChild>
         {trigger}
       </DialogTrigger>
-      <DialogContent className="sm:max-w-2xl">
+      <DialogContent className="sm:max-w-2xl flex flex-col">
         <DialogHeader>
           <DialogTitle>{isEditMode ? 'Edit Status Pekerjaan' : 'Tambah Status Pekerjaan'}</DialogTitle>
           <DialogDescription>
@@ -201,8 +201,8 @@ export function StatusUpdateForm({ children, updateToEdit }: StatusUpdateFormPro
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
-          <form id="status-update-form" onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col h-full overflow-hidden">
-            <ScrollArea className="flex-grow pr-6">
+          <form id="status-update-form" onSubmit={form.handleSubmit(onSubmit)} className="flex-grow overflow-auto">
+            <ScrollArea className="h-full pr-6 -mr-6">
               <div className="space-y-4 py-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <FormField
@@ -290,7 +290,7 @@ export function StatusUpdateForm({ children, updateToEdit }: StatusUpdateFormPro
                     control={form.control}
                     name="tanggalEvent"
                     render={({ field }) => (
-                      <FormItem className="flex flex-col pt-2">
+                      <FormItem className="flex flex-col">
                         <FormLabel>Tanggal Event</FormLabel>
                         <Popover>
                           <PopoverTrigger asChild>
@@ -396,7 +396,7 @@ export function StatusUpdateForm({ children, updateToEdit }: StatusUpdateFormPro
             </ScrollArea>
           </form>
         </Form>
-        <DialogFooter>
+        <DialogFooter className="mt-auto pt-4">
           <Button type="button" variant="ghost" onClick={() => setOpen(false)}>Batal</Button>
           <Button type="submit" form="status-update-form" disabled={isSaving}>
             {isSaving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}

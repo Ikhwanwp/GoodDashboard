@@ -3,7 +3,7 @@
 
 import { useState, useEffect } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm, type FieldName } from "react-hook-form";
+import { useForm, type FieldName, type UseFormTrigger } from "react-hook-form";
 import * as z from "zod";
 import { CalendarIcon, Loader2, PlusCircle, ArrowLeft } from "lucide-react";
 import {
@@ -66,27 +66,49 @@ const mouSchema = z.object({
   keterangan: z.string().optional(),
 });
 
-type ContractFormProps = {
+type PksFormValues = z.infer<typeof pksSchema>;
+type MouFormValues = z.infer<typeof mouSchema>;
+
+type PksStepFields = {
+  [key: number]: FieldName<PksFormValues>[];
+};
+
+const pksStepFields: PksStepFields = {
+  1: ["instansiId", "picGaId", "judulKontrak", "nomorKontrakPeruri", "nomorKontrakKl"],
+  2: ["tanggalMulai", "tanggalBerakhir", "ruangLingkup", "keterangan", "linkDokumen"],
+};
+
+type MouStepFields = {
+  [key: number]: FieldName<MouFormValues>[];
+};
+
+const mouStepFields: MouStepFields = {
+  1: ["instansiId", "picGaId", "isiMou", "nomorMouPeruri"],
+  2: ["tanggalMulai", "tanggalBerakhir", "ruangLingkup", "keterangan"],
+};
+
+
+export function ContractForm({ children, contractToEdit, contractType }: {
   children?: React.ReactNode;
   contractToEdit?: KontrakPks | KontrakMou;
   contractType?: 'pks' | 'mou';
-}
-
-export function ContractForm({ children, contractToEdit, contractType }: ContractFormProps) {
+}) {
   const [open, setOpen] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const { instansi, users, addKontrakPks, addKontrakMou, updateKontrakPks, updateKontrakMou } = useData();
   const isEditMode = !!contractToEdit;
   const picGaUsers = users.filter(u => u.role === 'PIC GA');
   const [activeTab, setActiveTab] = useState(contractType || 'pks');
+  const [currentStep, setCurrentStep] = useState(1);
 
-  const pksForm = useForm<z.infer<typeof pksSchema>>({
+  const pksForm = useForm<PksFormValues>({
     resolver: zodResolver(pksSchema),
     mode: "onChange",
   });
 
-  const mouForm = useForm<z.infer<typeof mouSchema>>({
+  const mouForm = useForm<MouFormValues>({
     resolver: zodResolver(mouSchema),
+    mode: "onChange",
   });
 
   const resetForms = () => {
@@ -108,6 +130,7 @@ export function ContractForm({ children, contractToEdit, contractType }: Contrac
         keterangan: "",
         picGaId: "",
     });
+    setCurrentStep(1);
   }
 
   useEffect(() => {
@@ -127,7 +150,15 @@ export function ContractForm({ children, contractToEdit, contractType }: Contrac
     }
   }, [open, isEditMode, contractToEdit, pksForm, mouForm]);
 
-  async function onPksSubmit(values: z.infer<typeof pksSchema>) {
+
+  const handleNextStep = async (trigger: UseFormTrigger<any>, fields: FieldName<any>[]) => {
+    const isValid = await trigger(fields);
+    if (isValid) {
+      setCurrentStep(currentStep + 1);
+    }
+  };
+
+  async function onPksSubmit(values: PksFormValues) {
     setIsSaving(true);
     const dataToSubmit = { ...values, keterangan: values.keterangan || "", linkDokumen: values.linkDokumen || "" };
     
@@ -143,7 +174,7 @@ export function ContractForm({ children, contractToEdit, contractType }: Contrac
     }
   }
 
-  async function onMouSubmit(values: z.infer<typeof mouSchema>) {
+  async function onMouSubmit(values: MouFormValues) {
     setIsSaving(true);
     const dataToSubmit = { ...values, keterangan: values.keterangan || "" };
 
@@ -170,12 +201,14 @@ export function ContractForm({ children, contractToEdit, contractType }: Contrac
       </Button>
   );
 
+  const totalSteps = activeTab === 'pks' ? Object.keys(pksStepFields).length : Object.keys(mouStepFields).length;
+
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         {trigger}
       </DialogTrigger>
-      <DialogContent className="sm:max-w-3xl overflow-hidden">
+      <DialogContent className="sm:max-w-3xl flex flex-col">
         <DialogHeader>
           <DialogTitle>{isEditMode ? "Edit Kontrak" : "Tambah Kontrak Baru"}</DialogTitle>
           <DialogDescription>
@@ -183,378 +216,103 @@ export function ContractForm({ children, contractToEdit, contractType }: Contrac
           </DialogDescription>
         </DialogHeader>
 
-        <Tabs value={activeTab} onValueChange={(tab) => { setActiveTab(tab); resetForms(); }} className="w-full flex-grow flex flex-col overflow-hidden">
+        <Tabs value={activeTab} onValueChange={(tab) => { setActiveTab(tab); resetForms(); }} className="w-full flex-grow flex flex-col overflow-auto">
             <TabsList className="grid w-full grid-cols-2">
                 <TabsTrigger value="pks" disabled={isEditMode && contractType === 'mou'}>Kontrak PKS</TabsTrigger>
                 <TabsTrigger value="mou" disabled={isEditMode && contractType === 'pks'}>Kontrak MoU</TabsTrigger>
             </TabsList>
-            <TabsContent value="pks" className="mt-4 flex-1 overflow-y-auto pr-6">
+            
+            <TabsContent value="pks" className="mt-0 flex-grow">
               <Form {...pksForm}>
                 <form id="pks-form" onSubmit={pksForm.handleSubmit(onPksSubmit)} className="flex flex-col h-full">
-                <div className="space-y-4">
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <FormField
-                            control={pksForm.control}
-                            name="instansiId"
-                            render={({ field }) => (
-                                <FormItem>
-                                <FormLabel>Instansi</FormLabel>
-                                <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                    <FormControl>
-                                    <SelectTrigger>
-                                        <SelectValue placeholder="Pilih instansi terkait" />
-                                    </SelectTrigger>
-                                    </FormControl>
-                                    <SelectContent>
-                                    {instansi.map(inst => (
-                                        <SelectItem key={inst.id} value={inst.id}>
-                                        {inst.namaInstansi}
-                                        </SelectItem>
-                                    ))}
-                                    </SelectContent>
-                                </Select>
-                                <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-                        <FormField
-                            control={pksForm.control}
-                            name="picGaId"
-                            render={({ field }) => (
-                                <FormItem>
-                                <FormLabel>PIC GA</FormLabel>
-                                <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                    <FormControl>
-                                    <SelectTrigger>
-                                        <SelectValue placeholder="Pilih PIC GA" />
-                                    </SelectTrigger>
-                                    </FormControl>
-                                    <SelectContent>
-                                    {picGaUsers.map(user => (
-                                        <SelectItem key={user.id} value={user.id}>
-                                        {user.nama}
-                                        </SelectItem>
-                                    ))}
-                                    </SelectContent>
-                                </Select>
-                                <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-                      </div>
-                      <FormField
-                          control={pksForm.control}
-                          name="judulKontrak"
-                          render={({ field }) => (
-                          <FormItem>
-                              <FormLabel>Judul Kontrak</FormLabel>
-                              <FormControl><Input placeholder="cth: Penyediaan Meterai Elektronik" {...field} /></FormControl>
-                              <FormMessage />
-                          </FormItem>
-                          )}
-                      />
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                          <FormField
-                              control={pksForm.control}
-                              name="nomorKontrakPeruri"
-                              render={({ field }) => (
-                              <FormItem>
-                                  <FormLabel>Nomor Kontrak Peruri</FormLabel>
-                                  <FormControl><Input placeholder="PKS/001/2024" {...field} /></FormControl>
-                                  <FormMessage />
-                              </FormItem>
-                              )}
-                          />
-                          <FormField
-                              control={pksForm.control}
-                              name="nomorKontrakKl"
-                              render={({ field }) => (
-                              <FormItem>
-                                  <FormLabel>Nomor Kontrak K/L</FormLabel>
-                                  <FormControl><Input placeholder="KL/XYZ/001" {...field} /></FormControl>
-                                  <FormMessage />
-                              </FormItem>
-                              )}
-                          />
-                      </div>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                          <FormField
-                          control={pksForm.control}
-                          name="tanggalMulai"
-                          render={({ field }) => (
-                              <FormItem className="flex flex-col">
-                              <FormLabel>Tanggal Mulai</FormLabel>
-                              <Popover>
-                                  <PopoverTrigger asChild>
-                                  <FormControl>
-                                      <Button
-                                      variant={"outline"}
-                                      className={cn(
-                                          "w-full justify-start text-left font-normal",
-                                          !field.value && "text-muted-foreground"
-                                      )}
-                                      >
-                                      <CalendarIcon className="mr-2 h-4 w-4" />
-                                      {field.value ? (
-                                          format(field.value, "PPP")
-                                      ) : (
-                                          <span>Pilih tanggal</span>
-                                      )}
-                                      </Button>
-                                  </FormControl>
-                                  </PopoverTrigger>
-                                  <PopoverContent className="w-auto p-0" align="start">
-                                  <Calendar
-                                      mode="single"
-                                      selected={field.value}
-                                      onSelect={field.onChange}
-                                      initialFocus
-                                  />
-                                  </PopoverContent>
-                              </Popover>
-                              <FormMessage />
-                              </FormItem>
-                          )}
-                          />
-                          <FormField
-                          control={pksForm.control}
-                          name="tanggalBerakhir"
-                          render={({ field }) => (
-                              <FormItem className="flex flex-col">
-                              <FormLabel>Tanggal Berakhir</FormLabel>
-                              <Popover>
-                                  <PopoverTrigger asChild>
-                                  <FormControl>
-                                      <Button
-                                      variant={"outline"}
-                                      className={cn(
-                                          "w-full justify-start text-left font-normal",
-                                          !field.value && "text-muted-foreground"
-                                      )}
-                                      >
-                                       <CalendarIcon className="mr-2 h-4 w-4" />
-                                      {field.value ? (
-                                          format(field.value, "PPP")
-                                      ) : (
-                                          <span>Pilih tanggal</span>
-                                      )}
-                                      </Button>
-                                  </FormControl>
-                                  </PopoverTrigger>
-                                  <PopoverContent className="w-auto p-0" align="start">
-                                  <Calendar
-                                      mode="single"
-                                      selected={field.value}
-                                      onSelect={field.onChange}
-                                      initialFocus
-                                  />
-                                  </PopoverContent>
-                              </Popover>
-                              <FormMessage />
-                              </FormItem>
-                          )}
-                          />
-                      </div>
-                      <FormField
-                          control={pksForm.control}
-                          name="ruangLingkup"
-                          render={({ field }) => (
-                          <FormItem>
-                              <FormLabel>Ruang Lingkup</FormLabel>
-                              <FormControl><Textarea placeholder="Jelaskan ruang lingkup pekerjaan..." {...field} /></FormControl>
-                              <FormMessage />
-                          </FormItem>
-                          )}
-                      />
-                      <FormField
-                          control={pksForm.control}
-                          name="keterangan"
-                          render={({ field }) => (
-                          <FormItem>
-                              <FormLabel>Keterangan (Opsional)</FormLabel>
-                              <FormControl><Textarea placeholder="Informasi tambahan..." {...field} /></FormControl>
-                              <FormMessage />
-                          </FormItem>
-                          )}
-                      />
-                      <FormField
-                          control={pksForm.control}
-                          name="linkDokumen"
-                          render={({ field }) => (
-                          <FormItem>
-                              <FormLabel>Link Dokumen (Opsional)</FormLabel>
-                              <FormControl><Input placeholder="https://..." {...field} /></FormControl>
-                              <FormMessage />
-                          </FormItem>
-                          )}
-                      />
+                  <ScrollArea className="flex-grow">
+                    <div className="space-y-4 py-4 pr-6">
+                      {currentStep === 1 && (
+                        <div className="space-y-4">
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <FormField control={pksForm.control} name="instansiId" render={({ field }) => (<FormItem><FormLabel>Instansi</FormLabel><Select onValueChange={field.onChange} defaultValue={field.value}><FormControl><SelectTrigger><SelectValue placeholder="Pilih instansi terkait" /></SelectTrigger></FormControl><SelectContent>{instansi.map(inst => (<SelectItem key={inst.id} value={inst.id}>{inst.namaInstansi}</SelectItem>))}</SelectContent></Select><FormMessage /></FormItem>)} />
+                            <FormField control={pksForm.control} name="picGaId" render={({ field }) => (<FormItem><FormLabel>PIC GA</FormLabel><Select onValueChange={field.onChange} defaultValue={field.value}><FormControl><SelectTrigger><SelectValue placeholder="Pilih PIC GA" /></SelectTrigger></FormControl><SelectContent>{picGaUsers.map(user => (<SelectItem key={user.id} value={user.id}>{user.nama}</SelectItem>))}</SelectContent></Select><FormMessage /></FormItem>)} />
+                          </div>
+                          <FormField control={pksForm.control} name="judulKontrak" render={({ field }) => (<FormItem><FormLabel>Judul Kontrak</FormLabel><FormControl><Input placeholder="cth: Penyediaan Meterai Elektronik" {...field} /></FormControl><FormMessage /></FormItem>)} />
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <FormField control={pksForm.control} name="nomorKontrakPeruri" render={({ field }) => (<FormItem><FormLabel>Nomor Kontrak Peruri</FormLabel><FormControl><Input placeholder="PKS/001/2024" {...field} /></FormControl><FormMessage /></FormItem>)} />
+                            <FormField control={pksForm.control} name="nomorKontrakKl" render={({ field }) => (<FormItem><FormLabel>Nomor Kontrak K/L</FormLabel><FormControl><Input placeholder="KL/XYZ/001" {...field} /></FormControl><FormMessage /></FormItem>)} />
+                          </div>
+                        </div>
+                      )}
+                      {currentStep === 2 && (
+                         <div className="space-y-4">
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <FormField control={pksForm.control} name="tanggalMulai" render={({ field }) => (<FormItem className="flex flex-col"><FormLabel>Tanggal Mulai</FormLabel><Popover><PopoverTrigger asChild><FormControl><Button variant={"outline"} className={cn("w-full justify-start text-left font-normal", !field.value && "text-muted-foreground")}><CalendarIcon className="mr-2 h-4 w-4" />{field.value ? (format(field.value, "PPP")) : (<span>Pilih tanggal</span>)}</Button></FormControl></PopoverTrigger><PopoverContent className="w-auto p-0" align="start"><Calendar mode="single" selected={field.value} onSelect={field.onChange} captionLayout="dropdown-buttons" fromYear={2015} toYear={new Date().getFullYear() + 10} initialFocus /></PopoverContent></Popover><FormMessage /></FormItem>)} />
+                            <FormField control={pksForm.control} name="tanggalBerakhir" render={({ field }) => (<FormItem className="flex flex-col"><FormLabel>Tanggal Berakhir</FormLabel><Popover><PopoverTrigger asChild><FormControl><Button variant={"outline"} className={cn("w-full justify-start text-left font-normal", !field.value && "text-muted-foreground")}><CalendarIcon className="mr-2 h-4 w-4" />{field.value ? (format(field.value, "PPP")) : (<span>Pilih tanggal</span>)}</Button></FormControl></PopoverTrigger><PopoverContent className="w-auto p-0" align="start"><Calendar mode="single" selected={field.value} onSelect={field.onChange} captionLayout="dropdown-buttons" fromYear={2015} toYear={new Date().getFullYear() + 10} initialFocus /></PopoverContent></Popover><FormMessage /></FormItem>)} />
+                          </div>
+                          <FormField control={pksForm.control} name="ruangLingkup" render={({ field }) => (<FormItem><FormLabel>Ruang Lingkup</FormLabel><FormControl><Textarea placeholder="Jelaskan ruang lingkup pekerjaan..." {...field} /></FormControl><FormMessage /></FormItem>)} />
+                          <FormField control={pksForm.control} name="keterangan" render={({ field }) => (<FormItem><FormLabel>Keterangan (Opsional)</FormLabel><FormControl><Textarea placeholder="Informasi tambahan..." {...field} /></FormControl><FormMessage /></FormItem>)} />
+                          <FormField control={pksForm.control} name="linkDokumen" render={({ field }) => (<FormItem><FormLabel>Link Dokumen (Opsional)</FormLabel><FormControl><Input placeholder="https://..." {...field} /></FormControl><FormMessage /></FormItem>)} />
+                        </div>
+                      )}
                     </div>
+                  </ScrollArea>
                 </form>
               </Form>
             </TabsContent>
-            <TabsContent value="mou" className="mt-4 flex-1 overflow-y-auto pr-6">
-                <Form {...mouForm}>
+
+            <TabsContent value="mou" className="mt-0 flex-grow">
+                 <Form {...mouForm}>
                     <form id="mou-form" onSubmit={mouForm.handleSubmit(onMouSubmit)} className="flex flex-col h-full">
-                    <div className="space-y-4">
-                              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                  <FormField
-                                      control={mouForm.control}
-                                      name="instansiId"
-                                      render={({ field }) => (
-                                          <FormItem>
-                                          <FormLabel>Instansi</FormLabel>
-                                          <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                              <FormControl>
-                                              <SelectTrigger>
-                                                  <SelectValue placeholder="Pilih instansi terkait" />
-                                              </SelectTrigger>
-                                              </FormControl>
-                                              <SelectContent>
-                                              {instansi.map(inst => (
-                                                  <SelectItem key={inst.id} value={inst.id}>
-                                                  {inst.namaInstansi}
-                                                  </SelectItem>
-                                              ))}
-                                              </SelectContent>
-                                          </Select>
-                                          <FormMessage />
-                                          </FormItem>
-                                      )}
-                                  />
-                                  <FormField
-                                      control={mouForm.control}
-                                      name="picGaId"
-                                      render={({ field }) => (
-                                          <FormItem>
-                                          <FormLabel>PIC GA</FormLabel>
-                                          <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                              <FormControl>
-                                              <SelectTrigger>
-                                                  <SelectValue placeholder="Pilih PIC GA" />
-                                              </SelectTrigger>
-                                              </FormControl>
-                                              <SelectContent>
-                                              {picGaUsers.map(user => (
-                                                  <SelectItem key={user.id} value={user.id}>
-                                                  {user.nama}
-                                                  </SelectItem>
-                                              ))}
-                                              </SelectContent>
-                                          </Select>
-                                          <FormMessage />
-                                          </FormItem>
-                                      )}
-                                  />
-                              </div>
-                              <FormField
-                                  control={mouForm.control}
-                                  name="isiMou"
-                                  render={({ field }) => (
-                                  <FormItem>
-                                      <FormLabel>Isi / Tentang MoU</FormLabel>
-                                      <FormControl><Input placeholder="cth: Kerja Sama Strategis Sektor Keuangan" {...field} /></FormControl>
-                                      <FormMessage />
-                                  </FormItem>
-                                  )}
-                              />
-                              <FormField
-                                  control={mouForm.control}
-                                  name="nomorMouPeruri"
-                                  render={({ field }) => (
-                                  <FormItem>
-                                      <FormLabel>Nomor MoU Peruri</FormLabel>
-                                      <FormControl><Input placeholder="MOU/01/2024" {...field} /></FormControl>
-                                      <FormMessage />
-                                  </FormItem>
-                                  )}
-                              />
-                              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                  <FormField
-                                      control={mouForm.control}
-                                      name="tanggalMulai"
-                                      render={({ field }) => (
-                                          <FormItem className="flex flex-col">
-                                              <FormLabel>Tanggal Mulai</FormLabel>
-                                              <Popover><PopoverTrigger asChild>
-                                              <FormControl>
-                                                  <Button variant={"outline"} className={cn("w-full justify-start text-left font-normal", !field.value && "text-muted-foreground")}>
-                                                    <CalendarIcon className="mr-2 h-4 w-4" />
-                                                    {field.value ? (format(field.value, "PPP")) : (<span>Pilih tanggal</span>)}
-                                                  </Button>
-                                              </FormControl>
-                                              </PopoverTrigger>
-                                              <PopoverContent className="w-auto p-0" align="start">
-                                                  <Calendar mode="single" selected={field.value} onSelect={field.onChange} initialFocus />
-                                              </PopoverContent>
-                                              </Popover>
-                                              <FormMessage />
-                                          </FormItem>
-                                      )}
-                                  />
-                                  <FormField
-                                      control={mouForm.control}
-                                      name="tanggalBerakhir"
-                                      render={({ field }) => (
-                                          <FormItem className="flex flex-col">
-                                              <FormLabel>Tanggal Berakhir</FormLabel>
-                                              <Popover><PopoverTrigger asChild>
-                                              <FormControl>
-                                                  <Button variant={"outline"} className={cn("w-full justify-start text-left font-normal", !field.value && "text-muted-foreground")}>
-                                                    <CalendarIcon className="mr-2 h-4 w-4" />
-                                                    {field.value ? (format(field.value, "PPP")) : (<span>Pilih tanggal</span>)}
-                                                  </Button>
-                                              </FormControl>
-                                              </PopoverTrigger>
-                                              <PopoverContent className="w-auto p-0" align="start">
-                                                  <Calendar mode="single" selected={field.value} onSelect={field.onChange} initialFocus />
-                                              </PopoverContent>
-                                              </Popover>
-                                              <FormMessage />
-                                          </FormItem>
-                                      )}
-                                  />
-                              </div>
-                              <FormField
-                                  control={mouForm.control}
-                                  name="ruangLingkup"
-                                  render={({ field }) => (
-                                  <FormItem>
-                                      <FormLabel>Ruang Lingkup</FormLabel>
-                                      <FormControl><Textarea placeholder="Jelaskan ruang lingkup MoU..." {...field} /></FormControl>
-                                      <FormMessage />
-                                  </FormItem>
-                                  )}
-                              />
-                              <FormField
-                                  control={mouForm.control}
-                                  name="keterangan"
-                                  render={({ field }) => (
-                                  <FormItem>
-                                      <FormLabel>Keterangan (Opsional)</FormLabel>
-                                      <FormControl><Textarea placeholder="Informasi tambahan..." {...field} /></FormControl>
-                                      <FormMessage />
-                                  </FormItem>
-                                  )}
-                              />
-                            </div>
+                       <ScrollArea className="flex-grow">
+                         <div className="space-y-4 py-4 pr-6">
+                            {currentStep === 1 && (
+                               <div className="space-y-4">
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <FormField control={mouForm.control} name="instansiId" render={({ field }) => (<FormItem><FormLabel>Instansi</FormLabel><Select onValueChange={field.onChange} defaultValue={field.value}><FormControl><SelectTrigger><SelectValue placeholder="Pilih instansi terkait" /></SelectTrigger></FormControl><SelectContent>{instansi.map(inst => (<SelectItem key={inst.id} value={inst.id}>{inst.namaInstansi}</SelectItem>))}</SelectContent></Select><FormMessage /></FormItem>)} />
+                                    <FormField control={mouForm.control} name="picGaId" render={({ field }) => (<FormItem><FormLabel>PIC GA</FormLabel><Select onValueChange={field.onChange} defaultValue={field.value}><FormControl><SelectTrigger><SelectValue placeholder="Pilih PIC GA" /></SelectTrigger></FormControl><SelectContent>{picGaUsers.map(user => (<SelectItem key={user.id} value={user.id}>{user.nama}</SelectItem>))}</SelectContent></Select><FormMessage /></FormItem>)} />
+                                </div>
+                                <FormField control={mouForm.control} name="isiMou" render={({ field }) => (<FormItem><FormLabel>Isi / Tentang MoU</FormLabel><FormControl><Input placeholder="cth: Kerja Sama Strategis Sektor Keuangan" {...field} /></FormControl><FormMessage /></FormItem>)} />
+                                <FormField control={mouForm.control} name="nomorMouPeruri" render={({ field }) => (<FormItem><FormLabel>Nomor MoU Peruri</FormLabel><FormControl><Input placeholder="MOU/01/2024" {...field} /></FormControl><FormMessage /></FormItem>)} />
+                               </div>
+                            )}
+                             {currentStep === 2 && (
+                                <div className="space-y-4">
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <FormField control={mouForm.control} name="tanggalMulai" render={({ field }) => (<FormItem className="flex flex-col"><FormLabel>Tanggal Mulai</FormLabel><Popover><PopoverTrigger asChild><FormControl><Button variant={"outline"} className={cn("w-full justify-start text-left font-normal", !field.value && "text-muted-foreground")}><CalendarIcon className="mr-2 h-4 w-4" />{field.value ? (format(field.value, "PPP")) : (<span>Pilih tanggal</span>)}</Button></FormControl></PopoverTrigger><PopoverContent className="w-auto p-0" align="start"><Calendar mode="single" selected={field.value} onSelect={field.onChange} captionLayout="dropdown-buttons" fromYear={2015} toYear={new Date().getFullYear() + 10} initialFocus /></PopoverContent></Popover><FormMessage /></FormItem>)} />
+                                    <FormField control={mouForm.control} name="tanggalBerakhir" render={({ field }) => (<FormItem className="flex flex-col"><FormLabel>Tanggal Berakhir</FormLabel><Popover><PopoverTrigger asChild><FormControl><Button variant={"outline"} className={cn("w-full justify-start text-left font-normal", !field.value && "text-muted-foreground")}><CalendarIcon className="mr-2 h-4 w-4" />{field.value ? (format(field.value, "PPP")) : (<span>Pilih tanggal</span>)}</Button></FormControl></PopoverTrigger><PopoverContent className="w-auto p-0" align="start"><Calendar mode="single" selected={field.value} onSelect={field.onChange} captionLayout="dropdown-buttons" fromYear={2015} toYear={new Date().getFullYear() + 10} initialFocus /></PopoverContent></Popover><FormMessage /></FormItem>)} />
+                                </div>
+                                <FormField control={mouForm.control} name="ruangLingkup" render={({ field }) => (<FormItem><FormLabel>Ruang Lingkup</FormLabel><FormControl><Textarea placeholder="Jelaskan ruang lingkup MoU..." {...field} /></FormControl><FormMessage /></FormItem>)} />
+                                <FormField control={mouForm.control} name="keterangan" render={({ field }) => (<FormItem><FormLabel>Keterangan (Opsional)</FormLabel><FormControl><Textarea placeholder="Informasi tambahan..." {...field} /></FormControl><FormMessage /></FormItem>)} />
+                               </div>
+                            )}
+                         </div>
+                       </ScrollArea>
                     </form>
-                </Form>
+                 </Form>
             </TabsContent>
         </Tabs>
-        <DialogFooter>
-            <Button type="button" variant="outline" onClick={() => setOpen(false)}>Batal</Button>
-            {activeTab === 'pks' && (
-                 <Button type="submit" form="pks-form" disabled={isSaving}>
-                     {isSaving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : (isEditMode ? "Simpan Perubahan" : "Simpan PKS")}
-                 </Button>
-            )}
+        <DialogFooter className="mt-auto pt-4">
+            <div className="w-full flex justify-between items-center">
+                <Button type="button" variant="outline" onClick={() => setOpen(false)}>Batal</Button>
+                
+                <div className="flex items-center gap-2">
+                     {currentStep > 1 && (
+                        <Button type="button" variant="ghost" onClick={() => setCurrentStep(currentStep - 1)}>
+                            <ArrowLeft className="mr-2 h-4 w-4" />
+                            Kembali
+                        </Button>
+                    )}
+                    
+                    {currentStep < totalSteps && (
+                         <Button type="button" onClick={() => handleNextStep(activeTab === 'pks' ? pksForm.trigger : mouForm.trigger, activeTab === 'pks' ? pksStepFields[currentStep] : mouStepFields[currentStep])}>
+                            Selanjutnya
+                        </Button>
+                    )}
 
-            {activeTab === 'mou' && (
-                 <Button type="submit" form="mou-form" disabled={isSaving}>
-                    {isSaving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                    {isEditMode ? "Simpan Perubahan" : "Simpan MoU"}
-                 </Button>
-            )}
+                    {currentStep === totalSteps && (
+                         <Button type="submit" form={activeTab === 'pks' ? 'pks-form' : 'mou-form'} disabled={isSaving}>
+                            {isSaving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : (isEditMode ? "Simpan Perubahan" : "Simpan Kontrak")}
+                        </Button>
+                    )}
+                </div>
+            </div>
         </DialogFooter>
       </DialogContent>
     </Dialog>
