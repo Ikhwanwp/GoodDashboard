@@ -79,6 +79,15 @@ export function StatusUpdateForm({ children, updateToEdit }: StatusUpdateFormPro
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
+    defaultValues: {
+      instansiId: "",
+      kontrakId: "",
+      judulUpdate: "",
+      deskripsi: "",
+      linkMom: "",
+      type: "",
+      subject: "",
+    }
   });
 
   const selectedInstansiId = form.watch("instansiId");
@@ -99,13 +108,13 @@ export function StatusUpdateForm({ children, updateToEdit }: StatusUpdateFormPro
       if(isEditMode && updateToEdit) {
         form.reset({
           ...updateToEdit,
-          kontrakId: updateToEdit.kontrakId || "none",
+          kontrakId: updateToEdit.kontrakId || "",
           tanggalEvent: new Date(updateToEdit.tanggalEvent)
         });
       } else {
         form.reset({
           instansiId: "",
-          kontrakId: "none",
+          kontrakId: "",
           judulUpdate: "",
           deskripsi: "",
           tanggalEvent: new Date(),
@@ -118,32 +127,31 @@ export function StatusUpdateForm({ children, updateToEdit }: StatusUpdateFormPro
   }, [open, isEditMode, updateToEdit, form]);
 
   useEffect(() => {
-    // Reset contract if institution changes and it's not edit mode
-    if (!isEditMode) {
-      form.setValue("kontrakId", "none");
+    if (selectedInstansiId && !isEditMode) {
+      form.setValue("kontrakId", "");
     }
   }, [selectedInstansiId, form, isEditMode]);
 
 
   const handleClassify = async () => {
-    setIsClassifying(true);
-    const { deskripsi } = form.getValues();
-    const judulUpdate = form.getValues().judulUpdate || "Update"; // Use a default title if not set
-    if (!deskripsi) {
-      toast({
-        variant: "destructive",
-        title: "Input Kurang",
-        description: "Deskripsi harus diisi untuk melakukan klasifikasi AI.",
-      });
-      setIsClassifying(false);
+    const isValid = await form.trigger(["judulUpdate", "deskripsi"]);
+    if (!isValid) {
+         toast({
+            variant: "destructive",
+            title: "Input Kurang",
+            description: "Judul dan Deskripsi harus diisi untuk melakukan klasifikasi AI.",
+        });
       return;
     }
+    
+    setIsClassifying(true);
+    const { judulUpdate, deskripsi } = form.getValues();
     
     const result = await classifyUpdateAction({ title: judulUpdate, description: deskripsi });
 
     if (result.success && result.data) {
-      form.setValue("type", result.data.type);
-      form.setValue("subject", result.data.subject);
+      form.setValue("type", result.data.type, { shouldValidate: true });
+      form.setValue("subject", result.data.subject, { shouldValidate: true });
       toast({
         title: "Klasifikasi AI Berhasil",
         description: "Tipe dan subjek update telah diisi otomatis.",
@@ -152,7 +160,7 @@ export function StatusUpdateForm({ children, updateToEdit }: StatusUpdateFormPro
       toast({
         variant: "destructive",
         title: "Klasifikasi AI Gagal",
-        description: result.error || "Terjadi kesalahan.",
+        description: result.error || "Terjadi kesalahan pada server AI.",
       });
     }
     setIsClassifying(false);
@@ -162,20 +170,22 @@ export function StatusUpdateForm({ children, updateToEdit }: StatusUpdateFormPro
     setIsSaving(true);
     const dataToSubmit = {
       ...values,
-      kontrakId: values.kontrakId === 'none' ? "" : values.kontrakId,
+      kontrakId: values.kontrakId || "",
       linkMom: values.linkMom || "",
       type: values.type || "",
       subject: values.subject || "",
     };
 
-    if (isEditMode && updateToEdit) {
-      await updateStatusPekerjaan(updateToEdit.id, dataToSubmit);
-    } else {
-      await addStatusPekerjaan(dataToSubmit as Omit<StatusPekerjaan, 'id' | 'tanggalUpdate'>);
+    try {
+      if (isEditMode && updateToEdit) {
+        await updateStatusPekerjaan(updateToEdit.id, dataToSubmit);
+      } else {
+        await addStatusPekerjaan(dataToSubmit as Omit<StatusPekerjaan, 'id' | 'tanggalUpdate'>);
+      }
+      setOpen(false);
+    } finally {
+      setIsSaving(false);
     }
-    
-    setIsSaving(false);
-    setOpen(false);
   }
 
   const trigger = children ? (
@@ -236,7 +246,7 @@ export function StatusUpdateForm({ children, updateToEdit }: StatusUpdateFormPro
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Kontrak Terkait (Opsional)</FormLabel>
-                        <Select onValueChange={field.onChange} value={field.value} disabled={!selectedInstansiId || availableContracts.length === 0}>
+                        <Select onValueChange={field.onChange} value={field.value} disabled={!selectedInstansiId}>
                           <FormControl>
                             <SelectTrigger>
                               <SelectValue placeholder={
@@ -249,7 +259,7 @@ export function StatusUpdateForm({ children, updateToEdit }: StatusUpdateFormPro
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent>
-                            <SelectItem value="none">Umum (Tidak terikat kontrak)</SelectItem>
+                            <SelectItem value="">Umum (Tidak terikat kontrak)</SelectItem>
                             {availableContracts.map(c => (
                               <SelectItem key={c.id} value={c.id}>
                                 {c.name}
@@ -299,16 +309,16 @@ export function StatusUpdateForm({ children, updateToEdit }: StatusUpdateFormPro
                               <Button
                                 variant={"outline"}
                                 className={cn(
-                                  "w-full pl-3 text-left font-normal",
+                                  "w-full justify-start text-left font-normal",
                                   !field.value && "text-muted-foreground"
                                 )}
                               >
+                                <CalendarIcon className="mr-2 h-4 w-4" />
                                 {field.value ? (
                                   format(field.value, "PPP")
                                 ) : (
                                   <span>Pilih tanggal</span>
                                 )}
-                                <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
                               </Button>
                             </FormControl>
                           </PopoverTrigger>
@@ -359,7 +369,7 @@ export function StatusUpdateForm({ children, updateToEdit }: StatusUpdateFormPro
                           <FormItem>
                             <FormLabel>Tipe (AI)</FormLabel>
                             <FormControl>
-                              <Input placeholder="cth: Project Update" {...field} readOnly className="bg-background" />
+                              <Input placeholder="Akan diisi oleh AI" {...field} readOnly className="bg-background" />
                             </FormControl>
                             <FormMessage />
                           </FormItem>
@@ -372,7 +382,7 @@ export function StatusUpdateForm({ children, updateToEdit }: StatusUpdateFormPro
                           <FormItem>
                             <FormLabel>Subjek (AI)</FormLabel>
                             <FormControl>
-                              <Input placeholder="cth: Project Kick-off" {...field} readOnly className="bg-background" />
+                              <Input placeholder="Akan diisi oleh AI" {...field} readOnly className="bg-background" />
                             </FormControl>
                             <FormMessage />
                           </FormItem>

@@ -5,7 +5,7 @@ import { z } from 'zod';
 
 const classifySchema = z.object({
   title: z.string().min(1, { message: 'Title is required.' }),
-  description: z.string().min(1, { message: 'Description is required.' }),
+  description: z.string().min(10, { message: 'Description must be at least 10 characters.' }),
 });
 
 export async function classifyUpdateAction(data: { title: string; description: string }) {
@@ -13,7 +13,8 @@ export async function classifyUpdateAction(data: { title: string; description: s
 
   if (!validation.success) {
     const error = validation.error.flatten().fieldErrors;
-    return { success: false, error: error.title?.[0] || error.description?.[0] };
+    const errorMessage = Object.values(error).flat().join(' ');
+    return { success: false, error: errorMessage || 'Invalid input.' };
   }
 
   try {
@@ -21,6 +22,7 @@ export async function classifyUpdateAction(data: { title: string; description: s
     return { success: true, data: result };
   } catch (e) {
     console.error(e);
-    return { success: false, error: 'Failed to classify the update using AI.' };
+    const errorMessage = e instanceof Error ? e.message : 'An unknown error occurred.';
+    return { success: false, error: `Failed to classify the update using AI: ${errorMessage}` };
   }
 }
