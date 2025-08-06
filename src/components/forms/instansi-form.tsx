@@ -57,6 +57,7 @@ type InstansiFormProps = {
 export function InstansiForm({ children, instansiToEdit }: InstansiFormProps) {
   const [open, setOpen] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const [isDatePickerOpen, setDatePickerOpen] = useState(false);
   const { addInstansi, updateInstansi } = useData();
   const isEditMode = !!instansiToEdit;
 
@@ -189,7 +190,7 @@ export function InstansiForm({ children, instansiToEdit }: InstansiFormProps) {
                   render={({ field }) => (
                     <FormItem className="flex flex-col">
                         <FormLabel>Tanggal Ulang Tahun</FormLabel>
-                        <Popover>
+                        <Popover open={isDatePickerOpen} onOpenChange={setDatePickerOpen}>
                             <PopoverTrigger asChild>
                                 <FormControl>
                                     <Button variant={"outline"} className={cn("w-full pl-3 text-left font-normal", !field.value && "text-muted-foreground")}>
@@ -203,7 +204,10 @@ export function InstansiForm({ children, instansiToEdit }: InstansiFormProps) {
                                     <Calendar
                                         mode="single"
                                         selected={field.value}
-                                        onSelect={field.onChange}
+                                        onSelect={(date) => {
+                                          field.onChange(date);
+                                          setDatePickerOpen(false);
+                                        }}
                                         captionLayout="dropdown-buttons"
                                         fromYear={1945}
                                         toYear={new Date().getFullYear()}

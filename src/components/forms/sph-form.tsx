@@ -57,6 +57,7 @@ type SphFormProps = {
 export function SphForm({ children, sphToEdit }: SphFormProps) {
   const [open, setOpen] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const [isDatePickerOpen, setDatePickerOpen] = useState(false);
   const { instansi, addDokumenSph, updateDokumenSph } = useData();
   const isEditMode = !!sphToEdit;
 
@@ -177,7 +178,7 @@ export function SphForm({ children, sphToEdit }: SphFormProps) {
                   render={({ field }) => (
                     <FormItem className="flex flex-col">
                         <FormLabel>Tanggal SPH</FormLabel>
-                        <Popover>
+                        <Popover open={isDatePickerOpen} onOpenChange={setDatePickerOpen}>
                             <PopoverTrigger asChild>
                                 <FormControl>
                                     <Button variant={"outline"} className={cn("w-full justify-start text-left font-normal", !field.value && "text-muted-foreground")}>
@@ -191,7 +192,10 @@ export function SphForm({ children, sphToEdit }: SphFormProps) {
                                     <Calendar 
                                     mode="single" 
                                     selected={field.value} 
-                                    onSelect={field.onChange} 
+                                    onSelect={(date) => {
+                                      field.onChange(date);
+                                      setDatePickerOpen(false);
+                                    }} 
                                     captionLayout="dropdown-buttons"
                                     fromYear={2015}
                                     toYear={new Date().getFullYear() + 5}

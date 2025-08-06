@@ -73,6 +73,7 @@ export function StatusUpdateForm({ children, updateToEdit }: StatusUpdateFormPro
   const [open, setOpen] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [isClassifying, setIsClassifying] = useState(false);
+  const [isDatePickerOpen, setDatePickerOpen] = useState(false);
   const { toast } = useToast();
   const { instansi, kontrakPks, kontrakMou, addStatusPekerjaan, updateStatusPekerjaan } = useData();
   const isEditMode = !!updateToEdit;
@@ -303,7 +304,7 @@ export function StatusUpdateForm({ children, updateToEdit }: StatusUpdateFormPro
                     render={({ field }) => (
                       <FormItem className="flex flex-col">
                         <FormLabel>Tanggal Event</FormLabel>
-                        <Popover>
+                        <Popover open={isDatePickerOpen} onOpenChange={setDatePickerOpen}>
                           <PopoverTrigger asChild>
                             <FormControl>
                               <Button
@@ -327,7 +328,10 @@ export function StatusUpdateForm({ children, updateToEdit }: StatusUpdateFormPro
                                 <Calendar
                                 mode="single"
                                 selected={field.value}
-                                onSelect={field.onChange}
+                                onSelect={(date) => {
+                                  field.onChange(date);
+                                  setDatePickerOpen(false);
+                                }}
                                 captionLayout="dropdown-buttons"
                                 fromYear={2015}
                                 toYear={new Date().getFullYear() + 5}
