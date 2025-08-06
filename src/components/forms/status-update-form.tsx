@@ -170,7 +170,7 @@ export function StatusUpdateForm({ children, updateToEdit }: StatusUpdateFormPro
     setIsSaving(true);
     const dataToSubmit = {
       ...values,
-      kontrakId: values.kontrakId || "",
+      kontrakId: values.kontrakId === "none" ? "" : values.kontrakId || "",
       linkMom: values.linkMom || "",
       type: values.type || "",
       subject: values.subject || "",
@@ -213,8 +213,8 @@ export function StatusUpdateForm({ children, updateToEdit }: StatusUpdateFormPro
         </DialogHeader>
         <Form {...form}>
           <form id="status-update-form" onSubmit={form.handleSubmit(onSubmit)} className="flex-grow flex flex-col overflow-auto">
-            <ScrollArea className="flex-grow">
-              <div className="space-y-4 py-4 pr-6">
+            <ScrollArea className="flex-grow pr-6 -mr-6">
+              <div className="space-y-4 py-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <FormField
                     control={form.control}
@@ -258,8 +258,8 @@ export function StatusUpdateForm({ children, updateToEdit }: StatusUpdateFormPro
                               } />
                             </SelectTrigger>
                           </FormControl>
-                          <SelectContent>
-                            <SelectItem value="">Umum (Tidak terikat kontrak)</SelectItem>
+                           <SelectContent>
+                            <SelectItem value="none">Umum (Tidak terikat kontrak)</SelectItem>
                             {availableContracts.map(c => (
                               <SelectItem key={c.id} value={c.id}>
                                 {c.name}
@@ -409,7 +409,7 @@ export function StatusUpdateForm({ children, updateToEdit }: StatusUpdateFormPro
             </ScrollArea>
           </form>
         </Form>
-        <DialogFooter className="mt-auto pt-4 border-t">
+        <DialogFooter className="mt-auto shrink-0 border-t pt-4">
           <Button type="button" variant="ghost" onClick={() => setOpen(false)}>Batal</Button>
           <Button type="submit" form="status-update-form" disabled={isSaving}>
             {isSaving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
