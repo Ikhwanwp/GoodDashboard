@@ -34,7 +34,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useData } from "@/context/data-context";
 import { useToast } from "@/hooks/use-toast";
 import { classifyUpdateAction } from "@/lib/actions";
@@ -359,41 +359,47 @@ export function StatusUpdateForm({ children, updateToEdit }: StatusUpdateFormPro
                   )}
                 />
 
-                <Card className="bg-secondary/50">
-                  <CardContent className="p-4 space-y-4">
-                    <Button type="button" variant="outline" onClick={handleClassify} disabled={isClassifying}>
-                      {isClassifying ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Sparkles className="mr-2 h-4 w-4 text-accent" />}
-                      Klasifikasi dengan AI
-                    </Button>
-                    <div className="grid grid-cols-2 gap-4">
-                      <FormField
-                        control={form.control}
-                        name="type"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Tipe (AI)</FormLabel>
-                            <FormControl>
-                              <Input placeholder="Akan diisi oleh AI" {...field} readOnly className="bg-background" />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      <FormField
-                        control={form.control}
-                        name="subject"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Subjek (AI)</FormLabel>
-                            <FormControl>
-                              <Input placeholder="Akan diisi oleh AI" {...field} readOnly className="bg-background" />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                    </div>
-                  </CardContent>
+                <Card className="bg-muted/30">
+                    <CardContent className="p-4 space-y-4">
+                        <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+                            <div>
+                                <h4 className="font-semibold text-card-foreground">Asisten AI</h4>
+                                <p className="text-sm text-muted-foreground">Klik tombol untuk mengklasifikasikan tipe dan subjek secara otomatis.</p>
+                            </div>
+                            <Button type="button" variant="outline" onClick={handleClassify} disabled={isClassifying} className="shrink-0 bg-background">
+                                {isClassifying ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Sparkles className="mr-2 h-4 w-4 text-accent" />}
+                                Klasifikasi dengan AI
+                            </Button>
+                        </div>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <FormField
+                                control={form.control}
+                                name="type"
+                                render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Tipe (AI)</FormLabel>
+                                    <FormControl>
+                                    <Input placeholder="Akan diisi oleh AI" {...field} readOnly className="bg-background" />
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                                )}
+                            />
+                            <FormField
+                                control={form.control}
+                                name="subject"
+                                render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Subjek (AI)</FormLabel>
+                                    <FormControl>
+                                    <Input placeholder="Akan diisi oleh AI" {...field} readOnly className="bg-background" />
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                                )}
+                            />
+                        </div>
+                    </CardContent>
                 </Card>
 
                 <FormField
@@ -424,5 +430,7 @@ export function StatusUpdateForm({ children, updateToEdit }: StatusUpdateFormPro
     </Dialog>
   );
 }
+
+    
 
     
