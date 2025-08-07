@@ -7,7 +7,7 @@ import { onAuthStateChanged, signOut, type User as FirebaseUser } from 'firebase
 import { auth } from '@/lib/firebase-config';
 import {
     getInstansi, addInstansiToDB, updateInstansiInDB, deleteInstansiFromDB,
-    getUsers, addUserToDB, updateUserInDB, deleteUserFromDB,
+    getUsers, addUserToDB, updateUserInDB, deleteUserFromDB, getOrCreateUser,
     getPicEksternal, addPicEksternalToDB, updatePicEksternalInDB, deletePicEksternalFromDB,
     getKontrakPks, addKontrakPksToDB, updateKontrakPksInDB, deleteKontrakPksFromDB,
     getKontrakMou, addKontrakMouToDB, updateKontrakMouInDB, deleteKontrakMouFromDB,
@@ -134,17 +134,15 @@ export function DataProvider({ children }: { children: ReactNode }) {
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser: FirebaseUser | null) => {
       setLoading(true);
       if (firebaseUser) {
-        const userList = await getUsers();
-        const userData = userList.find(u => u.id === firebaseUser.uid);
-        
-        if (userData) {
+        try {
+          const userData = await getOrCreateUser(firebaseUser);
           setCurrentUser(userData);
           // Fetch all other data after confirming user
           await fetchData();
-        } else {
-          console.error("User not found in 'users' collection:", firebaseUser.uid);
-          await signOut(auth); // Sign out if user is not in our DB
-          setCurrentUser(null);
+        } catch (e) {
+            console.error("Failed to get or create user:", e);
+            await signOut(auth);
+            setCurrentUser(null);
         }
       } else {
         // No firebase user, so clear all data
@@ -161,7 +159,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
     });
 
     return () => unsubscribe();
-  }, []);
+  }, [fetchData]);
 
 
   const createApiFunction = <T extends any[], U>(

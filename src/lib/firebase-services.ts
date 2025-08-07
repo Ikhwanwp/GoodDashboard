@@ -11,6 +11,8 @@ import {
   query,
   where,
   writeBatch,
+  getDoc,
+  setDoc,
 } from 'firebase/firestore';
 import type {
     Instansi, InstansiFromDB,
@@ -21,6 +23,7 @@ import type {
     StatusPekerjaan, StatusPekerjaanFromDB,
     PicEksternal
 } from './types';
+import type { User as FirebaseUser } from 'firebase/auth';
 
 // Generic function to convert Firestore timestamps to JS Dates
 function convertTimestamps<T>(docData: any): T {
@@ -87,6 +90,26 @@ export const getUsers = async (): Promise<User[]> => {
     const snapshot = await getDocs(usersCollection);
     return snapshot.docs.map(doc => ({...doc.data(), id: doc.id } as User));
 }
+
+export const getOrCreateUser = async (firebaseUser: FirebaseUser): Promise<User> => {
+    const userRef = doc(db, 'users', firebaseUser.uid);
+    const userSnap = await getDoc(userRef);
+
+    if (userSnap.exists()) {
+        return { id: userSnap.id, ...userSnap.data() } as User;
+    } else {
+        const newUser: Omit<User, 'id'> = {
+            email: firebaseUser.email || 'N/A',
+            nama: firebaseUser.displayName || firebaseUser.email?.split('@')[0] || 'New User',
+            noHp: firebaseUser.phoneNumber || 'N/A',
+            role: 'Viewer' // Default role for new users
+        };
+        await setDoc(userRef, newUser);
+        return { id: userRef.id, ...newUser };
+    }
+}
+
+
 export const addUserToDB = async (data: Omit<User, 'id' | 'handledInstansiIds'>) => {
     return await addDoc(usersCollection, data);
 }
