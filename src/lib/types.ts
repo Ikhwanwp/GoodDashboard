@@ -37,6 +37,8 @@ export interface User {
   handledInstansiIds?: string[]; // Used in form, not in DB directly
 }
 
+export type UserWithPassword = Omit<User, 'id'> & { password?: string };
+
 export interface PicEksternal {
   id: string;
   namaPic: string;
@@ -122,3 +124,5 @@ export type TimelineEvent = {
   description: string;
   icon: LucideIcon;
 };
+
+    

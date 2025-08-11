@@ -2,7 +2,7 @@
 "use client";
 
 import { createContext, useContext, useState, ReactNode, useEffect, useCallback } from 'react';
-import type { Instansi, User, KontrakPks, KontrakMou, StatusPekerjaan, DokumenSph, PicEksternal } from '@/lib/types';
+import type { Instansi, User, UserWithPassword, KontrakPks, KontrakMou, StatusPekerjaan, DokumenSph, PicEksternal } from '@/lib/types';
 import { onAuthStateChanged, signOut, type User as FirebaseUser } from 'firebase/auth';
 import { auth } from '@/lib/firebase-config';
 import {
@@ -52,7 +52,7 @@ interface DataContextType {
   updateStatusPekerjaan: (id: string, data: Partial<Omit<StatusPekerjaan, 'id' | 'tanggalUpdate'>>) => Promise<void>;
   deleteStatusPekerjaan: (id: string) => Promise<void>;
   // User (Internal PIC)
-  addUser: (data: Omit<User, 'id'>) => Promise<void>;
+  addUser: (data: UserWithPassword) => Promise<void>;
   updateUser: (id: string, data: Partial<User>) => Promise<void>;
   deleteUser: (id: string) => Promise<void>;
   // PIC Eksternal
@@ -221,7 +221,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
     updateStatusPekerjaan: createApiFunction(updateStatusPekerjaanInDB, "Status pekerjaan berhasil diperbarui.", ['statusPekerjaan']),
     deleteStatusPekerjaan: createApiFunction(deleteStatusPekerjaanFromDB, "Status pekerjaan telah dihapus.", ['statusPekerjaan']),
     // User
-    addUser: createApiFunction(addUserToDB, "PIC Internal baru berhasil ditambahkan.", ['users']),
+    addUser: createApiFunction(addUserToDB, "PIC Internal baru berhasil ditambahkan.", ['users', 'instansi']),
     updateUser: async (id: string, data: Partial<User>) => {
         try {
             const collectionsToUpdate: CollectionName[] = ['users'];
@@ -278,3 +278,5 @@ export function useData() {
   }
   return context;
 }
+
+    

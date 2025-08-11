@@ -39,13 +39,22 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import type { User, PicEksternal } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
-const internalPicSchema = z.object({
+const internalPicSchemaBase = z.object({
   nama: z.string().min(3, "Nama harus diisi"),
   email: z.string().email("Format email tidak valid"),
   noHp: z.string().min(10, "Nomor HP minimal 10 digit"),
   role: z.enum(["Admin", "GA", "BA", "Viewer"], { required_error: "Role harus dipilih" }),
   handledInstansiIds: z.array(z.string()).optional(),
 });
+
+const internalPicSchema = z.discriminatedUnion("isEdit", [
+  z.object({ isEdit: z.literal(true) }).merge(internalPicSchemaBase),
+  z.object({ 
+    isEdit: z.literal(false),
+    password: z.string().min(6, "Password minimal 6 karakter"),
+  }).merge(internalPicSchemaBase)
+]);
+
 
 const externalPicSchema = z.object({
   namaPic: z.string().min(3, "Nama harus diisi"),
@@ -70,6 +79,7 @@ export function PicForm({ children, picToEdit, picType }: PicFormProps) {
 
   const internalForm = useForm<z.infer<typeof internalPicSchema>>({
     resolver: zodResolver(internalPicSchema),
+    defaultValues: { isEdit: isEditMode }
   });
 
   const externalForm = useForm<z.infer<typeof externalPicSchema>>({
@@ -77,6 +87,10 @@ export function PicForm({ children, picToEdit, picType }: PicFormProps) {
   });
   
   const watchedRole = internalForm.watch("role");
+
+  useEffect(() => {
+    internalForm.setValue('isEdit', isEditMode);
+  }, [isEditMode, internalForm]);
 
   useEffect(() => {
     if (open) {
@@ -88,6 +102,7 @@ export function PicForm({ children, picToEdit, picType }: PicFormProps) {
           
           internalForm.reset({
             ...(picToEdit as User),
+            isEdit: true,
             handledInstansiIds: handledIds,
           });
         } else if (picType === 'external' && 'namaPic' in picToEdit) {
@@ -99,6 +114,8 @@ export function PicForm({ children, picToEdit, picType }: PicFormProps) {
             email: "",
             noHp: "",
             role: undefined,
+            password: "",
+            isEdit: false,
             handledInstansiIds: [],
         });
         externalForm.reset({
@@ -116,9 +133,9 @@ export function PicForm({ children, picToEdit, picType }: PicFormProps) {
     setIsSaving(true);
     
     try {
-        if (isEditMode && picToEdit && 'role' in picToEdit) {
+        if (values.isEdit && picToEdit && 'role' in picToEdit) {
           await updateUser(picToEdit.id, values);
-        } else {
+        } else if (!values.isEdit) {
           await addUser(values);
         }
         setOpen(false);
@@ -188,18 +205,33 @@ export function PicForm({ children, picToEdit, picType }: PicFormProps) {
                                     </FormItem>
                                 )}
                             />
-                            <div className="grid grid-cols-2 gap-4">
+                            <FormField
+                                control={internalForm.control}
+                                name="email"
+                                render={({ field }) => (
+                                    <FormItem>
+                                    <FormLabel>Email</FormLabel>
+                                    <FormControl><Input type="email" placeholder="cth: genta@peruri.co.id" {...field} /></FormControl>
+                                    <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                            {!isEditMode && (
                                 <FormField
                                     control={internalForm.control}
-                                    name="email"
+                                    name="password"
                                     render={({ field }) => (
-                                        <FormItem>
-                                        <FormLabel>Email</FormLabel>
-                                        <FormControl><Input placeholder="cth: genta@peruri.co.id" {...field} /></FormControl>
+                                    <FormItem>
+                                        <FormLabel>Password</FormLabel>
+                                        <FormControl>
+                                        <Input type="password" placeholder="******" {...field} />
+                                        </FormControl>
                                         <FormMessage />
-                                        </FormItem>
+                                    </FormItem>
                                     )}
                                 />
+                            )}
+                             <div className="grid grid-cols-2 gap-4">
                                 <FormField
                                     control={internalForm.control}
                                     name="noHp"
@@ -211,30 +243,30 @@ export function PicForm({ children, picToEdit, picType }: PicFormProps) {
                                         </FormItem>
                                     )}
                                 />
+                                <FormField
+                                    control={internalForm.control}
+                                    name="role"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                        <FormLabel>Role</FormLabel>
+                                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                            <FormControl>
+                                            <SelectTrigger>
+                                                <SelectValue placeholder="Pilih role" />
+                                            </SelectTrigger>
+                                            </FormControl>
+                                            <SelectContent>
+                                                <SelectItem value="GA">GA (General Affairs)</SelectItem>
+                                                <SelectItem value="BA">BA (Business Alliance)</SelectItem>
+                                                <SelectItem value="Admin">Admin</SelectItem>
+                                                <SelectItem value="Viewer">Viewer</SelectItem>
+                                            </SelectContent>
+                                        </Select>
+                                        <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
                             </div>
-                            <FormField
-                                control={internalForm.control}
-                                name="role"
-                                render={({ field }) => (
-                                    <FormItem>
-                                    <FormLabel>Role</FormLabel>
-                                    <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                        <FormControl>
-                                        <SelectTrigger>
-                                            <SelectValue placeholder="Pilih role untuk user" />
-                                        </SelectTrigger>
-                                        </FormControl>
-                                        <SelectContent>
-                                            <SelectItem value="GA">GA (General Affairs)</SelectItem>
-                                            <SelectItem value="BA">BA (Business Alliance)</SelectItem>
-                                            <SelectItem value="Admin">Admin</SelectItem>
-                                            <SelectItem value="Viewer">Viewer</SelectItem>
-                                        </SelectContent>
-                                    </Select>
-                                    <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
                             {watchedRole === 'GA' && (
                                 <FormField
                                     control={internalForm.control}
@@ -393,3 +425,5 @@ export function PicForm({ children, picToEdit, picType }: PicFormProps) {
     </Dialog>
   );
 }
+
+    

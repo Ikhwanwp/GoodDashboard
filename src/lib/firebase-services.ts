@@ -1,4 +1,4 @@
-import { db } from './firebase-config';
+import { db, auth } from './firebase-config';
 import {
   collection,
   getDocs,
@@ -14,9 +14,10 @@ import {
   getDoc,
   setDoc,
 } from 'firebase/firestore';
+import { createUserWithEmailAndPassword } from 'firebase/auth';
 import type {
     Instansi, InstansiFromDB,
-    User,
+    User, UserWithPassword,
     KontrakPks, KontrakPksFromDB,
     KontrakMou, KontrakMouFromDB,
     DokumenSph, DokumenSphFromDB,
@@ -116,10 +117,30 @@ export const getOrCreateUser = async (firebaseUser: FirebaseUser): Promise<User>
 }
 
 
-export const addUserToDB = async (data: Omit<User, 'id' | 'handledInstansiIds'>) => {
-    // This function might need to be adapted to create Firebase Auth user as well
-    // For now, it only creates the Firestore document.
-    return await addDoc(usersCollection, data);
+export const addUserToDB = async (data: UserWithPassword) => {
+    // 1. Create user in Firebase Authentication
+    const userCredential = await createUserWithEmailAndPassword(auth, data.email, data.password);
+    const { user } = userCredential;
+
+    // 2. Create user document in Firestore with the same UID
+    const userDocRef = doc(db, 'users', user.uid);
+    const { password, ...firestoreData } = data; // remove password before saving
+    await setDoc(userDocRef, {
+        nama: firestoreData.nama,
+        email: firestoreData.email,
+        noHp: firestoreData.noHp,
+        role: firestoreData.role,
+    });
+
+    // 3. Assign to instansi if needed
+    if (firestoreData.role === 'GA' && firestoreData.handledInstansiIds && firestoreData.handledInstansiIds.length > 0) {
+        const batch = writeBatch(db);
+        firestoreData.handledInstansiIds.forEach(instansiId => {
+            const instansiRef = doc(db, 'instansi', instansiId);
+            batch.update(instansiRef, { internalPicId: user.uid });
+        });
+        await batch.commit();
+    }
 }
 export const updateUserInDB = async (id: string, data: Partial<Omit<User, 'id'>>) => {
     const docRef = doc(db, 'users', id);
@@ -129,6 +150,9 @@ export const updateUserInDB = async (id: string, data: Partial<Omit<User, 'id'>>
 }
 export const deleteUserFromDB = async (id: string) => {
     const docRef = doc(db, 'users', id);
+    // This only deletes the Firestore record, not the Auth user for safety.
+    // Deleting Auth users should be a separate, more deliberate admin action.
+
     // Also unassign this user from any instansi
     const q = query(instansiCollection, where("internalPicId", "==", id));
     const instansiSnapshot = await getDocs(q);
@@ -247,3 +271,5 @@ export const deleteStatusPekerjaanFromDB = async (id: string) => {
     const docRef = doc(db, 'statusPekerjaan', id);
     return await deleteDoc(docRef);
 }
+
+    
