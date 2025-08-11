@@ -83,12 +83,3 @@
     font-feature-settings: "cv02", "cv03", "cv04", "cv11";
   }
 }
-
-@layer components {
-    .input:focus::placeholder {
-        @apply text-transparent;
-    }
-    textarea:focus::placeholder {
-        @apply text-transparent;
-    }
-}
