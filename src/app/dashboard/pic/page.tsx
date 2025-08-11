@@ -47,7 +47,7 @@ export default function PicPage() {
      )
   }
 
-  const picGaUsers = users.filter(user => user.role === "PIC GA");
+  const picGaUsers = users.filter(user => user.role === "GA");
   const internalPics = users;
   const externalPics = picEksternal;
 

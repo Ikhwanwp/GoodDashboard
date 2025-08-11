@@ -31,7 +31,7 @@ export const InternalPicColumns = (): ColumnDef<User>[] => {
       header: "Handle Instansi",
       cell: ({ row }) => {
         const handledInstansi = instansi.filter(i => i.internalPicId === row.original.id);
-        if (handledInstansi.length === 0) return <span className="text-muted-foreground">N/A</span>
+        if (row.original.role !== 'GA' || handledInstansi.length === 0) return <span className="text-muted-foreground">N/A</span>
         return (
           <div className="flex flex-wrap gap-1">
             {handledInstansi.map(i => <Badge variant="secondary" key={i.id}>{i.kodeInstansi}</Badge>)}

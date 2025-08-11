@@ -96,7 +96,13 @@ export const getOrCreateUser = async (firebaseUser: FirebaseUser): Promise<User>
     const userSnap = await getDoc(userRef);
 
     if (userSnap.exists()) {
-        return { id: userSnap.id, ...userSnap.data() } as User;
+        const userData = { id: userSnap.id, ...userSnap.data() } as User;
+        // Legacy role migration
+        if ((userData.role as any) === 'PIC GA') {
+            userData.role = 'GA';
+            await updateDoc(userRef, { role: 'GA' });
+        }
+        return userData;
     } else {
         const newUser: Omit<User, 'id'> = {
             email: firebaseUser.email || 'N/A',
@@ -111,6 +117,8 @@ export const getOrCreateUser = async (firebaseUser: FirebaseUser): Promise<User>
 
 
 export const addUserToDB = async (data: Omit<User, 'id' | 'handledInstansiIds'>) => {
+    // This function might need to be adapted to create Firebase Auth user as well
+    // For now, it only creates the Firestore document.
     return await addDoc(usersCollection, data);
 }
 export const updateUserInDB = async (id: string, data: Partial<Omit<User, 'id'>>) => {

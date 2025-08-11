@@ -43,7 +43,7 @@ const internalPicSchema = z.object({
   nama: z.string().min(3, "Nama harus diisi"),
   email: z.string().email("Format email tidak valid"),
   noHp: z.string().min(10, "Nomor HP minimal 10 digit"),
-  role: z.enum(["Admin", "PIC GA", "Viewer"], { required_error: "Role harus dipilih" }),
+  role: z.enum(["Admin", "GA", "BA", "Viewer"], { required_error: "Role harus dipilih" }),
   handledInstansiIds: z.array(z.string()).optional(),
 });
 
@@ -225,7 +225,8 @@ export function PicForm({ children, picToEdit, picType }: PicFormProps) {
                                         </SelectTrigger>
                                         </FormControl>
                                         <SelectContent>
-                                            <SelectItem value="PIC GA">PIC GA</SelectItem>
+                                            <SelectItem value="GA">GA (General Affairs)</SelectItem>
+                                            <SelectItem value="BA">BA (Business Alliance)</SelectItem>
                                             <SelectItem value="Admin">Admin</SelectItem>
                                             <SelectItem value="Viewer">Viewer</SelectItem>
                                         </SelectContent>
@@ -234,7 +235,7 @@ export function PicForm({ children, picToEdit, picType }: PicFormProps) {
                                     </FormItem>
                                 )}
                             />
-                            {watchedRole === 'PIC GA' && (
+                            {watchedRole === 'GA' && (
                                 <FormField
                                     control={internalForm.control}
                                     name="handledInstansiIds"

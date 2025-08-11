@@ -1,7 +1,7 @@
 import type { LucideIcon } from "lucide-react";
 import type { Timestamp } from "firebase/firestore";
 
-// Helper type to convert Firestore Timestamps to Dates in other types
+// Helper type to convert Firestore Timestamps to JS Dates in other types
 type WithDates<T> = {
   [K in keyof T]: T[K] extends Timestamp ? Date : T[K];
 };
@@ -33,7 +33,7 @@ export interface User {
   nama: string;
   email: string;
   noHp: string;
-  role: "Admin" | "PIC GA" | "Viewer";
+  role: "Admin" | "GA" | "BA" | "Viewer";
   handledInstansiIds?: string[]; // Used in form, not in DB directly
 }
 

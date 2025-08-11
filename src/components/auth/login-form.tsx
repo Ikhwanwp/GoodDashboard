@@ -7,7 +7,8 @@ import * as z from "zod";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { signInWithEmailAndPassword } from "firebase/auth";
-import { auth } from "@/lib/firebase-config";
+import { auth, db } from "@/lib/firebase-config";
+import { doc, getDoc } from "firebase/firestore";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -22,6 +23,8 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2 } from "lucide-react";
+import type { User } from "@/lib/types";
+
 
 const formSchema = z.object({
   email: z.string().email({ message: "Invalid email address." }),
@@ -44,22 +47,37 @@ export function LoginForm() {
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setIsLoading(true);
     try {
-      await signInWithEmailAndPassword(auth, values.email, values.password);
-      toast({
-        title: "Login Berhasil",
-        description: "Anda akan diarahkan ke dashboard.",
-      });
-      router.push("/dashboard");
+      const userCredential = await signInWithEmailAndPassword(auth, values.email, values.password);
+      const user = userCredential.user;
+
+      // Fetch user role from Firestore
+      const userDocRef = doc(db, "users", user.uid);
+      const userDocSnap = await getDoc(userDocRef);
+
+      if (userDocSnap.exists()) {
+        const userData = userDocSnap.data() as User;
+        
+        toast({
+            title: "Login Berhasil",
+            description: "Anda akan diarahkan ke dashboard.",
+        });
+
+        // Redirect based on role
+        if (userData.role === 'BA') {
+            router.push("/dashboard-ba");
+        } else {
+            router.push("/dashboard"); // Default for GA, Admin, Viewer
+        }
+      } else {
+          throw new Error("User data not found in database.");
+      }
+
     } catch (error: any) {
-      console.error("Firebase Auth Error:", error);
+      console.error("Login Error:", error);
       let errorMessage = "Terjadi kesalahan saat login.";
       switch (error.code) {
         case 'auth/user-not-found':
-          errorMessage = 'Email tidak ditemukan.';
-          break;
         case 'auth/wrong-password':
-          errorMessage = 'Password salah.';
-          break;
         case 'auth/invalid-credential':
            errorMessage = 'Email atau password salah.';
            break;

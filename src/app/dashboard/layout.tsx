@@ -15,6 +15,7 @@ import {
   MessageSquareQuote,
   Contact,
   Loader2,
+  Briefcase,
 } from "lucide-react";
 
 import {
@@ -35,7 +36,7 @@ import { Button } from "@/components/ui/button";
 import { DataProvider, useData } from "@/context/data-context";
 import { useEffect } from "react";
 
-const menuItems = [
+const gaMenuItems = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { href: "/dashboard/instansi", label: "Instansi", icon: Building2 },
   { href: "/dashboard/contracts", label: "Kontrak", icon: Handshake },
@@ -44,32 +45,47 @@ const menuItems = [
   { href: "/dashboard/timeline", label: "Timeline", icon: Clock },
 ];
 
+const baMenuItems = [
+  { href: "/dashboard-ba", label: "Dashboard BA", icon: LayoutDashboard },
+  { href: "/dashboard-ba/mitra", label: "Mitra", icon: Handshake },
+  { href: "/dashboard-ba/kerjasama", label: "Kerja Sama", icon: Briefcase },
+  { href: "/dashboard-ba/tasks", label: "Tasks", icon: MessageSquareQuote },
+  { href: "/dashboard-ba/pic", label: "PIC", icon: Contact },
+  { href: "/dashboard-ba/timeline", label: "Timeline BA", icon: Clock },
+  { href: "/dashboard-ba/reminders", label: "Reminders", icon: FileText },
+];
+
 function AuthWrapper({ children }: { children: React.ReactNode }) {
   const { currentUser, loading, logout } = useData();
   const router = useRouter();
   const pathname = usePathname();
 
   useEffect(() => {
-    // If loading is finished and there's no user, redirect to login page.
     if (!loading && !currentUser) {
       router.push("/login");
+      return;
     }
-  }, [currentUser, loading, router]);
+    
+    if (currentUser) {
+      const isBaPath = pathname.startsWith('/dashboard-ba');
+      const isGaPath = pathname.startsWith('/dashboard');
 
-  // While loading, show a full-screen loader to prevent layout shifts or redirects.
-  if (loading) {
+      if (currentUser.role === 'BA' && !isBaPath) {
+        router.push('/dashboard-ba');
+      } else if (currentUser.role === 'GA' && isBaPath) {
+        router.push('/dashboard');
+      }
+    }
+  }, [currentUser, loading, router, pathname]);
+
+  if (loading || !currentUser) {
     return (
       <div className="flex h-screen w-full items-center justify-center">
         <Loader2 className="h-8 w-8 animate-spin" />
       </div>
     );
   }
-  
-  // If not loading and no user, it means the redirect is about to happen. Return null to avoid rendering children.
-  if (!currentUser) {
-    return null;
-  }
-  
+
   const getInitials = (name: string) => {
     return name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
   }
@@ -79,16 +95,29 @@ function AuthWrapper({ children }: { children: React.ReactNode }) {
     router.push('/login');
   }
 
+  const menuItems = currentUser.role === 'BA' ? baMenuItems : gaMenuItems;
+  const logoText = currentUser.role === 'BA' ? "BA Monitor" : "K/L Monitor";
+  const homePath = currentUser.role === 'BA' ? "/dashboard-ba" : "/dashboard";
+
+  // If the role and path don't match, show loader while redirecting
+  if ((currentUser.role === 'BA' && !pathname.startsWith('/dashboard-ba')) || (currentUser.role === 'GA' && pathname.startsWith('/dashboard-ba'))) {
+    return (
+      <div className="flex h-screen w-full items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin" />
+      </div>
+    );
+  }
+
   return (
       <SidebarProvider>
         <Sidebar>
           <SidebarHeader>
-             <div className="flex items-center gap-2">
+             <Link href={homePath} className="flex items-center gap-2">
               <Logo className="size-7 text-sidebar-primary" />
               <span className="text-lg font-semibold text-sidebar-foreground">
-                K/L Monitor
+                {logoText}
               </span>
-            </div>
+            </Link>
           </SidebarHeader>
           <SidebarContent>
             <SidebarMenu>
