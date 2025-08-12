@@ -175,7 +175,7 @@ export function PicForm({ children, picToEdit, picType }: PicFormProps) {
       <DialogTrigger asChild>
         {trigger}
       </DialogTrigger>
-      <DialogContent className="sm:max-w-xl">
+      <DialogContent className="sm:max-w-xl flex flex-col">
         <DialogHeader>
           <DialogTitle>{isEditMode ? "Edit PIC" : "Tambah PIC Baru"}</DialogTitle>
           <DialogDescription>
@@ -189,7 +189,7 @@ export function PicForm({ children, picToEdit, picType }: PicFormProps) {
                 <TabsTrigger value="external" disabled={isEditMode && picType === 'internal'}>PIC Eksternal</TabsTrigger>
             </TabsList>
 
-            <TabsContent value="internal" className="mt-0 flex-grow overflow-hidden">
+            <TabsContent value="internal" className="mt-0 flex-grow overflow-auto">
                  <Form {...internalForm}>
                     <form id="internal-pic-form" onSubmit={internalForm.handleSubmit(onInternalSubmit)} className="flex flex-col h-full">
                       <ScrollArea className="flex-grow pr-6 -mr-6">
@@ -331,7 +331,7 @@ export function PicForm({ children, picToEdit, picType }: PicFormProps) {
                     </form>
                  </Form>
             </TabsContent>
-            <TabsContent value="external" className="mt-0 flex-grow overflow-hidden">
+            <TabsContent value="external" className="mt-0 flex-grow overflow-auto">
                  <Form {...externalForm}>
                     <form id="external-pic-form" onSubmit={externalForm.handleSubmit(onExternalSubmit)} className="flex flex-col h-full">
                        <ScrollArea className="flex-grow pr-6 -mr-6">
@@ -414,7 +414,7 @@ export function PicForm({ children, picToEdit, picType }: PicFormProps) {
                  </Form>
             </TabsContent>
         </Tabs>
-        <DialogFooter>
+        <DialogFooter className="mt-auto shrink-0 border-t pt-4">
             <Button type="button" variant="ghost" onClick={() => setOpen(false)}>Batal</Button>
             <Button type="submit" form={activeTab === 'internal' ? 'internal-pic-form' : 'external-pic-form'} disabled={isSaving}>
                 {isSaving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
