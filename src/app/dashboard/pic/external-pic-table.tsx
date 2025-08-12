@@ -24,6 +24,7 @@ import {
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { useState } from "react"
+import { Search } from "lucide-react"
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
@@ -54,23 +55,19 @@ export function ExternalPicTable<TData, TValue>({
 
   return (
     <div>
-        <div className="flex items-center py-4 gap-4">
-            <Input
-            placeholder="Cari nama PIC..."
-            value={(table.getColumn("namaPic")?.getFilterValue() as string) ?? ""}
-            onChange={(event) =>
-                table.getColumn("namaPic")?.setFilterValue(event.target.value)
-            }
-            className="w-full max-w-sm placeholder:text-muted-foreground/40"
-            />
-             <Input
-            placeholder="Cari nama instansi..."
-            value={(table.getColumn("instansiId")?.getFilterValue() as string) ?? ""}
-            onChange={(event) =>
-                table.getColumn("instansiId")?.setFilterValue(event.target.value)
-            }
-            className="w-full max-w-sm placeholder:text-muted-foreground/40"
-            />
+        <div className="py-4">
+          <div className="relative w-full">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input
+              placeholder="Cari nama PIC atau instansi..."
+              value={(table.getColumn("namaPic")?.getFilterValue() as string) ?? ""}
+              onChange={(event) => {
+                  table.getColumn("namaPic")?.setFilterValue(event.target.value)
+                  table.getColumn("instansiId")?.setFilterValue(event.target.value)
+              }}
+              className="w-full pl-9 placeholder:text-muted-foreground/40"
+              />
+          </div>
         </div>
         <div className="rounded-md border">
         <Table>

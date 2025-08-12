@@ -33,7 +33,17 @@ export const getExternalPicColumns = ({ instansi, deletePicEksternal, showAction
       cell: ({ row }) => {
         const picInstansi = instansi.find(i => i.id === row.original.instansiId);
         return <div className="font-medium">{picInstansi?.namaInstansi || 'N/A'}</div>;
-      }
+      },
+      filterFn: (row, id, value) => {
+        const picInstansi = instansi.find(i => i.id === row.original.instansiId);
+        const namaPic = row.original.namaPic;
+        const searchTerm = value.toLowerCase();
+        
+        return picInstansi?.namaInstansi.toLowerCase().includes(searchTerm) || 
+               namaPic.toLowerCase().includes(searchTerm);
+      },
+      // Hiding the individual column filter accessor
+      enableColumnFilter: false,
     },
     {
       accessorKey: "jabatan",
