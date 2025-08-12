@@ -61,7 +61,7 @@ export function ExternalPicTable<TData, TValue>({
             onChange={(event) =>
                 table.getColumn("namaPic")?.setFilterValue(event.target.value)
             }
-            className="max-w-sm"
+            className="w-full max-w-sm placeholder:text-muted-foreground/40"
             />
              <Input
             placeholder="Cari nama instansi..."
@@ -69,7 +69,7 @@ export function ExternalPicTable<TData, TValue>({
             onChange={(event) =>
                 table.getColumn("instansiId")?.setFilterValue(event.target.value)
             }
-            className="max-w-sm"
+            className="w-full max-w-sm placeholder:text-muted-foreground/40"
             />
         </div>
         <div className="rounded-md border">

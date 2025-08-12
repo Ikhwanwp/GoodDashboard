@@ -61,7 +61,7 @@ export function InternalPicTable<TData, TValue>({
             onChange={(event) =>
                 table.getColumn("nama")?.setFilterValue(event.target.value)
             }
-            className="max-w-sm"
+            className="w-full max-w-sm placeholder:text-muted-foreground/40"
             />
         </div>
         <div className="rounded-md border">
