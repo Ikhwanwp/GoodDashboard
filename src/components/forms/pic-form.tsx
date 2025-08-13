@@ -5,7 +5,7 @@ import { useState, useEffect } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
-import { Loader2, PlusCircle } from "lucide-react";
+import { Loader2, PlusCircle, Eye, EyeOff } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -73,6 +73,7 @@ type PicFormProps = {
 export function PicForm({ children, picToEdit, picType }: PicFormProps) {
   const [open, setOpen] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const { instansi, users, addUser, updateUser, addPicEksternal, updatePicEksternal } = useData();
   const isEditMode = !!picToEdit;
   const [activeTab, setActiveTab] = useState(picType || 'internal');
@@ -223,9 +224,23 @@ export function PicForm({ children, picToEdit, picType }: PicFormProps) {
                                     render={({ field }) => (
                                     <FormItem>
                                         <FormLabel>Password</FormLabel>
-                                        <FormControl>
-                                        <Input type="password" placeholder="******" {...field} />
-                                        </FormControl>
+                                        <div className="relative">
+                                          <FormControl>
+                                              <Input
+                                                  type={showPassword ? "text" : "password"}
+                                                  placeholder="******"
+                                                  {...field}
+                                                  className="pr-10"
+                                              />
+                                          </FormControl>
+                                          <button
+                                              type="button"
+                                              onClick={() => setShowPassword(!showPassword)}
+                                              className="absolute inset-y-0 right-0 flex items-center pr-3 text-muted-foreground"
+                                          >
+                                              {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                                          </button>
+                                        </div>
                                         <FormMessage />
                                     </FormItem>
                                     )}
@@ -425,5 +440,3 @@ export function PicForm({ children, picToEdit, picType }: PicFormProps) {
     </Dialog>
   );
 }
-
-    
