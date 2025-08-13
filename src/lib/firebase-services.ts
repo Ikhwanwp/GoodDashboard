@@ -1,3 +1,4 @@
+
 import { db, auth } from './firebase-config';
 import {
   collection,
@@ -118,32 +119,10 @@ export const getOrCreateUser = async (firebaseUser: FirebaseUser): Promise<User>
 
 
 export const addUserToDB = async (data: UserWithPassword) => {
-    if (!data.password) {
-        throw new Error("Password is required to create a new user.");
-    }
-    // Create user in Firebase Auth
-    const userCredential = await createUserWithEmailAndPassword(auth, data.email, data.password);
-    const user = userCredential.user;
-
-    // Create user document in Firestore
-    const userDocRef = doc(db, "users", user.uid);
-    const newUser = {
-        nama: data.nama,
-        email: data.email,
-        noHp: data.noHp,
-        role: data.role,
-    };
-    await setDoc(userDocRef, newUser);
-
-    // Update instansi if needed
-    if (data.role === 'GA' && data.handledInstansiIds && data.handledInstansiIds.length > 0) {
-        const batch = writeBatch(db);
-        data.handledInstansiIds.forEach(instansiId => {
-            const instansiRef = doc(db, "instansi", instansiId);
-            batch.update(instansiRef, { internalPicId: user.uid });
-        });
-        await batch.commit();
-    }
+    // This function is now a safeguard. User creation should happen in the Firebase Console.
+    // Client-side user creation is disabled to prevent permission errors from Firestore security rules,
+    // which should restrict write access to the 'users' collection.
+    throw new Error("Pembuatan pengguna baru harus dilakukan melalui Firebase Console untuk alasan keamanan. Fitur ini dinonaktifkan di aplikasi.");
 }
 export const updateUserInDB = async (id: string, data: Partial<Omit<User, 'id'>>) => {
     const docRef = doc(db, 'users', id);
