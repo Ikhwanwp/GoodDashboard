@@ -118,29 +118,13 @@ export const getOrCreateUser = async (firebaseUser: FirebaseUser): Promise<User>
 
 
 export const addUserToDB = async (data: UserWithPassword) => {
-    // 1. Create user in Firebase Authentication
-    const userCredential = await createUserWithEmailAndPassword(auth, data.email, data.password);
-    const { user } = userCredential;
-
-    // 2. Create user document in Firestore with the same UID
-    const userDocRef = doc(db, 'users', user.uid);
-    const { password, ...firestoreData } = data; // remove password before saving
-    await setDoc(userDocRef, {
-        nama: firestoreData.nama,
-        email: firestoreData.email,
-        noHp: firestoreData.noHp,
-        role: firestoreData.role,
-    });
-
-    // 3. Assign to instansi if needed
-    if (firestoreData.role === 'GA' && firestoreData.handledInstansiIds && firestoreData.handledInstansiIds.length > 0) {
-        const batch = writeBatch(db);
-        firestoreData.handledInstansiIds.forEach(instansiId => {
-            const instansiRef = doc(db, 'instansi', instansiId);
-            batch.update(instansiRef, { internalPicId: user.uid });
-        });
-        await batch.commit();
-    }
+    // SECURITY: This operation is blocked by default Firestore rules.
+    // User creation should be handled by a trusted server environment (e.g., Cloud Functions)
+    // or directly in the Firebase Console, not from the client-side application.
+    // Throwing an error here to make the security limitation explicit.
+    throw new Error(
+      'User creation from the client is not permitted for security reasons. Please add users via the Firebase Console or a backend service.'
+    );
 }
 export const updateUserInDB = async (id: string, data: Partial<Omit<User, 'id'>>) => {
     const docRef = doc(db, 'users', id);
@@ -271,5 +255,3 @@ export const deleteStatusPekerjaanFromDB = async (id: string) => {
     const docRef = doc(db, 'statusPekerjaan', id);
     return await deleteDoc(docRef);
 }
-
-    
