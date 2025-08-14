@@ -6,14 +6,14 @@
 
 import { ai } from '@/ai/genkit';
 import { z } from 'zod';
+import { getInstansi, getKontrakPks } from '@/lib/firebase-services';
+import { format } from 'date-fns';
 
 export async function askKnowledgeAgent(question: string): Promise<string> {
   return knowledgeAgentFlow(question);
 }
 
-// In a real application, these tools would be more robust.
-// They would fetch data directly from your database services.
-// For now, we'll define them with placeholder logic.
+// This tool now fetches real data from Firestore.
 const getInstansiListTool = ai.defineTool(
     {
         name: 'getInstansiList',
@@ -22,28 +22,35 @@ const getInstansiListTool = ai.defineTool(
         outputSchema: z.array(z.string()),
     },
     async () => {
-        // In a real app, you would call:
-        // const instansi = await getInstansi();
-        // return instansi.map(i => i.namaInstansi);
-        console.log("TOOL: getInstansiList called");
-        return ["Kementerian Keuangan", "Kementerian Hukum dan HAM", "BSSN"];
+        console.log("TOOL: getInstansiList called - fetching from Firestore");
+        const instansi = await getInstansi();
+        return instansi.map(i => i.namaInstansi);
     }
 );
 
+// This tool now fetches and filters real data from Firestore.
 const getActivePksContractsTool = ai.defineTool(
     {
         name: 'getActivePksContracts',
-        description: 'Get a list of all active PKS contracts.',
+        description: 'Get a list of all active PKS contracts, including their title, associated institution, and expiration date.',
         inputSchema: z.object({}),
         outputSchema: z.array(z.object({ instansi: z.string(), judul: z.string(), tanggalBerakhir: z.string() })),
     },
     async () => {
-         // In a real app, you would fetch and filter from Firestore.
-         console.log("TOOL: getActivePksContracts called");
-         return [
-            { instansi: "Kementerian Keuangan", judul: "Penyediaan Meterai Elektronik", tanggalBerakhir: "2025-12-31" },
-            { instansi: "Kementerian Hukum dan HAM", judul: "Layanan Digital Signature", tanggalBerakhir: "2024-10-01" },
-         ];
+        console.log("TOOL: getActivePksContracts called - fetching from Firestore");
+        const allPks = await getKontrakPks();
+        const allInstansi = await getInstansi();
+        
+        const activeContracts = allPks.filter(pks => pks.statusKontrak === 'Aktif');
+
+        return activeContracts.map(pks => {
+            const instansi = allInstansi.find(i => i.id === pks.instansiId);
+            return {
+                instansi: instansi?.namaInstansi || 'Instansi Tidak Ditemukan',
+                judul: pks.judulKontrak,
+                tanggalBerakhir: format(pks.tanggalBerakhir, "yyyy-MM-dd"),
+            };
+        });
     }
 );
 
