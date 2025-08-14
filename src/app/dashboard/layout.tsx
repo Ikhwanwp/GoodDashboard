@@ -96,7 +96,7 @@ function AuthWrapper({ children }: { children: React.ReactNode }) {
   }
 
   const menuItems = currentUser.role === 'BA' ? baMenuItems : gaMenuItems;
-  const logoText = currentUser.role === 'BA' ? "BA Monitor" : "K/L Monitor";
+  const logoText = currentUser.role === 'BA' ? "BA Monitor" : "Govtech Dashboard";
   const homePath = currentUser.role === 'BA' ? "/dashboard-ba" : "/dashboard";
 
   // If the role and path don't match, show loader while redirecting

@@ -8,7 +8,7 @@ export default function LoginPage() {
         <div className="mb-8 flex flex-col items-center">
           <div className="flex items-center gap-2 mb-4">
             <Logo className="h-8 w-8 text-primary" />
-            <h1 className="text-2xl font-bold text-primary">K/L Monitor</h1>
+            <h1 className="text-2xl font-bold text-primary">Govtech Dashboard</h1>
           </div>
           <p className="text-muted-foreground text-center">
             Monitoring Kontrak & Progres Pekerjaan
