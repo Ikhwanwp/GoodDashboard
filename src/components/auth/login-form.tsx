@@ -36,6 +36,7 @@ export function LoginForm() {
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const isFirebaseConfigured = !!auth;
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -46,6 +47,15 @@ export function LoginForm() {
   });
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
+    if (!isFirebaseConfigured) {
+        toast({
+            variant: "destructive",
+            title: "Konfigurasi Firebase Tidak Ditemukan",
+            description: "Harap periksa file .env.local dan pastikan semua variabel telah diisi dengan benar.",
+        });
+        return;
+    }
+
     setIsLoading(true);
     try {
       const userCredential = await signInWithEmailAndPassword(auth, values.email, values.password);
@@ -118,7 +128,7 @@ export function LoginForm() {
                 <FormItem>
                   <FormLabel>Email</FormLabel>
                   <FormControl>
-                    <Input placeholder="email@peruri.co.id" {...field} className="placeholder:text-muted-foreground/40" />
+                    <Input placeholder="email@peruri.co.id" {...field} className="placeholder:text-muted-foreground/40" disabled={!isFirebaseConfigured} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -137,12 +147,14 @@ export function LoginForm() {
                         placeholder="******"
                         {...field}
                         className="placeholder:text-muted-foreground/40 pr-10"
+                        disabled={!isFirebaseConfigured}
                       />
                     </FormControl>
                     <button
                       type="button"
                       onClick={() => setShowPassword(!showPassword)}
                       className="absolute inset-y-0 right-0 flex items-center pr-3 text-muted-foreground"
+                      disabled={!isFirebaseConfigured}
                     >
                       {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                     </button>
@@ -151,8 +163,8 @@ export function LoginForm() {
                 </FormItem>
               )}
             />
-            <Button type="submit" className="w-full bg-accent hover:bg-accent/90" disabled={isLoading}>
-              {isLoading ? <Loader2 className="animate-spin" /> : 'Masuk'}
+            <Button type="submit" className="w-full bg-accent hover:bg-accent/90" disabled={isLoading || !isFirebaseConfigured}>
+              {isLoading ? <Loader2 className="animate-spin" /> : (isFirebaseConfigured ? 'Masuk' : 'Konfigurasi Diperlukan')}
             </Button>
           </form>
         </Form>
