@@ -16,16 +16,16 @@ const firebaseConfig: FirebaseOptions = {
 
 // Function to check if all required config values are present and not placeholders
 function isConfigValid(config: FirebaseOptions): boolean {
-  return Object.values(config).every(value => value && value !== "CHANGE_ME");
+  return Object.values(config).every(value => value && !value.startsWith('NEXT_PUBLIC_') && value !== 'CHANGE_ME');
 }
 
 // Initialize Firebase
 let app;
-let db: any;
-let auth: any;
+let db: any = null;
+let auth: any = null;
 
 if (!isConfigValid(firebaseConfig)) {
-  console.error("Firebase config is invalid or contains placeholder values. Please check your .env.local file.");
+  console.warn("Firebase config is invalid or contains placeholder values. Firebase features will be disabled. Please check your .env.local file.");
   // We don't initialize the app if the config is invalid.
   // This will prevent further Firebase errors down the line.
 } else {
