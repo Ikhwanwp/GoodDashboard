@@ -64,9 +64,12 @@ const knowledgeAgentFlow = ai.defineFlow(
   async (question) => {
     const llmResponse = await ai.generate({
       prompt: `You are a helpful AI assistant for the Govtech Dashboard application.
-      Your goal is to answer the user's question based on the data you can access through tools.
-      If you don't have a tool to answer the question, say so.
-      Formulate your answer in Bahasa Indonesia and in Markdown format.
+      Your primary goal is to answer the user's question based on the data you can access through the available tools.
+      
+      - First, check if any of the provided tools can help answer the user's question. If so, use them.
+      - If the user's question is NOT related to the app's data (e.g., a math question, a general knowledge question), answer it directly using your own knowledge.
+      - If you don't have a tool to answer a data-related question, say so politely.
+      - Formulate your answer in Bahasa Indonesia and use Markdown format for readability.
 
       User question: "${question}"
       `,
