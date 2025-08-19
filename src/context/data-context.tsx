@@ -202,7 +202,25 @@ export function DataProvider({ children }: { children: ReactNode }) {
     reloadData: fetchData,
     // Instansi
     addInstansi: createApiFunction(addInstansiToDB, "Instansi baru berhasil ditambahkan.", ['instansi']),
-    updateInstansi: createApiFunction(updateInstansiInDB, "Data instansi berhasil diperbarui.", ['instansi', 'users']),
+    updateInstansi: async (id: string, data: Partial<Instansi>) => {
+      try {
+        const dataToUpdate = { ...data };
+        if (dataToUpdate.tanggalUlangTahun === undefined || dataToUpdate.tanggalUlangTahun === null) {
+          dataToUpdate.tanggalUlangTahun = null;
+        }
+        await updateInstansiInDB(id, dataToUpdate);
+        toast({ title: "Sukses", description: "Data instansi berhasil diperbarui." });
+        await fetchData(['instansi', 'users']);
+      } catch (err) {
+         console.error(err);
+         toast({
+           variant: "destructive",
+           title: "Operasi Gagal",
+           description: (err as Error).message || "Terjadi kesalahan pada server.",
+         });
+         throw err;
+      }
+    },
     deleteInstansi: createApiFunction(deleteInstansiFromDB, "Data instansi telah dihapus.", ['instansi', 'kontrakPks', 'kontrakMou', 'dokumenSph', 'statusPekerjaan', 'picEksternal']),
     // Kontrak PKS
     addKontrakPks: createApiFunction(addKontrakPksToDB, "Kontrak PKS baru berhasil ditambahkan.", ['kontrakPks']),
