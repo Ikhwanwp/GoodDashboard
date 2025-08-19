@@ -1,3 +1,4 @@
+
 "use client"
 
 import {
@@ -33,7 +34,9 @@ export function InstansiDataTable<TData, TValue>({
   columns,
   data,
 }: DataTableProps<TData, TValue>) {
-  const [sorting, setSorting] = useState<SortingState>([])
+  const [sorting, setSorting] = useState<SortingState>([
+    { id: "tanggalUpdateTerakhir", desc: false }
+  ])
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
 
   const table = useReactTable({
