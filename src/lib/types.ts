@@ -10,7 +10,7 @@ export interface Instansi {
   id: string;
   kodeInstansi: string;
   namaInstansi: string;
-  tanggalUlangTahun: Date;
+  tanggalUlangTahun: Date | null;
   statusKementrian: "STG Prioritas" | "Non Prioritas";
   jenisLayanan: string;
   tanggalUpdateTerakhir: Date;
@@ -21,7 +21,7 @@ export interface InstansiFromDB {
   id: string;
   kodeInstansi: string;
   namaInstansi: string;
-  tanggalUlangTahun: Timestamp;
+  tanggalUlangTahun: Timestamp | null;
   statusKementrian: "STG Prioritas" | "Non Prioritas";
   jenisLayanan: string;
   tanggalUpdateTerakhir: Timestamp;

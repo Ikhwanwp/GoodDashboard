@@ -1,4 +1,5 @@
 
+
 import { db, auth } from './firebase-config';
 import {
   collection,
@@ -47,8 +48,14 @@ export const getInstansi = async (): Promise<Instansi[]> => {
 };
 
 export const addInstansiToDB = async (data: Partial<Omit<Instansi, 'id' | 'tanggalUpdateTerakhir' | 'internalPicId'>>) => {
-    // PIC GA logic is simplified. A default PIC should be assigned or handled separately.
-    return await addDoc(instansiCollection, { ...data, tanggalUpdateTerakhir: serverTimestamp(), internalPicId: '' });
+    const dataToSave = {
+      ...data,
+      tanggalUlangTahun: data.tanggalUlangTahun || null, // Ensure null instead of undefined
+      jenisLayanan: data.jenisLayanan || "",
+      tanggalUpdateTerakhir: serverTimestamp(),
+      internalPicId: '',
+    };
+    return await addDoc(instansiCollection, dataToSave);
 }
 
 export const updateInstansiInDB = async (id: string, data: Partial<Omit<Instansi, 'id'>>) => {
