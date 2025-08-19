@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useEffect } from "react";
@@ -43,7 +44,7 @@ import { format } from "date-fns";
 
 const formSchema = z.object({
   namaInstansi: z.string().min(3, "Nama instansi minimal 3 karakter"),
-  kodeInstansi: z.string().min(2, "Kode instansi minimal 2 karakter").max(10, "Kode instansi maksimal 10 karakter"),
+  kodeInstansi: z.string().min(2, "Kode instansi minimal 2 karakter").max(20, "Kode instansi maksimal 20 karakter"),
   tanggalUlangTahun: z.date().optional(),
   statusKementrian: z.enum(["STG Prioritas", "Non Prioritas"], { required_error: "Status kementrian harus dipilih" }),
   jenisLayanan: z.string().optional(),
