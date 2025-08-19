@@ -60,7 +60,7 @@ export function InstansiForm({ children, instansiToEdit }: InstansiFormProps) {
   const [isSaving, setIsSaving] = useState(false);
   const [isDatePickerOpen, setDatePickerOpen] = useState(false);
 
-  const { addInstansi, updateInstansi } = useData();
+  const { instansi, addInstansi, updateInstansi } = useData();
   const isEditMode = !!instansiToEdit;
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -87,6 +87,21 @@ export function InstansiForm({ children, instansiToEdit }: InstansiFormProps) {
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setIsSaving(true);
+
+    // Check for unique kodeInstansi
+    const isCodeTaken = instansi.some(
+      (item) => item.kodeInstansi.toLowerCase() === values.kodeInstansi.toLowerCase() && item.id !== instansiToEdit?.id
+    );
+
+    if (isCodeTaken) {
+      form.setError("kodeInstansi", {
+        type: "manual",
+        message: "Kode instansi ini sudah digunakan. Harap gunakan kode lain.",
+      });
+      setIsSaving(false);
+      return;
+    }
+
     if (isEditMode && instansiToEdit) {
       await updateInstansi(instansiToEdit.id, values);
     } else {
