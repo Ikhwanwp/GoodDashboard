@@ -24,6 +24,13 @@ export const InstansiColumns = (): ColumnDef<Instansi>[] => {
 
   return [
     {
+      id: "nomor",
+      header: "No.",
+      cell: ({ row }) => {
+        return <div className="text-center">{row.index + 1}</div>;
+      },
+    },
+    {
       accessorKey: "kodeInstansi",
       header: ({ column }) => {
         return (
