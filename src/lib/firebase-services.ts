@@ -46,7 +46,7 @@ export const getInstansi = async (): Promise<Instansi[]> => {
   return snapshot.docs.map(doc => convertTimestamps<Instansi>({ ...doc.data(), id: doc.id } as InstansiFromDB));
 };
 
-export const addInstansiToDB = async (data: Omit<Instansi, 'id' | 'tanggalUpdateTerakhir' | 'internalPicId'>) => {
+export const addInstansiToDB = async (data: Partial<Omit<Instansi, 'id' | 'tanggalUpdateTerakhir' | 'internalPicId'>>) => {
     // PIC GA logic is simplified. A default PIC should be assigned or handled separately.
     return await addDoc(instansiCollection, { ...data, tanggalUpdateTerakhir: serverTimestamp(), internalPicId: '' });
 }

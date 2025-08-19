@@ -32,7 +32,7 @@ interface DataContextType {
   error: Error | null;
   reloadData: (collections?: CollectionName[]) => Promise<void>;
   // Instansi
-  addInstansi: (data: Omit<Instansi, 'id' | 'tanggalUpdateTerakhir' | 'internalPicId'>) => Promise<void>;
+  addInstansi: (data: Partial<Omit<Instansi, 'id' | 'tanggalUpdateTerakhir' | 'internalPicId'>>) => Promise<void>;
   updateInstansi: (id: string, data: Partial<Instansi>) => Promise<void>;
   deleteInstansi: (id: string) => Promise<void>;
   // Kontrak PKS
@@ -278,5 +278,3 @@ export function useData() {
   }
   return context;
 }
-
-    
