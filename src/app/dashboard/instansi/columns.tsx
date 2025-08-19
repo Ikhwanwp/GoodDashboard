@@ -25,10 +25,24 @@ export const InstansiColumns = (): ColumnDef<Instansi>[] => {
   return [
     {
       id: "nomor",
-      header: "No.",
+      accessorKey: "nomor",
+      header: ({ column }) => {
+        return (
+            <Button
+                variant="ghost"
+                onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+            >
+                No.
+                <ArrowUpDown className="ml-2 h-4 w-4" />
+            </Button>
+        )
+      },
       cell: ({ row }) => {
         return <div className="text-center">{row.index + 1}</div>;
       },
+      // Do not provide a filter function for the row number
+      enableSorting: true,
+      enableHiding: false,
     },
     {
       accessorKey: "kodeInstansi",
