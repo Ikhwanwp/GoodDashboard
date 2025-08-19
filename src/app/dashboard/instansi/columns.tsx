@@ -1,3 +1,4 @@
+
 "use client"
 
 import type { ColumnDef } from "@tanstack/react-table"
@@ -25,7 +26,6 @@ export const InstansiColumns = (): ColumnDef<Instansi>[] => {
   return [
     {
       id: "nomor",
-      accessorKey: "nomor",
       header: ({ column }) => {
         return (
             <Button
@@ -37,10 +37,12 @@ export const InstansiColumns = (): ColumnDef<Instansi>[] => {
             </Button>
         )
       },
-      cell: ({ row }) => {
-        return <div className="text-center">{row.index + 1}</div>;
+      cell: ({ row, table }) => {
+        const sortedRowIndex = table.getSortedRowModel().rows.findIndex(
+            (sortedRow) => sortedRow.id === row.id
+        );
+        return <div className="text-center">{sortedRowIndex + 1}</div>;
       },
-      // Do not provide a filter function for the row number
       enableSorting: true,
       enableHiding: false,
     },
@@ -83,6 +85,7 @@ export const InstansiColumns = (): ColumnDef<Instansi>[] => {
       accessorKey: "tanggalUpdateTerakhir",
       header: "Update Terakhir",
       cell: ({ row }) => format(row.original.tanggalUpdateTerakhir, "dd MMM yyyy"),
+      enableSorting: true,
     },
     {
       id: "actions",

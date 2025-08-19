@@ -35,7 +35,7 @@ export function InstansiDataTable<TData, TValue>({
   data,
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = useState<SortingState>([
-    { id: "tanggalUpdateTerakhir", desc: false }
+    { id: "tanggalUpdateTerakhir", desc: true }
   ])
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
 
@@ -88,7 +88,7 @@ export function InstansiDataTable<TData, TValue>({
             </TableHeader>
             <TableBody>
             {table.getRowModel().rows?.length ? (
-                table.getRowModel().rows.map((row) => (
+                table.getPaginationRowModel().rows.map((row) => (
                 <TableRow
                     key={row.id}
                     data-state={row.getIsSelected() && "selected"}
