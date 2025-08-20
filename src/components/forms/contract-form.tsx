@@ -5,7 +5,7 @@ import { useState, useEffect } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm, type FieldName, type UseFormTrigger } from "react-hook-form";
 import * as z from "zod";
-import { CalendarIcon, Loader2, PlusCircle, ArrowLeft } from "lucide-react";
+import { CalendarIcon, Loader2, PlusCircle, ArrowLeft, Check, ChevronsUpDown } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -36,6 +36,7 @@ import {
 } from "@/components/ui/select";
 import { useData } from "@/context/data-context";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
 import { Calendar } from "@/components/ui/calendar";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
@@ -235,8 +236,126 @@ export function ContractForm({ children, contractToEdit, contractType }: {
                       {currentStep === 1 && (
                         <div className="space-y-4">
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <FormField control={pksForm.control} name="instansiId" render={({ field }) => (<FormItem><FormLabel>Instansi</FormLabel><Select onValueChange={field.onChange} defaultValue={field.value}><FormControl><SelectTrigger><SelectValue placeholder="Pilih instansi terkait" /></SelectTrigger></FormControl><SelectContent>{instansi.map(inst => (<SelectItem key={inst.id} value={inst.id}>{inst.kodeInstansi}</SelectItem>))}</SelectContent></Select><FormMessage /></FormItem>)} />
-                            <FormField control={pksForm.control} name="picGaId" render={({ field }) => (<FormItem><FormLabel>PIC Government Account</FormLabel><Select onValueChange={field.onChange} defaultValue={field.value}><FormControl><SelectTrigger><SelectValue placeholder="Pilih PIC" /></SelectTrigger></FormControl><SelectContent>{picGaUsers.map(user => (<SelectItem key={user.id} value={user.id}>{user.nama}</SelectItem>))}</SelectContent></Select><FormMessage /></FormItem>)} />
+                           <FormField
+                                control={pksForm.control}
+                                name="instansiId"
+                                render={({ field }) => (
+                                    <FormItem className="flex flex-col">
+                                    <FormLabel>Instansi</FormLabel>
+                                    <Popover>
+                                        <PopoverTrigger asChild>
+                                        <FormControl>
+                                            <Button
+                                            variant="outline"
+                                            role="combobox"
+                                            className={cn(
+                                                "w-full justify-between",
+                                                !field.value && "text-muted-foreground"
+                                            )}
+                                            >
+                                            {field.value
+                                                ? instansi.find(
+                                                    (item) => item.id === field.value
+                                                )?.kodeInstansi
+                                                : "Pilih instansi"}
+                                            <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                                            </Button>
+                                        </FormControl>
+                                        </PopoverTrigger>
+                                        <PopoverContent className="w-[--radix-popover-trigger-width] p-0">
+                                            <Command>
+                                                <CommandInput placeholder="Cari instansi..." />
+                                                <CommandList>
+                                                    <CommandEmpty>Instansi tidak ditemukan.</CommandEmpty>
+                                                    <CommandGroup>
+                                                        {instansi.map((item) => (
+                                                        <CommandItem
+                                                            value={item.kodeInstansi}
+                                                            key={item.id}
+                                                            onSelect={() => {
+                                                                pksForm.setValue("instansiId", item.id)
+                                                            }}
+                                                        >
+                                                            <Check
+                                                            className={cn(
+                                                                "mr-2 h-4 w-4",
+                                                                item.id === field.value
+                                                                ? "opacity-100"
+                                                                : "opacity-0"
+                                                            )}
+                                                            />
+                                                            {item.kodeInstansi}
+                                                        </CommandItem>
+                                                        ))}
+                                                    </CommandGroup>
+                                                </CommandList>
+                                            </Command>
+                                        </PopoverContent>
+                                    </Popover>
+                                    <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                            <FormField
+                                control={pksForm.control}
+                                name="picGaId"
+                                render={({ field }) => (
+                                     <FormItem className="flex flex-col">
+                                    <FormLabel>PIC Government Account</FormLabel>
+                                    <Popover>
+                                        <PopoverTrigger asChild>
+                                        <FormControl>
+                                            <Button
+                                            variant="outline"
+                                            role="combobox"
+                                            className={cn(
+                                                "w-full justify-between",
+                                                !field.value && "text-muted-foreground"
+                                            )}
+                                            >
+                                            {field.value
+                                                ? picGaUsers.find(
+                                                    (item) => item.id === field.value
+                                                )?.nama
+                                                : "Pilih PIC"}
+                                            <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                                            </Button>
+                                        </FormControl>
+                                        </PopoverTrigger>
+                                        <PopoverContent className="w-[--radix-popover-trigger-width] p-0">
+                                            <Command>
+                                                <CommandInput placeholder="Cari PIC..." />
+                                                <CommandList>
+                                                    <CommandEmpty>PIC tidak ditemukan.</CommandEmpty>
+                                                    <CommandGroup>
+                                                        {picGaUsers.map((item) => (
+                                                        <CommandItem
+                                                            value={item.nama}
+                                                            key={item.id}
+                                                            onSelect={() => {
+                                                                pksForm.setValue("picGaId", item.id)
+                                                            }}
+                                                        >
+                                                            <Check
+                                                            className={cn(
+                                                                "mr-2 h-4 w-4",
+                                                                item.id === field.value
+                                                                ? "opacity-100"
+                                                                : "opacity-0"
+                                                            )}
+                                                            />
+                                                            {item.nama}
+                                                        </CommandItem>
+                                                        ))}
+                                                    </CommandGroup>
+                                                </CommandList>
+                                            </Command>
+                                        </PopoverContent>
+                                    </Popover>
+                                    <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
                           </div>
                           <FormField control={pksForm.control} name="judulKontrak" render={({ field }) => (<FormItem><FormLabel>Judul Kontrak</FormLabel><FormControl><Input placeholder="cth: Penyediaan Meterai Elektronik" {...field} /></FormControl><FormMessage /></FormItem>)} />
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -270,8 +389,126 @@ export function ContractForm({ children, contractToEdit, contractType }: {
                             {currentStep === 1 && (
                                <div className="space-y-4">
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    <FormField control={mouForm.control} name="instansiId" render={({ field }) => (<FormItem><FormLabel>Instansi</FormLabel><Select onValueChange={field.onChange} defaultValue={field.value}><FormControl><SelectTrigger><SelectValue placeholder="Pilih instansi terkait" /></SelectTrigger></FormControl><SelectContent>{instansi.map(inst => (<SelectItem key={inst.id} value={inst.id}>{inst.kodeInstansi}</SelectItem>))}</SelectContent></Select><FormMessage /></FormItem>)} />
-                                    <FormField control={mouForm.control} name="picGaId" render={({ field }) => (<FormItem><FormLabel>PIC Government Account</FormLabel><Select onValueChange={field.onChange} defaultValue={field.value}><FormControl><SelectTrigger><SelectValue placeholder="Pilih PIC" /></SelectTrigger></FormControl><SelectContent>{picGaUsers.map(user => (<SelectItem key={user.id} value={user.id}>{user.nama}</SelectItem>))}</SelectContent></Select><FormMessage /></FormItem>)} />
+                                    <FormField
+                                        control={mouForm.control}
+                                        name="instansiId"
+                                        render={({ field }) => (
+                                            <FormItem className="flex flex-col">
+                                            <FormLabel>Instansi</FormLabel>
+                                            <Popover>
+                                                <PopoverTrigger asChild>
+                                                <FormControl>
+                                                    <Button
+                                                    variant="outline"
+                                                    role="combobox"
+                                                    className={cn(
+                                                        "w-full justify-between",
+                                                        !field.value && "text-muted-foreground"
+                                                    )}
+                                                    >
+                                                    {field.value
+                                                        ? instansi.find(
+                                                            (item) => item.id === field.value
+                                                        )?.kodeInstansi
+                                                        : "Pilih instansi"}
+                                                    <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                                                    </Button>
+                                                </FormControl>
+                                                </PopoverTrigger>
+                                                <PopoverContent className="w-[--radix-popover-trigger-width] p-0">
+                                                    <Command>
+                                                        <CommandInput placeholder="Cari instansi..." />
+                                                        <CommandList>
+                                                            <CommandEmpty>Instansi tidak ditemukan.</CommandEmpty>
+                                                            <CommandGroup>
+                                                                {instansi.map((item) => (
+                                                                <CommandItem
+                                                                    value={item.kodeInstansi}
+                                                                    key={item.id}
+                                                                    onSelect={() => {
+                                                                        mouForm.setValue("instansiId", item.id)
+                                                                    }}
+                                                                >
+                                                                    <Check
+                                                                    className={cn(
+                                                                        "mr-2 h-4 w-4",
+                                                                        item.id === field.value
+                                                                        ? "opacity-100"
+                                                                        : "opacity-0"
+                                                                    )}
+                                                                    />
+                                                                    {item.kodeInstansi}
+                                                                </CommandItem>
+                                                                ))}
+                                                            </CommandGroup>
+                                                        </CommandList>
+                                                    </Command>
+                                                </PopoverContent>
+                                            </Popover>
+                                            <FormMessage />
+                                            </FormItem>
+                                        )}
+                                    />
+                                    <FormField
+                                        control={mouForm.control}
+                                        name="picGaId"
+                                        render={({ field }) => (
+                                            <FormItem className="flex flex-col">
+                                            <FormLabel>PIC Government Account</FormLabel>
+                                            <Popover>
+                                                <PopoverTrigger asChild>
+                                                <FormControl>
+                                                    <Button
+                                                    variant="outline"
+                                                    role="combobox"
+                                                    className={cn(
+                                                        "w-full justify-between",
+                                                        !field.value && "text-muted-foreground"
+                                                    )}
+                                                    >
+                                                    {field.value
+                                                        ? picGaUsers.find(
+                                                            (item) => item.id === field.value
+                                                        )?.nama
+                                                        : "Pilih PIC"}
+                                                    <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                                                    </Button>
+                                                </FormControl>
+                                                </PopoverTrigger>
+                                                <PopoverContent className="w-[--radix-popover-trigger-width] p-0">
+                                                    <Command>
+                                                        <CommandInput placeholder="Cari PIC..." />
+                                                        <CommandList>
+                                                            <CommandEmpty>PIC tidak ditemukan.</CommandEmpty>
+                                                            <CommandGroup>
+                                                                {picGaUsers.map((item) => (
+                                                                <CommandItem
+                                                                    value={item.nama}
+                                                                    key={item.id}
+                                                                    onSelect={() => {
+                                                                        mouForm.setValue("picGaId", item.id)
+                                                                    }}
+                                                                >
+                                                                    <Check
+                                                                    className={cn(
+                                                                        "mr-2 h-4 w-4",
+                                                                        item.id === field.value
+                                                                        ? "opacity-100"
+                                                                        : "opacity-0"
+                                                                    )}
+                                                                    />
+                                                                    {item.nama}
+                                                                </CommandItem>
+                                                                ))}
+                                                            </CommandGroup>
+                                                        </CommandList>
+                                                    </Command>
+                                                </PopoverContent>
+                                            </Popover>
+                                            <FormMessage />
+                                            </FormItem>
+                                        )}
+                                    />
                                 </div>
                                 <FormField control={mouForm.control} name="isiMou" render={({ field }) => (<FormItem><FormLabel>Isi / Tentang MoU</FormLabel><FormControl><Input placeholder="cth: Kerja Sama Strategis Sektor Keuangan" {...field} /></FormControl><FormMessage /></FormItem>)} />
                                 <FormField control={mouForm.control} name="nomorMouPeruri" render={({ field }) => (<FormItem><FormLabel>Nomor MoU Peruri</FormLabel><FormControl><Input placeholder="MOU/01/2024" {...field} /></FormControl><FormMessage /></FormItem>)} />
