@@ -60,6 +60,11 @@ export const getPksColumns = ({ instansi, deleteKontrakPks, showActions = true }
       }
     },
     {
+      accessorKey: "tanggalMulai",
+      header: "Tgl Mulai",
+      cell: ({ row }) => format(row.original.tanggalMulai, "dd MMM yyyy"),
+    },
+    {
       accessorKey: "tanggalBerakhir",
       header: ({ column }) => {
         return (
@@ -89,11 +94,13 @@ export const getPksColumns = ({ instansi, deleteKontrakPks, showActions = true }
             return <Badge className="bg-orange-500 text-white">Hari Ini</Badge>
         }
 
-        let colorClass = "bg-green-500 text-white";
+        let colorClass = "bg-blue-500 text-white"; // Default for > 90 days
         if (daysLeft <= 30) {
             colorClass = "bg-destructive text-destructive-foreground";
-        } else if (daysLeft <= 90) {
+        } else if (daysLeft <= 60) {
             colorClass = "bg-orange-500 text-white";
+        } else if (daysLeft <= 90) {
+            colorClass = "bg-green-500 text-white";
         }
 
         return <Badge className={cn("whitespace-nowrap", colorClass)}>Dalam {daysLeft} hari lagi</Badge>
