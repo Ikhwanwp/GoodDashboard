@@ -102,7 +102,7 @@ export function ContractForm({ children, contractToEdit, contractType }: {
   const [mouTglBerakhirOpen, setMouTglBerakhirOpen] = useState(false);
   const { instansi, users, addKontrakPks, addKontrakMou, updateKontrakPks, updateKontrakMou } = useData();
   const isEditMode = !!contractToEdit;
-  const picGaUsers = users.filter(u => u.role === 'PIC GA');
+  const picGaUsers = users.filter(u => u.role === 'GA');
   const [activeTab, setActiveTab] = useState(contractType || 'pks');
   const [currentStep, setCurrentStep] = useState(1);
 
@@ -236,7 +236,7 @@ export function ContractForm({ children, contractToEdit, contractType }: {
                         <div className="space-y-4">
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <FormField control={pksForm.control} name="instansiId" render={({ field }) => (<FormItem><FormLabel>Instansi</FormLabel><Select onValueChange={field.onChange} defaultValue={field.value}><FormControl><SelectTrigger><SelectValue placeholder="Pilih instansi terkait" /></SelectTrigger></FormControl><SelectContent>{instansi.map(inst => (<SelectItem key={inst.id} value={inst.id}>{inst.kodeInstansi}</SelectItem>))}</SelectContent></Select><FormMessage /></FormItem>)} />
-                            <FormField control={pksForm.control} name="picGaId" render={({ field }) => (<FormItem><FormLabel>PIC GA</FormLabel><Select onValueChange={field.onChange} defaultValue={field.value}><FormControl><SelectTrigger><SelectValue placeholder="Pilih PIC GA" /></SelectTrigger></FormControl><SelectContent>{picGaUsers.map(user => (<SelectItem key={user.id} value={user.id}>{user.nama}</SelectItem>))}</SelectContent></Select><FormMessage /></FormItem>)} />
+                            <FormField control={pksForm.control} name="picGaId" render={({ field }) => (<FormItem><FormLabel>PIC Government Account</FormLabel><Select onValueChange={field.onChange} defaultValue={field.value}><FormControl><SelectTrigger><SelectValue placeholder="Pilih PIC" /></SelectTrigger></FormControl><SelectContent>{picGaUsers.map(user => (<SelectItem key={user.id} value={user.id}>{user.nama}</SelectItem>))}</SelectContent></Select><FormMessage /></FormItem>)} />
                           </div>
                           <FormField control={pksForm.control} name="judulKontrak" render={({ field }) => (<FormItem><FormLabel>Judul Kontrak</FormLabel><FormControl><Input placeholder="cth: Penyediaan Meterai Elektronik" {...field} /></FormControl><FormMessage /></FormItem>)} />
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -271,7 +271,7 @@ export function ContractForm({ children, contractToEdit, contractType }: {
                                <div className="space-y-4">
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     <FormField control={mouForm.control} name="instansiId" render={({ field }) => (<FormItem><FormLabel>Instansi</FormLabel><Select onValueChange={field.onChange} defaultValue={field.value}><FormControl><SelectTrigger><SelectValue placeholder="Pilih instansi terkait" /></SelectTrigger></FormControl><SelectContent>{instansi.map(inst => (<SelectItem key={inst.id} value={inst.id}>{inst.kodeInstansi}</SelectItem>))}</SelectContent></Select><FormMessage /></FormItem>)} />
-                                    <FormField control={mouForm.control} name="picGaId" render={({ field }) => (<FormItem><FormLabel>PIC GA</FormLabel><Select onValueChange={field.onChange} defaultValue={field.value}><FormControl><SelectTrigger><SelectValue placeholder="Pilih PIC GA" /></SelectTrigger></FormControl><SelectContent>{picGaUsers.map(user => (<SelectItem key={user.id} value={user.id}>{user.nama}</SelectItem>))}</SelectContent></Select><FormMessage /></FormItem>)} />
+                                    <FormField control={mouForm.control} name="picGaId" render={({ field }) => (<FormItem><FormLabel>PIC Government Account</FormLabel><Select onValueChange={field.onChange} defaultValue={field.value}><FormControl><SelectTrigger><SelectValue placeholder="Pilih PIC" /></SelectTrigger></FormControl><SelectContent>{picGaUsers.map(user => (<SelectItem key={user.id} value={user.id}>{user.nama}</SelectItem>))}</SelectContent></Select><FormMessage /></FormItem>)} />
                                 </div>
                                 <FormField control={mouForm.control} name="isiMou" render={({ field }) => (<FormItem><FormLabel>Isi / Tentang MoU</FormLabel><FormControl><Input placeholder="cth: Kerja Sama Strategis Sektor Keuangan" {...field} /></FormControl><FormMessage /></FormItem>)} />
                                 <FormField control={mouForm.control} name="nomorMouPeruri" render={({ field }) => (<FormItem><FormLabel>Nomor MoU Peruri</FormLabel><FormControl><Input placeholder="MOU/01/2024" {...field} /></FormControl><FormMessage /></FormItem>)} />
