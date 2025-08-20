@@ -1,8 +1,9 @@
+
 // src/app/dashboard/contracts/mou-columns.tsx
 "use client"
 
 import type { ColumnDef } from "@tanstack/react-table"
-import type { KontrakMou, Instansi } from "@/lib/types"
+import type { KontrakMou, Instansi, User } from "@/lib/types"
 import { MoreHorizontal, ArrowUpDown } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import {
@@ -20,11 +21,12 @@ import { cn } from "@/lib/utils"
 
 type GetMouColumnsParams = {
   instansi: Instansi[];
+  users: User[];
   deleteKontrakMou: (id: string) => Promise<void>;
   showActions?: boolean;
 }
 
-export const getMouColumns = ({ instansi, deleteKontrakMou, showActions = true }: GetMouColumnsParams): ColumnDef<KontrakMou>[] => {
+export const getMouColumns = ({ instansi, users, deleteKontrakMou, showActions = true }: GetMouColumnsParams): ColumnDef<KontrakMou>[] => {
   const columns: ColumnDef<KontrakMou>[] = [
     {
       accessorKey: "nomorMouPeruri",
@@ -46,6 +48,14 @@ export const getMouColumns = ({ instansi, deleteKontrakMou, showActions = true }
       accessorKey: "isiMou",
       header: "Tentang MoU",
       cell: ({ row }) => <div className="max-w-xs">{row.original.isiMou}</div>,
+    },
+     {
+      accessorKey: "picGaId",
+      header: "PIC Government Account",
+      cell: ({ row }) => {
+        const pic = users.find(u => u.id === row.original.picGaId);
+        return <div>{pic?.nama || 'N/A'}</div>;
+      }
     },
     {
       accessorKey: "tanggalMulai",

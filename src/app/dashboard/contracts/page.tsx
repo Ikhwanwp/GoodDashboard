@@ -15,7 +15,7 @@ import { SphForm } from "@/components/forms/sph-form";
 import { Skeleton } from "@/components/ui/skeleton";
 
 export default function ContractsPage() {
-  const { kontrakPks, kontrakMou, dokumenSph, loading, instansi, deleteKontrakPks, deleteKontrakMou, deleteDokumenSph } = useData();
+  const { kontrakPks, kontrakMou, dokumenSph, loading, instansi, users, deleteKontrakPks, deleteKontrakMou, deleteDokumenSph } = useData();
 
   if (loading) {
     return (
@@ -49,10 +49,10 @@ export default function ContractsPage() {
             <TabsTrigger value="sph">Dokumen SPH</TabsTrigger>
           </TabsList>
           <TabsContent value="pks">
-            <PksDataTable columns={getPksColumns({ instansi, deleteKontrakPks })} data={kontrakPks} />
+            <PksDataTable columns={getPksColumns({ instansi, users, deleteKontrakPks })} data={kontrakPks} />
           </TabsContent>
           <TabsContent value="mou">
-            <MouDataTable columns={getMouColumns({ instansi, deleteKontrakMou })} data={kontrakMou} />
+            <MouDataTable columns={getMouColumns({ instansi, users, deleteKontrakMou })} data={kontrakMou} />
           </TabsContent>
           <TabsContent value="sph">
             <SphDataTable columns={getSphColumns({ instansi, deleteDokumenSph })} data={dokumenSph} />

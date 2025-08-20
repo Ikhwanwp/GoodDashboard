@@ -1,8 +1,9 @@
+
 // src/app/dashboard/contracts/pks-columns.tsx
 "use client"
 
 import type { ColumnDef } from "@tanstack/react-table"
-import type { KontrakPks, Instansi } from "@/lib/types"
+import type { KontrakPks, Instansi, User } from "@/lib/types"
 import { MoreHorizontal, ArrowUpDown } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import {
@@ -20,11 +21,12 @@ import { cn } from "@/lib/utils"
 
 type GetPksColumnsParams = {
   instansi: Instansi[];
+  users: User[];
   deleteKontrakPks: (id: string) => Promise<void>;
   showActions?: boolean;
 }
 
-export const getPksColumns = ({ instansi, deleteKontrakPks, showActions = true }: GetPksColumnsParams): ColumnDef<KontrakPks>[] => {
+export const getPksColumns = ({ instansi, users, deleteKontrakPks, showActions = true }: GetPksColumnsParams): ColumnDef<KontrakPks>[] => {
   const columns: ColumnDef<KontrakPks>[] = [
     {
       accessorKey: "nomorKontrakPeruri",
@@ -46,6 +48,14 @@ export const getPksColumns = ({ instansi, deleteKontrakPks, showActions = true }
       accessorKey: "judulKontrak",
       header: "Judul Kontrak",
       cell: ({ row }) => <div className="max-w-xs">{row.original.judulKontrak}</div>,
+    },
+    {
+      accessorKey: "picGaId",
+      header: "PIC Government Account",
+      cell: ({ row }) => {
+        const pic = users.find(u => u.id === row.original.picGaId);
+        return <div>{pic?.nama || 'N/A'}</div>;
+      }
     },
     {
       accessorKey: "statusKontrak",
