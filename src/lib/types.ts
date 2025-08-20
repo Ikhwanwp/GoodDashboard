@@ -73,6 +73,7 @@ export interface KontrakMou {
     id: string;
     instansiId: string;
     nomorMouPeruri: string;
+    nomorMouKl: string;
     isiMou: string;
     tanggalMulai: Date;
     tanggalBerakhir: Date;

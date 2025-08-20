@@ -5,7 +5,7 @@ import { useState, useEffect } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
-import { CalendarIcon, Loader2, PlusCircle } from "lucide-react";
+import { CalendarIcon, Loader2, PlusCircle, Check, ChevronsUpDown } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -14,7 +14,6 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-  DialogPortal,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import {
@@ -26,15 +25,9 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { useData } from "@/context/data-context";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
 import { Calendar } from "@/components/ui/calendar";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
@@ -43,7 +36,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 
 const formSchema = z.object({
   instansiId: z.string().min(1, "Instansi harus dipilih"),
-  nomorSuratPeruri: z.string().min(1, "Nomor SPH harus diisi"),
+  nomorSuratPeruri: z.string().min(1, "Nomor Surat harus diisi"),
   perihal: z.string().min(3, "Perihal minimal 3 karakter"),
   tanggal: z.date({ required_error: "Tanggal SPH harus diisi" }),
   linkDokumen: z.string().url().optional().or(z.literal('')),
@@ -58,6 +51,7 @@ export function SphForm({ children, sphToEdit }: SphFormProps) {
   const [open, setOpen] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [isDatePickerOpen, setDatePickerOpen] = useState(false);
+  const [instansiOpen, setInstansiOpen] = useState(false);
   const { instansi, addDokumenSph, updateDokumenSph } = useData();
   const isEditMode = !!sphToEdit;
 
@@ -124,30 +118,67 @@ export function SphForm({ children, sphToEdit }: SphFormProps) {
         </DialogHeader>
         <Form {...form}>
           <form id="sph-form" onSubmit={form.handleSubmit(onSubmit)} className="flex-grow overflow-auto">
-            <ScrollArea className="flex-grow">
-              <div className="space-y-4 py-4 pr-6">
+            <ScrollArea className="h-full">
+              <div className="space-y-4 py-4 pr-6 pl-6">
                 <FormField
                   control={form.control}
                   name="instansiId"
                   render={({ field }) => (
-                    <FormItem>
+                     <FormItem className="flex flex-col">
                       <FormLabel>Instansi</FormLabel>
-                      <Select onValueChange={field.onChange} defaultValue={field.value}>
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Pilih instansi terkait" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          {instansi.map(inst => (
-                            <SelectItem key={inst.id} value={inst.id}>
-                              {inst.namaInstansi}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
+                      <Popover open={instansiOpen} onOpenChange={setInstansiOpen}>
+                          <PopoverTrigger asChild>
+                          <FormControl>
+                              <Button
+                              variant="outline"
+                              role="combobox"
+                              className={cn(
+                                  "w-full justify-between",
+                                  !field.value && "text-muted-foreground"
+                              )}
+                              >
+                              {field.value
+                                  ? instansi.find(
+                                      (item) => item.id === field.value
+                                  )?.kodeInstansi
+                                  : "Pilih instansi"}
+                              <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                              </Button>
+                          </FormControl>
+                          </PopoverTrigger>
+                          <PopoverContent className="w-[--radix-popover-trigger-width] p-0">
+                              <Command>
+                                  <CommandInput placeholder="Cari instansi..." />
+                                  <CommandList>
+                                      <CommandEmpty>Instansi tidak ditemukan.</CommandEmpty>
+                                      <CommandGroup>
+                                          {instansi.map((item) => (
+                                          <CommandItem
+                                              value={item.kodeInstansi}
+                                              key={item.id}
+                                              onSelect={() => {
+                                                  form.setValue("instansiId", item.id);
+                                                  setInstansiOpen(false);
+                                              }}
+                                          >
+                                              <Check
+                                              className={cn(
+                                                  "mr-2 h-4 w-4",
+                                                  item.id === field.value
+                                                  ? "opacity-100"
+                                                  : "opacity-0"
+                                              )}
+                                              />
+                                              {item.kodeInstansi}
+                                          </CommandItem>
+                                          ))}
+                                      </CommandGroup>
+                                  </CommandList>
+                              </Command>
+                          </PopoverContent>
+                      </Popover>
                       <FormMessage />
-                    </FormItem>
+                      </FormItem>
                   )}
                 />
                 <FormField
@@ -155,7 +186,7 @@ export function SphForm({ children, sphToEdit }: SphFormProps) {
                   name="nomorSuratPeruri"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Nomor SPH Peruri</FormLabel>
+                      <FormLabel>Nomor Surat</FormLabel>
                       <FormControl><Input placeholder="SPH/001/2024" {...field} /></FormControl>
                       <FormMessage />
                     </FormItem>
@@ -187,21 +218,19 @@ export function SphForm({ children, sphToEdit }: SphFormProps) {
                                     </Button>
                                 </FormControl>
                             </PopoverTrigger>
-                            <DialogPortal>
-                                <PopoverContent className="w-auto p-0" align="start">
-                                    <Calendar 
-                                    mode="single" 
-                                    selected={field.value} 
-                                    onSelect={(date) => {
-                                      field.onChange(date);
-                                      setDatePickerOpen(false);
-                                    }} 
-                                    captionLayout="dropdown-buttons"
-                                    fromYear={2015}
-                                    toYear={new Date().getFullYear() + 5}
-                                    initialFocus />
-                                </PopoverContent>
-                            </DialogPortal>
+                            <PopoverContent className="w-auto p-0" align="start">
+                                <Calendar 
+                                mode="single" 
+                                selected={field.value} 
+                                onSelect={(date) => {
+                                  field.onChange(date);
+                                  setDatePickerOpen(false);
+                                }} 
+                                captionLayout="dropdown-buttons"
+                                fromYear={2015}
+                                toYear={new Date().getFullYear() + 5}
+                                initialFocus />
+                            </PopoverContent>
                         </Popover>
                         <FormMessage />
                     </FormItem>

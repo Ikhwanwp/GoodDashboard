@@ -52,6 +52,7 @@ const pksSchema = z.object({
 const mouSchema = z.object({
   instansiId: z.string().min(1, "Instansi harus dipilih"),
   nomorMouPeruri: z.string().min(1, "Nomor MoU harus diisi"),
+  nomorMouKl: z.string().min(1, "Nomor MoU K/L harus diisi"),
   isiMou: z.string().min(10, "Isi MoU minimal 10 karakter"),
   tanggalMulai: z.date({ required_error: "Tanggal mulai harus diisi" }),
   tanggalBerakhir: z.date({ required_error: "Tanggal berakhir harus diisi" }),
@@ -78,7 +79,7 @@ type MouStepFields = {
 };
 
 const mouStepFields: MouStepFields = {
-  1: ["instansiId", "picGaId", "isiMou", "nomorMouPeruri"],
+  1: ["instansiId", "picGaId", "isiMou", "nomorMouPeruri", "nomorMouKl"],
   2: ["tanggalMulai", "tanggalBerakhir", "ruangLingkup", "keterangan", "linkDokumen"],
 };
 
@@ -173,6 +174,7 @@ export function ContractForm({ children, contractToEdit, contractType }: {
     mouForm.reset({
         instansiId: "",
         nomorMouPeruri: "",
+        nomorMouKl: "",
         isiMou: "",
         ruangLingkup: "",
         keterangan: "",
@@ -565,7 +567,10 @@ export function ContractForm({ children, contractToEdit, contractType }: {
                                     />
                                 </div>
                                 <FormField control={mouForm.control} name="isiMou" render={({ field }) => (<FormItem><FormLabel>Isi / Tentang MoU</FormLabel><FormControl><Input placeholder="cth: Kerja Sama Strategis Sektor Keuangan" {...field} /></FormControl><FormMessage /></FormItem>)} />
-                                <FormField control={mouForm.control} name="nomorMouPeruri" render={({ field }) => (<FormItem><FormLabel>Nomor MoU Peruri</FormLabel><FormControl><Input placeholder="MOU/01/2024" {...field} /></FormControl><FormMessage /></FormItem>)} />
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                  <FormField control={mouForm.control} name="nomorMouPeruri" render={({ field }) => (<FormItem><FormLabel>Nomor MoU Peruri</FormLabel><FormControl><Input placeholder="MOU/01/2024" {...field} /></FormControl><FormMessage /></FormItem>)} />
+                                  <FormField control={mouForm.control} name="nomorMouKl" render={({ field }) => (<FormItem><FormLabel>Nomor MoU K/L</FormLabel><FormControl><Input placeholder="KL/ABC/MOU/01" {...field} /></FormControl><FormMessage /></FormItem>)} />
+                                </div>
                                </div>
                             )}
                              {currentStep === 2 && (

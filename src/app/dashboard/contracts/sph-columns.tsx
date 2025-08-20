@@ -27,7 +27,7 @@ export const getSphColumns = ({ instansi, deleteDokumenSph }: GetSphColumnsParam
   return [
     {
       accessorKey: "nomorSuratPeruri",
-      header: "Nomor SPH",
+      header: "Nomor Surat",
     },
     {
       accessorKey: "instansiId",
@@ -44,7 +44,7 @@ export const getSphColumns = ({ instansi, deleteDokumenSph }: GetSphColumnsParam
     {
       accessorKey: "perihal",
       header: "Perihal",
-      cell: ({ row }) => <div className="max-w-xs truncate">{row.original.perihal}</div>,
+      cell: ({ row }) => <div className="max-w-xs whitespace-normal">{row.original.perihal}</div>,
     },
     {
       accessorKey: "tanggal",
