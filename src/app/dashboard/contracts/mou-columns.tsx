@@ -38,18 +38,19 @@ const customMouSortingFn: SortingFn<KontrakMou> = (rowA, rowB, columnId) => {
     const statusA = daysLeftA < 0 ? 'Berakhir' : 'Aktif';
     const statusB = daysLeftB < 0 ? 'Berakhir' : 'Aktif';
 
-    // 1. Primary sort: by status
+    // 1. Primary sort: by status ("Aktif" comes first)
     if (statusA !== statusB) {
         return statusA === 'Aktif' ? -1 : 1;
     }
     
-    // 2. Secondary sort: by days left (ascending)
-    if (statusA === 'Berakhir') {
-       // For "Berakhir" status, sort by most recently expired
-       return daysLeftB - daysLeftA; // More negative (recently expired) comes first
+    // 2. Secondary sort: by days left
+    // If both are "Aktif", sort by ascending days left (most urgent first)
+    if (statusA === 'Aktif') {
+       return daysLeftA - daysLeftB;
     }
 
-    return daysLeftA - daysLeftB;
+    // If both are "Berakhir", sort by descending days left (most recently expired first)
+    return daysLeftB - daysLeftA;
 };
 
 

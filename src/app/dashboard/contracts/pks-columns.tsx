@@ -28,7 +28,7 @@ type GetPksColumnsParams = {
 }
 
 // Custom sorting function
-const customSortingFn: SortingFn<KontrakPks> = (rowA, rowB, columnId) => {
+const customPksSortingFn: SortingFn<KontrakPks> = (rowA, rowB, columnId) => {
     const today = startOfDay(new Date());
 
     const getDaysLeft = (date: Date) => differenceInDays(startOfDay(date), today);
@@ -36,21 +36,22 @@ const customSortingFn: SortingFn<KontrakPks> = (rowA, rowB, columnId) => {
     const daysLeftA = getDaysLeft(rowA.original.tanggalBerakhir);
     const daysLeftB = getDaysLeft(rowB.original.tanggalBerakhir);
 
-    const statusA = daysLeftA < 0 ? 'Berakhir' : 'Aktif';
-    const statusB = daysLeftB < 0 ? 'Berakhir' : 'Aktif';
-    
-    // 1. Primary sort: by status
+    const statusA = rowA.original.statusKontrak;
+    const statusB = rowB.original.statusKontrak;
+
+    // 1. Primary sort: by status ("Aktif" comes first)
     if (statusA !== statusB) {
         return statusA === 'Aktif' ? -1 : 1;
     }
 
-    // 2. Secondary sort: by days left (ascending)
-    // For "Berakhir" status, sort by most recently expired
-    if (statusA === 'Berakhir') {
-      return daysLeftB - daysLeftA; // More negative (recently expired) comes first
+    // 2. Secondary sort: by days left
+    // If both are "Aktif", sort by ascending days left (most urgent first)
+    if (statusA === 'Aktif') {
+      return daysLeftA - daysLeftB;
     }
     
-    return daysLeftA - daysLeftB;
+    // If both are "Berakhir", sort by descending days left (most recently expired first)
+    return daysLeftB - daysLeftA; 
 };
 
 
@@ -106,7 +107,7 @@ export const getPksColumns = ({ instansi, users, deleteKontrakPks, showActions =
           </Badge>
         )
       },
-      sortingFn: customSortingFn,
+      sortingFn: customPksSortingFn,
     },
     {
       accessorKey: "tanggalMulai",
@@ -146,7 +147,7 @@ export const getPksColumns = ({ instansi, users, deleteKontrakPks, showActions =
         const tglBerakhir = startOfDay(row.original.tanggalBerakhir);
         const daysLeft = differenceInDays(tglBerakhir, today);
 
-        if (daysLeft < 0) {
+        if (row.original.statusKontrak === 'Berakhir') {
             return <Badge variant="outline" className="text-muted-foreground">Telah Berakhir</Badge>
         }
         if (daysLeft === 0) {

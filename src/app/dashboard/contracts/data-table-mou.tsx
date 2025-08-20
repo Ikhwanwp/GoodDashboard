@@ -35,7 +35,7 @@ export function MouDataTable<TData, TValue>({
   data,
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = useState<SortingState>([
-    { id: "sisaHari", desc: false } // Initial sort by our custom sorting function
+    { id: "sisaHari", desc: false } // Default sort by our custom function
   ])
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
 
