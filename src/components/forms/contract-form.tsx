@@ -1,11 +1,10 @@
-
 "use client";
 
 import { useState, useEffect } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm, type FieldName, type UseFormTrigger } from "react-hook-form";
 import * as z from "zod";
-import { CalendarIcon, Loader2, PlusCircle, ArrowLeft, Check, ChevronsUpDown } from "lucide-react";
+import { CalendarIcon, Loader2, PlusCircle, ArrowLeft, Check, ChevronsUpDown, XCircle } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -211,7 +210,7 @@ export function ContractForm({ children, contractToEdit, contractType }: {
     const dataToSubmit = { ...values, keterangan: values.keterangan || "", linkDokumen: values.linkDokumen || "" };
     
     try {
-      if (isEditMode && 'judulKontrak' in contractToEdit) {
+      if (isEditMode && contractToEdit && 'judulKontrak' in contractToEdit) {
         await updateKontrakPks(contractToEdit.id, dataToSubmit);
       } else {
         await addKontrakPks(dataToSubmit);
@@ -227,7 +226,7 @@ export function ContractForm({ children, contractToEdit, contractType }: {
     const dataToSubmit = { ...values, keterangan: values.keterangan || "" };
 
     try {
-      if (isEditMode && 'isiMou' in contractToEdit) {
+      if (isEditMode && contractToEdit && 'isiMou' in contractToEdit) {
         await updateKontrakMou(contractToEdit.id, dataToSubmit);
       } else {
         await addKontrakMou(dataToSubmit);
@@ -584,7 +583,15 @@ export function ContractForm({ children, contractToEdit, contractType }: {
         </Tabs>
         <DialogFooter className="mt-auto pt-4 border-t">
             <div className="w-full flex justify-between items-center">
-                <Button type="button" variant="outline" onClick={() => setOpen(false)}>Batal</Button>
+                <div className="flex items-center gap-2">
+                    <Button type="button" variant="outline" onClick={() => setOpen(false)}>Batal</Button>
+                    {!isEditMode && (
+                        <Button type="button" variant="ghost" onClick={resetForms}>
+                            <XCircle className="mr-2 h-4 w-4" />
+                            Bersihkan Form
+                        </Button>
+                    )}
+                </div>
                 
                 <div className="flex items-center gap-2">
                      {currentStep > 1 && (
