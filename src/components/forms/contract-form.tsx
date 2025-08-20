@@ -191,11 +191,19 @@ export function ContractForm({ children, contractToEdit, contractType }: {
       if (isEditMode && contractToEdit) {
         if ('judulKontrak' in contractToEdit) {
           setActiveTab('pks');
-          pksForm.reset(contractToEdit);
+          pksForm.reset({
+            ...contractToEdit,
+            keterangan: contractToEdit.keterangan || '',
+            linkDokumen: contractToEdit.linkDokumen || '',
+          });
         }
         if ('isiMou' in contractToEdit) {
           setActiveTab('mou');
-          mouForm.reset(contractToEdit);
+          mouForm.reset({
+            ...contractToEdit,
+            keterangan: contractToEdit.keterangan || '',
+            linkDokumen: contractToEdit.linkDokumen || '',
+          });
         }
       } else {
         resetForms();

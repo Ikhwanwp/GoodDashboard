@@ -64,6 +64,7 @@ export function SphForm({ children, sphToEdit }: SphFormProps) {
       if (isEditMode && sphToEdit) {
         form.reset({
           ...sphToEdit,
+          linkDokumen: sphToEdit.linkDokumen || '',
           tanggal: new Date(sphToEdit.tanggal),
         });
       } else {

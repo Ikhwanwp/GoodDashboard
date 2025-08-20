@@ -107,11 +107,15 @@ export function PicForm({ children, picToEdit, picType }: PicFormProps) {
           
           internalForm.reset({
             ...(picToEdit as User),
+            noHp: (picToEdit as User).noHp || '',
             isEdit: true,
             handledInstansiIds: handledIds,
           });
         } else if (picType === 'external' && 'namaPic' in picToEdit) {
-          externalForm.reset(picToEdit as PicEksternal);
+          externalForm.reset({
+            ...(picToEdit as PicEksternal),
+            noHp: (picToEdit as PicEksternal).noHp || '',
+          });
         }
       } else {
         internalForm.reset({

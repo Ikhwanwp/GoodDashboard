@@ -110,6 +110,9 @@ export function StatusUpdateForm({ children, updateToEdit }: StatusUpdateFormPro
         form.reset({
           ...updateToEdit,
           kontrakId: updateToEdit.kontrakId || "",
+          linkMom: updateToEdit.linkMom || "",
+          type: updateToEdit.type || "",
+          subject: updateToEdit.subject || "",
           tanggalEvent: new Date(updateToEdit.tanggalEvent)
         });
       } else {

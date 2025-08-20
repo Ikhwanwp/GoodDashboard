@@ -72,6 +72,7 @@ export function InstansiForm({ children, instansiToEdit }: InstansiFormProps) {
     if (isEditMode && instansiToEdit) {
       form.reset({
         ...instansiToEdit,
+        jenisLayanan: instansiToEdit.jenisLayanan || '',
         tanggalUlangTahun: instansiToEdit.tanggalUlangTahun ? new Date(instansiToEdit.tanggalUlangTahun) : undefined,
       });
     } else {
