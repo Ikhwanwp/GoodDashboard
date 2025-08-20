@@ -173,10 +173,14 @@ export function DataProvider({ children }: { children: ReactNode }) {
       await fetchData(collectionsToReload); // Reload only relevant data
     } catch (err) {
       console.error(err);
+      let errorMessage = (err as Error).message || "Terjadi kesalahan pada server.";
+      if (errorMessage.includes('auth/email-already-in-use')) {
+          errorMessage = 'Email ini sudah terdaftar. Silakan gunakan email lain.';
+      }
       toast({
         variant: "destructive",
         title: "Operasi Gagal",
-        description: (err as Error).message || "Terjadi kesalahan pada server.",
+        description: errorMessage,
       });
       throw err;
     }

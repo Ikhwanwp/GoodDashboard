@@ -116,7 +116,7 @@ export const getOrCreateUser = async (firebaseUser: FirebaseUser): Promise<User>
         const newUser: Omit<User, 'id'> = {
             email: firebaseUser.email || 'N/A',
             nama: firebaseUser.displayName || firebaseUser.email?.split('@')[0] || 'New User',
-            noHp: firebaseUser.phoneNumber || 'N/A',
+            noHp: firebaseUser.phoneNumber || '',
             role: 'Viewer' // Default role for new users
         };
         await setDoc(userRef, newUser);
@@ -126,10 +126,38 @@ export const getOrCreateUser = async (firebaseUser: FirebaseUser): Promise<User>
 
 
 export const addUserToDB = async (data: UserWithPassword) => {
-    // This function is now a safeguard. User creation should happen in the Firebase Console.
-    // Client-side user creation is disabled to prevent permission errors from Firestore security rules,
-    // which should restrict write access to the 'users' collection.
-    throw new Error("Pembuatan pengguna baru harus dilakukan melalui Firebase Console untuk alasan keamanan. Fitur ini dinonaktifkan di aplikasi.");
+    if (!data.password) {
+        throw new Error("Password is required to create a new user.");
+    }
+    
+    // 1. Create user in Firebase Auth
+    const userCredential = await createUserWithEmailAndPassword(auth, data.email, data.password);
+    const user = userCredential.user;
+
+    // 2. Prepare user data for Firestore
+    const userDataForDB: Omit<User, 'id'> = {
+        nama: data.nama,
+        email: data.email,
+        noHp: data.noHp || '',
+        role: data.role,
+    };
+
+    const batch = writeBatch(db);
+
+    // 3. Set the user document in 'users' collection
+    const userRef = doc(db, "users", user.uid);
+    batch.set(userRef, userDataForDB);
+
+    // 4. If role is GA and instansi are selected, update instansi documents
+    if (data.role === 'GA' && data.handledInstansiIds && data.handledInstansiIds.length > 0) {
+        data.handledInstansiIds.forEach(instansiId => {
+            const instansiRef = doc(db, 'instansi', instansiId);
+            batch.update(instansiRef, { internalPicId: user.uid });
+        });
+    }
+
+    // 5. Commit all writes at once
+    await batch.commit();
 }
 export const updateUserInDB = async (id: string, data: Partial<Omit<User, 'id'>>) => {
     const docRef = doc(db, 'users', id);
@@ -260,3 +288,4 @@ export const deleteStatusPekerjaanFromDB = async (id: string) => {
     const docRef = doc(db, 'statusPekerjaan', id);
     return await deleteDoc(docRef);
 }
+
