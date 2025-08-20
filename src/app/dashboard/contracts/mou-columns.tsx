@@ -45,7 +45,8 @@ const customMouSortingFn: SortingFn<KontrakMou> = (rowA, rowB, columnId) => {
     
     // 2. Secondary sort: by days left (ascending)
     if (statusA === 'Berakhir') {
-       return daysLeftB - daysLeftA;
+       // For "Berakhir" status, sort by most recently expired
+       return daysLeftB - daysLeftA; // More negative (recently expired) comes first
     }
 
     return daysLeftA - daysLeftB;
