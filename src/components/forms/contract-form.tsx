@@ -26,13 +26,6 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { useData } from "@/context/data-context";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
@@ -96,13 +89,10 @@ export function ContractForm({ children, contractToEdit, contractType }: {
 }) {
   const [open, setOpen] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
-
-  // Popover states
   const [pksInstansiOpen, setPksInstansiOpen] = useState(false);
   const [pksPicGaOpen, setPksPicGaOpen] = useState(false);
   const [mouInstansiOpen, setMouInstansiOpen] = useState(false);
   const [mouPicGaOpen, setMouPicGaOpen] = useState(false);
-  
   const [pksTglMulaiOpen, setPksTglMulaiOpen] = useState(false);
   const [pksTglBerakhirOpen, setPksTglBerakhirOpen] = useState(false);
   const [mouTglMulaiOpen, setMouTglMulaiOpen] = useState(false);
@@ -113,6 +103,9 @@ export function ContractForm({ children, contractToEdit, contractType }: {
   const picGaUsers = users.filter(u => u.role === 'GA');
   const [activeTab, setActiveTab] = useState(contractType || 'pks');
   const [currentStep, setCurrentStep] = useState(1);
+  
+  const [filteredPksInstansi, setFilteredPksInstansi] = useState(instansi);
+  const [filteredMouInstansi, setFilteredMouInstansi] = useState(instansi);
 
   const pksForm = useForm<PksFormValues>({
     resolver: zodResolver(pksSchema),
@@ -123,6 +116,47 @@ export function ContractForm({ children, contractToEdit, contractType }: {
     resolver: zodResolver(mouSchema),
     mode: "onChange",
   });
+
+  const pksInstansiId = pksForm.watch('instansiId');
+  const pksPicGaId = pksForm.watch('picGaId');
+  const mouInstansiId = mouForm.watch('instansiId');
+  const mouPicGaId = mouForm.watch('picGaId');
+
+  useEffect(() => {
+    if (pksInstansiId) {
+        const selected = instansi.find(i => i.id === pksInstansiId);
+        if (selected && selected.internalPicId && pksForm.getValues('picGaId') !== selected.internalPicId) {
+            pksForm.setValue('picGaId', selected.internalPicId);
+        }
+    }
+  }, [pksInstansiId, instansi, pksForm]);
+
+  useEffect(() => {
+     if (pksPicGaId) {
+        const handledInstansi = instansi.filter(i => i.internalPicId === pksPicGaId);
+        setFilteredPksInstansi(handledInstansi.length > 0 ? handledInstansi : instansi);
+     } else {
+        setFilteredPksInstansi(instansi);
+     }
+  }, [pksPicGaId, instansi]);
+
+  useEffect(() => {
+    if (mouInstansiId) {
+        const selected = instansi.find(i => i.id === mouInstansiId);
+        if (selected && selected.internalPicId && mouForm.getValues('picGaId') !== selected.internalPicId) {
+            mouForm.setValue('picGaId', selected.internalPicId);
+        }
+    }
+  }, [mouInstansiId, instansi, mouForm]);
+
+  useEffect(() => {
+     if (mouPicGaId) {
+        const handledInstansi = instansi.filter(i => i.internalPicId === mouPicGaId);
+        setFilteredMouInstansi(handledInstansi.length > 0 ? handledInstansi : instansi);
+     } else {
+        setFilteredMouInstansi(instansi);
+     }
+  }, [mouPicGaId, instansi]);
 
   const resetForms = () => {
     pksForm.reset({
@@ -148,6 +182,8 @@ export function ContractForm({ children, contractToEdit, contractType }: {
 
   useEffect(() => {
     if (open) {
+      setFilteredPksInstansi(instansi);
+      setFilteredMouInstansi(instansi);
       if (isEditMode && contractToEdit) {
         if ('judulKontrak' in contractToEdit) {
           setActiveTab('pks');
@@ -161,8 +197,7 @@ export function ContractForm({ children, contractToEdit, contractType }: {
         resetForms();
       }
     }
-  }, [open, isEditMode, contractToEdit, pksForm, mouForm]);
-
+  }, [open, isEditMode, contractToEdit, pksForm, mouForm, instansi]);
 
   const handleNextStep = async (trigger: UseFormTrigger<any>, fields: FieldName<any>[]) => {
     const isValid = await trigger(fields);
@@ -261,7 +296,7 @@ export function ContractForm({ children, contractToEdit, contractType }: {
                                             )}
                                             >
                                             {field.value
-                                                ? instansi.find(
+                                                ? filteredPksInstansi.find(
                                                     (item) => item.id === field.value
                                                 )?.kodeInstansi
                                                 : "Pilih instansi"}
@@ -275,7 +310,7 @@ export function ContractForm({ children, contractToEdit, contractType }: {
                                                 <CommandList>
                                                     <CommandEmpty>Instansi tidak ditemukan.</CommandEmpty>
                                                     <CommandGroup>
-                                                        {instansi.map((item) => (
+                                                        {filteredPksInstansi.map((item) => (
                                                         <CommandItem
                                                             value={item.kodeInstansi}
                                                             key={item.id}
@@ -342,6 +377,9 @@ export function ContractForm({ children, contractToEdit, contractType }: {
                                                             key={item.id}
                                                             onSelect={() => {
                                                                 pksForm.setValue("picGaId", item.id);
+                                                                if (pksForm.getValues('instansiId') && !instansi.find(i => i.id === pksForm.getValues('instansiId'))?.internalPicId === item.id) {
+                                                                    pksForm.setValue('instansiId', '');
+                                                                }
                                                                 setPksPicGaOpen(false);
                                                             }}
                                                         >
@@ -416,7 +454,7 @@ export function ContractForm({ children, contractToEdit, contractType }: {
                                                     )}
                                                     >
                                                     {field.value
-                                                        ? instansi.find(
+                                                        ? filteredMouInstansi.find(
                                                             (item) => item.id === field.value
                                                         )?.kodeInstansi
                                                         : "Pilih instansi"}
@@ -430,7 +468,7 @@ export function ContractForm({ children, contractToEdit, contractType }: {
                                                         <CommandList>
                                                             <CommandEmpty>Instansi tidak ditemukan.</CommandEmpty>
                                                             <CommandGroup>
-                                                                {instansi.map((item) => (
+                                                                {filteredMouInstansi.map((item) => (
                                                                 <CommandItem
                                                                     value={item.kodeInstansi}
                                                                     key={item.id}
@@ -497,6 +535,9 @@ export function ContractForm({ children, contractToEdit, contractType }: {
                                                                     key={item.id}
                                                                     onSelect={() => {
                                                                         mouForm.setValue("picGaId", item.id);
+                                                                         if (mouForm.getValues('instansiId') && !instansi.find(i => i.id === mouForm.getValues('instansiId'))?.internalPicId === item.id) {
+                                                                            mouForm.setValue('instansiId', '');
+                                                                        }
                                                                         setMouPicGaOpen(false);
                                                                     }}
                                                                 >
@@ -571,3 +612,5 @@ export function ContractForm({ children, contractToEdit, contractType }: {
     </Dialog>
   );
 }
+
+    
