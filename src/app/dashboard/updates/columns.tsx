@@ -1,3 +1,4 @@
+
 // src/app/dashboard/updates/columns.tsx
 "use client"
 
@@ -53,10 +54,10 @@ export const getUpdatesColumns = ({ instansi, deleteStatusPekerjaan, showActions
     },
     {
       accessorKey: "instansiId",
-      header: "Nama Instansi",
+      header: "Kode Instansi",
       cell: ({ row }) => {
         const i = instansi.find(i => i.id === row.original.instansiId);
-        return <div className="font-medium">{i?.namaInstansi || 'N/A'}</div>;
+        return <div className="font-medium">{i?.kodeInstansi || 'N/A'}</div>;
       },
     },
     {

@@ -35,10 +35,10 @@ export const getMouColumns = ({ instansi, users, deleteKontrakMou, showActions =
     },
     {
       accessorKey: "instansiId",
-      header: "Nama Instansi",
+      header: "Kode Instansi",
       cell: ({ row }) => {
         const i = instansi.find(i => i.id === row.original.instansiId);
-        return <div className="font-medium">{i?.namaInstansi || 'N/A'}</div>;
+        return <div className="font-medium">{i?.kodeInstansi || 'N/A'}</div>;
       },
       filterFn: (row, id, value) => {
         const i = instansi.find(i => i.id === row.original.instansiId);

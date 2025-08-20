@@ -31,10 +31,10 @@ export const getSphColumns = ({ instansi, deleteDokumenSph }: GetSphColumnsParam
     },
     {
       accessorKey: "instansiId",
-      header: "Nama Instansi",
+      header: "Kode Instansi",
       cell: ({ row }) => {
           const sphInstansi = instansi.find(i => i.id === row.original.instansiId);
-          return <div className="font-medium">{sphInstansi?.namaInstansi || 'N/A'}</div>;
+          return <div className="font-medium">{sphInstansi?.kodeInstansi || 'N/A'}</div>;
       },
       filterFn: (row, id, value) => {
         const sphInstansi = instansi.find(i => i.id === row.original.instansiId);

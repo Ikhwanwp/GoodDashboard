@@ -1,3 +1,4 @@
+
 // src/app/dashboard/pic/external-pic-columns.tsx
 "use client"
 
@@ -29,10 +30,10 @@ export const getExternalPicColumns = ({ instansi, deletePicEksternal, showAction
     },
     {
       accessorKey: "instansiId",
-      header: "Nama Instansi",
+      header: "Kode Instansi",
       cell: ({ row }) => {
         const picInstansi = instansi.find(i => i.id === row.original.instansiId);
-        return <div className="font-medium">{picInstansi?.namaInstansi || 'N/A'}</div>;
+        return <div className="font-medium">{picInstansi?.kodeInstansi || 'N/A'}</div>;
       },
       filterFn: (row, id, value) => {
         const picInstansi = instansi.find(i => i.id === row.original.instansiId);
