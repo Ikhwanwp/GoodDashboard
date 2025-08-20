@@ -45,7 +45,7 @@ export const getPksColumns = ({ instansi, deleteKontrakPks, showActions = true }
     {
       accessorKey: "judulKontrak",
       header: "Judul Kontrak",
-      cell: ({ row }) => <div className="max-w-xs truncate">{row.original.judulKontrak}</div>,
+      cell: ({ row }) => <div className="max-w-xs">{row.original.judulKontrak}</div>,
     },
     {
       accessorKey: "statusKontrak",

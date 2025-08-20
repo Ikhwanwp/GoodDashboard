@@ -45,7 +45,7 @@ export const getMouColumns = ({ instansi, deleteKontrakMou, showActions = true }
     {
       accessorKey: "isiMou",
       header: "Tentang MoU",
-      cell: ({ row }) => <div className="max-w-xs truncate">{row.original.isiMou}</div>,
+      cell: ({ row }) => <div className="max-w-xs">{row.original.isiMou}</div>,
     },
     {
       accessorKey: "tanggalMulai",
