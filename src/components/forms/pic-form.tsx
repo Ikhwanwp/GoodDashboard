@@ -39,10 +39,14 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import type { User, PicEksternal } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
+const phoneRegex = new RegExp(
+  /^([+]?[\s0-9]+)?(\d{3}|[(]?[0-9]+[)])?([-]?[\s]?[0-9])+$/
+);
+
 const internalPicSchemaBase = z.object({
   nama: z.string().min(3, "Nama harus diisi"),
   email: z.string().email("Format email tidak valid"),
-  noHp: z.string().min(10, "Nomor HP minimal 10 digit"),
+  noHp: z.string().regex(phoneRegex, 'Nomor HP tidak valid').min(10, "Nomor HP minimal 10 digit").max(15, "Nomor HP maksimal 15 digit").or(z.literal('')),
   role: z.enum(["Admin", "GA", "BA", "Viewer"], { required_error: "Role harus dipilih" }),
   handledInstansiIds: z.array(z.string()).optional(),
 });
@@ -60,7 +64,7 @@ const externalPicSchema = z.object({
   namaPic: z.string().min(3, "Nama harus diisi"),
   instansiId: z.string().min(1, "Instansi harus dipilih"),
   jabatan: z.string().min(3, "Jabatan harus diisi"),
-  noHp: z.string().min(10, "Nomor HP minimal 10 digit"),
+  noHp: z.string().regex(phoneRegex, 'Nomor HP tidak valid').min(10, "Nomor HP minimal 10 digit").max(15, "Nomor HP maksimal 15 digit").or(z.literal('')),
   email: z.string().email("Format email tidak valid"),
 });
 
@@ -252,7 +256,7 @@ export function PicForm({ children, picToEdit, picType }: PicFormProps) {
                                     name="noHp"
                                     render={({ field }) => (
                                         <FormItem>
-                                        <FormLabel>No. HP</FormLabel>
+                                        <FormLabel>No. HP (Opsional)</FormLabel>
                                         <FormControl><Input placeholder="cth: 081234567890" {...field} /></FormControl>
                                         <FormMessage />
                                         </FormItem>
@@ -416,7 +420,7 @@ export function PicForm({ children, picToEdit, picType }: PicFormProps) {
                                 name="noHp"
                                 render={({ field }) => (
                                     <FormItem>
-                                    <FormLabel>No. HP</FormLabel>
+                                    <FormLabel>No. HP (Opsional)</FormLabel>
                                     <FormControl><Input placeholder="cth: 081122334455" {...field} /></FormControl>
                                     <FormMessage />
                                     </FormItem>
@@ -440,5 +444,3 @@ export function PicForm({ children, picToEdit, picType }: PicFormProps) {
     </Dialog>
   );
 }
-
-    
