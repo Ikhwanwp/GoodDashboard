@@ -79,6 +79,7 @@ export interface KontrakMou {
     picGaId: string;
     ruangLingkup: string;
     keterangan: string;
+    linkDokumen?: string;
 }
 export interface KontrakMouFromDB extends Omit<KontrakMou, 'tanggalMulai' | 'tanggalBerakhir'> {
   tanggalMulai: Timestamp;

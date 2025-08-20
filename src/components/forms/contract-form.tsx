@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useEffect } from "react";
@@ -57,6 +58,7 @@ const mouSchema = z.object({
   picGaId: z.string().min(1, "PIC GA harus dipilih"),
   ruangLingkup: z.string().min(1, "Ruang lingkup harus diisi"),
   keterangan: z.string().optional(),
+  linkDokumen: z.string().url().optional().or(z.literal('')),
 });
 
 type PksFormValues = z.infer<typeof pksSchema>;
@@ -77,7 +79,7 @@ type MouStepFields = {
 
 const mouStepFields: MouStepFields = {
   1: ["instansiId", "picGaId", "isiMou", "nomorMouPeruri"],
-  2: ["tanggalMulai", "tanggalBerakhir", "ruangLingkup", "keterangan"],
+  2: ["tanggalMulai", "tanggalBerakhir", "ruangLingkup", "keterangan", "linkDokumen"],
 };
 
 
@@ -174,6 +176,7 @@ export function ContractForm({ children, contractToEdit, contractType }: {
         isiMou: "",
         ruangLingkup: "",
         keterangan: "",
+        linkDokumen: "",
         picGaId: "",
     });
     setCurrentStep(1);
@@ -223,7 +226,7 @@ export function ContractForm({ children, contractToEdit, contractType }: {
 
   async function onMouSubmit(values: MouFormValues) {
     setIsSaving(true);
-    const dataToSubmit = { ...values, keterangan: values.keterangan || "" };
+    const dataToSubmit = { ...values, keterangan: values.keterangan || "", linkDokumen: values.linkDokumen || "" };
 
     try {
       if (isEditMode && contractToEdit && 'isiMou' in contractToEdit) {
@@ -573,6 +576,7 @@ export function ContractForm({ children, contractToEdit, contractType }: {
                                 </div>
                                 <FormField control={mouForm.control} name="ruangLingkup" render={({ field }) => (<FormItem><FormLabel>Ruang Lingkup</FormLabel><FormControl><Textarea placeholder="Jelaskan ruang lingkup MoU..." {...field} /></FormControl><FormMessage /></FormItem>)} />
                                 <FormField control={mouForm.control} name="keterangan" render={({ field }) => (<FormItem><FormLabel>Keterangan (Opsional)</FormLabel><FormControl><Textarea placeholder="Informasi tambahan..." {...field} /></FormControl><FormMessage /></FormItem>)} />
+                                <FormField control={mouForm.control} name="linkDokumen" render={({ field }) => (<FormItem><FormLabel>Link Dokumen (Opsional)</FormLabel><FormControl><Input placeholder="https://..." {...field} /></FormControl><FormMessage /></FormItem>)} />
                                </div>
                             )}
                          </div>

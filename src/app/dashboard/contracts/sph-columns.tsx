@@ -1,3 +1,4 @@
+
 "use client"
 
 import type { ColumnDef } from "@tanstack/react-table"
@@ -72,15 +73,14 @@ export const getSphColumns = ({ instansi, deleteDokumenSph }: GetSphColumnsParam
     },
     {
       accessorKey: "linkDokumen",
-      header: "Link Dokumen",
+      header: "Dokumen",
       cell: ({ row }) => {
           const link = row.original.linkDokumen;
           if (!link || link === '#') return <span className="text-muted-foreground">N/A</span>
           return (
-              <Button asChild variant="link" className="p-0 h-auto">
+              <Button asChild variant="ghost" size="icon">
                   <Link href={link} target="_blank" rel="noopener noreferrer">
-                      <LinkIcon className="mr-2 h-4 w-4"/>
-                      Buka Dokumen
+                      <LinkIcon className="h-4 w-4"/>
                   </Link>
               </Button>
           )

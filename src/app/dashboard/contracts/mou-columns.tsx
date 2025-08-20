@@ -4,7 +4,7 @@
 
 import type { ColumnDef } from "@tanstack/react-table"
 import type { KontrakMou, Instansi, User } from "@/lib/types"
-import { MoreHorizontal, ArrowUpDown } from "lucide-react"
+import { MoreHorizontal, ArrowUpDown, Link as LinkIcon } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import {
   DropdownMenu,
@@ -18,6 +18,7 @@ import { ContractForm } from "@/components/forms/contract-form"
 import { DeleteConfirmation } from "@/components/shared/delete-confirmation"
 import { Badge } from "@/components/ui/badge"
 import { cn } from "@/lib/utils"
+import Link from "next/link"
 
 type GetMouColumnsParams = {
   instansi: Instansi[];
@@ -47,7 +48,7 @@ export const getMouColumns = ({ instansi, users, deleteKontrakMou, showActions =
     {
       accessorKey: "isiMou",
       header: "Tentang MoU",
-      cell: ({ row }) => <div className="max-w-xs">{row.original.isiMou}</div>,
+      cell: ({ row }) => <div className="max-w-xs whitespace-normal">{row.original.isiMou}</div>,
     },
      {
       accessorKey: "picGaId",
@@ -112,6 +113,21 @@ export const getMouColumns = ({ instansi, users, deleteKontrakMou, showActions =
         }
 
         return <Badge className={cn("whitespace-nowrap", colorClass)}>Dalam {daysLeft} hari lagi</Badge>
+      }
+    },
+    {
+      accessorKey: "linkDokumen",
+      header: "Dokumen",
+      cell: ({ row }) => {
+          const link = row.original.linkDokumen;
+          if (!link || link === '#') return <span className="text-muted-foreground">N/A</span>
+          return (
+              <Button asChild variant="ghost" size="icon">
+                  <Link href={link} target="_blank" rel="noopener noreferrer">
+                      <LinkIcon className="h-4 w-4"/>
+                  </Link>
+              </Button>
+          )
       }
     },
   ];
