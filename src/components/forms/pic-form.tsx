@@ -271,7 +271,7 @@ export function PicForm({ children, picToEdit, picType }: PicFormProps) {
                                             </SelectTrigger>
                                             </FormControl>
                                             <SelectContent>
-                                                <SelectItem value="GA">GA</SelectItem>
+                                                <SelectItem value="GA">GA (Government Account)</SelectItem>
                                                 <SelectItem value="BA">BA (Business Alliance)</SelectItem>
                                                 <SelectItem value="Admin">Admin</SelectItem>
                                                 <SelectItem value="Viewer">Viewer</SelectItem>
@@ -440,3 +440,5 @@ export function PicForm({ children, picToEdit, picType }: PicFormProps) {
     </Dialog>
   );
 }
+
+    
