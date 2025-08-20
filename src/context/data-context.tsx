@@ -40,7 +40,7 @@ interface DataContextType {
   updateKontrakPks: (id: string, data: Partial<KontrakPks>) => Promise<void>;
   deleteKontrakPks: (id: string) => Promise<void>;
   // Kontrak MoU
-  addKontrakMou: (data: Omit<KontrakMou, 'id' >) => Promise<void>;
+  addKontrakMou: (data: Omit<KontrakMou, 'id' | 'statusKontrak' >) => Promise<void>;
   updateKontrakMou: (id: string, data: Partial<KontrakMou>) => Promise<void>;
   deleteKontrakMou: (id: string) => Promise<void>;
   // Dokumen SPH

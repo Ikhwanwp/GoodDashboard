@@ -35,8 +35,8 @@ const customMouSortingFn: SortingFn<KontrakMou> = (rowA, rowB, columnId) => {
     const daysLeftA = getDaysLeft(rowA.original.tanggalBerakhir);
     const daysLeftB = getDaysLeft(rowB.original.tanggalBerakhir);
 
-    const statusA = daysLeftA < 0 ? 'Berakhir' : 'Aktif';
-    const statusB = daysLeftB < 0 ? 'Berakhir' : 'Aktif';
+    const statusA = rowA.original.statusKontrak;
+    const statusB = rowB.original.statusKontrak;
 
     // 1. Primary sort: by status ("Aktif" comes first)
     if (statusA !== statusB) {
@@ -86,6 +86,29 @@ export const getMouColumns = ({ instansi, users, deleteKontrakMou, showActions =
       }
     },
     {
+      accessorKey: "statusKontrak",
+      header: ({ column }) => {
+        return (
+          <Button
+            variant="ghost"
+            onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          >
+            Status
+            <ArrowUpDown className="ml-2 h-4 w-4" />
+          </Button>
+        )
+      },
+      cell: ({ row }) => {
+        const status = row.original.statusKontrak;
+        return (
+          <Badge variant={status === "Aktif" ? "default" : "destructive"}>
+            {status}
+          </Badge>
+        )
+      },
+      sortingFn: customMouSortingFn,
+    },
+    {
       accessorKey: "tanggalMulai",
       header: ({ column }) => {
         return (
@@ -123,7 +146,7 @@ export const getMouColumns = ({ instansi, users, deleteKontrakMou, showActions =
         const tglBerakhir = startOfDay(row.original.tanggalBerakhir);
         const daysLeft = differenceInDays(tglBerakhir, today);
 
-        if (daysLeft < 0) {
+        if (row.original.statusKontrak === 'Berakhir') {
             return <Badge variant="outline" className="text-muted-foreground">Telah Berakhir</Badge>
         }
         if (daysLeft === 0) {

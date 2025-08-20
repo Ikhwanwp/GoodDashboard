@@ -232,12 +232,17 @@ export const deleteKontrakPksFromDB = async (id: string) => {
 const kontrakMouCollection = collection(db, 'kontrakMou');
 export const getKontrakMou = async (): Promise<KontrakMou[]> => {
     const snapshot = await getDocs(kontrakMouCollection);
-    return snapshot.docs.map(doc => convertTimestamps<KontrakMou>({ ...doc.data(), id: doc.id } as KontrakMouFromDB));
+    return snapshot.docs.map(doc => {
+        const data = convertTimestamps<KontrakMou>({ ...doc.data(), id: doc.id } as KontrakMouFromDB);
+        // Automatically determine status
+        data.statusKontrak = new Date() > data.tanggalBerakhir ? 'Berakhir' : 'Aktif';
+        return data;
+    });
 };
-export const addKontrakMouToDB = async (data: Omit<KontrakMou, 'id'>) => {
-    return await addDoc(kontrakMouCollection, { ...data });
+export const addKontrakMouToDB = async (data: Omit<KontrakMou, 'id' | 'statusKontrak'>) => {
+    return await addDoc(kontrakMouCollection, { ...data, statusKontrak: 'Aktif' });
 }
-export const updateKontrakMouInDB = async (id: string, data: Partial<Omit<KontrakMou, 'id'>>) => {
+export const updateKontrakMouInDB = async (id: string, data: Partial<Omit<KontrakMou, 'id' | 'statusKontrak'>>) => {
     const docRef = doc(db, 'kontrakMou', id);
     return await updateDoc(docRef, data);
 }

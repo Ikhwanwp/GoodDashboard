@@ -80,6 +80,7 @@ export interface KontrakMou {
     picGaId: string;
     ruangLingkup: string;
     keterangan: string;
+    statusKontrak: "Aktif" | "Berakhir";
     linkDokumen?: string;
 }
 export interface KontrakMouFromDB extends Omit<KontrakMou, 'tanggalMulai' | 'tanggalBerakhir'> {
