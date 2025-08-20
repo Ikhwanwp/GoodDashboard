@@ -49,7 +49,17 @@ export const getMouColumns = ({ instansi, deleteKontrakMou, showActions = true }
     },
     {
       accessorKey: "tanggalMulai",
-      header: "Tgl Mulai",
+      header: ({ column }) => {
+        return (
+          <Button
+            variant="ghost"
+            onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          >
+            Tgl Mulai
+            <ArrowUpDown className="ml-2 h-4 w-4" />
+          </Button>
+        )
+      },
       cell: ({ row }) => format(row.original.tanggalMulai, "dd MMM yyyy"),
     },
     {
