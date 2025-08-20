@@ -2,7 +2,7 @@
 // src/app/dashboard/contracts/mou-columns.tsx
 "use client"
 
-import type { ColumnDef } from "@tanstack/react-table"
+import type { ColumnDef, SortingFn } from "@tanstack/react-table"
 import type { KontrakMou, Instansi, User } from "@/lib/types"
 import { MoreHorizontal, ArrowUpDown, Link as LinkIcon } from "lucide-react"
 import { Button } from "@/components/ui/button"
@@ -26,6 +26,31 @@ type GetMouColumnsParams = {
   deleteKontrakMou: (id: string) => Promise<void>;
   showActions?: boolean;
 }
+
+// Custom sorting function for MoU
+const customMouSortingFn: SortingFn<KontrakMou> = (rowA, rowB, columnId) => {
+    const today = startOfDay(new Date());
+    const getDaysLeft = (date: Date) => differenceInDays(startOfDay(date), today);
+
+    const daysLeftA = getDaysLeft(rowA.original.tanggalBerakhir);
+    const daysLeftB = getDaysLeft(rowB.original.tanggalBerakhir);
+
+    const statusA = daysLeftA < 0 ? 'Berakhir' : 'Aktif';
+    const statusB = daysLeftB < 0 ? 'Berakhir' : 'Aktif';
+
+    // 1. Primary sort: by status
+    if (statusA !== statusB) {
+        return statusA === 'Aktif' ? -1 : 1;
+    }
+    
+    // 2. Secondary sort: by days left (ascending)
+    if (statusA === 'Berakhir') {
+       return daysLeftB - daysLeftA;
+    }
+
+    return daysLeftA - daysLeftB;
+};
+
 
 export const getMouColumns = ({ instansi, users, deleteKontrakMou, showActions = true }: GetMouColumnsParams): ColumnDef<KontrakMou>[] => {
   const columns: ColumnDef<KontrakMou>[] = [
@@ -113,7 +138,8 @@ export const getMouColumns = ({ instansi, users, deleteKontrakMou, showActions =
         }
 
         return <Badge className={cn("whitespace-nowrap", colorClass)}>Dalam {daysLeft} hari lagi</Badge>
-      }
+      },
+      sortingFn: customMouSortingFn,
     },
     {
       accessorKey: "linkDokumen",

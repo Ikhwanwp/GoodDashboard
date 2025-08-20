@@ -2,7 +2,7 @@
 // src/app/dashboard/contracts/pks-columns.tsx
 "use client"
 
-import type { ColumnDef } from "@tanstack/react-table"
+import type { ColumnDef, SortingFn } from "@tanstack/react-table"
 import type { KontrakPks, Instansi, User } from "@/lib/types"
 import { MoreHorizontal, ArrowUpDown, Link as LinkIcon } from "lucide-react"
 import { Button } from "@/components/ui/button"
@@ -26,6 +26,33 @@ type GetPksColumnsParams = {
   deleteKontrakPks: (id: string) => Promise<void>;
   showActions?: boolean;
 }
+
+// Custom sorting function
+const customSortingFn: SortingFn<KontrakPks> = (rowA, rowB, columnId) => {
+    const today = startOfDay(new Date());
+
+    const getDaysLeft = (date: Date) => differenceInDays(startOfDay(date), today);
+
+    const daysLeftA = getDaysLeft(rowA.original.tanggalBerakhir);
+    const daysLeftB = getDaysLeft(rowB.original.tanggalBerakhir);
+
+    const statusA = daysLeftA < 0 ? 'Berakhir' : 'Aktif';
+    const statusB = daysLeftB < 0 ? 'Berakhir' : 'Aktif';
+    
+    // 1. Primary sort: by status
+    if (statusA !== statusB) {
+        return statusA === 'Aktif' ? -1 : 1;
+    }
+
+    // 2. Secondary sort: by days left (ascending)
+    // For "Berakhir" status, sort by most recently expired
+    if (statusA === 'Berakhir') {
+      return daysLeftB - daysLeftA; // More negative (recently expired) comes first
+    }
+    
+    return daysLeftA - daysLeftB;
+};
+
 
 export const getPksColumns = ({ instansi, users, deleteKontrakPks, showActions = true }: GetPksColumnsParams): ColumnDef<KontrakPks>[] => {
   const columns: ColumnDef<KontrakPks>[] = [
@@ -60,7 +87,17 @@ export const getPksColumns = ({ instansi, users, deleteKontrakPks, showActions =
     },
     {
       accessorKey: "statusKontrak",
-      header: "Status",
+      header: ({ column }) => {
+        return (
+          <Button
+            variant="ghost"
+            onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          >
+            Status
+            <ArrowUpDown className="ml-2 h-4 w-4" />
+          </Button>
+        )
+      },
       cell: ({ row }) => {
         const status = row.original.statusKontrak;
         return (
@@ -68,7 +105,8 @@ export const getPksColumns = ({ instansi, users, deleteKontrakPks, showActions =
             {status}
           </Badge>
         )
-      }
+      },
+      sortingFn: customSortingFn,
     },
     {
       accessorKey: "tanggalMulai",

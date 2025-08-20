@@ -35,7 +35,7 @@ export function PksDataTable<TData, TValue>({
   data,
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = useState<SortingState>([
-    { id: "sisaHari", desc: false } // asc: smaller days (expiring soonest) on top
+    { id: "statusKontrak", desc: false } // Initial sort by our custom sorting function
   ])
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
 
