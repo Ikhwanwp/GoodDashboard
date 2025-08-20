@@ -13,9 +13,10 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { Badge } from "@/components/ui/badge"
-import { format } from "date-fns"
+import { format, differenceInDays, startOfDay } from "date-fns"
 import { ContractForm } from "@/components/forms/contract-form"
 import { DeleteConfirmation } from "@/components/shared/delete-confirmation"
+import { cn } from "@/lib/utils"
 
 type GetPksColumnsParams = {
   instansi: Instansi[];
@@ -72,6 +73,31 @@ export const getPksColumns = ({ instansi, deleteKontrakPks, showActions = true }
         )
       },
       cell: ({ row }) => format(row.original.tanggalBerakhir, "dd MMM yyyy"),
+    },
+    {
+      id: "sisaHari",
+      header: "Sisa Hari",
+      cell: ({ row }) => {
+        const today = startOfDay(new Date());
+        const tglBerakhir = startOfDay(row.original.tanggalBerakhir);
+        const daysLeft = differenceInDays(tglBerakhir, today);
+
+        if (daysLeft < 0) {
+            return <Badge variant="outline" className="text-muted-foreground">Telah Berakhir</Badge>
+        }
+        if (daysLeft === 0) {
+            return <Badge className="bg-orange-500 text-white">Hari Ini</Badge>
+        }
+
+        let colorClass = "bg-green-500 text-white";
+        if (daysLeft <= 30) {
+            colorClass = "bg-destructive text-destructive-foreground";
+        } else if (daysLeft <= 90) {
+            colorClass = "bg-orange-500 text-white";
+        }
+
+        return <Badge className={cn("whitespace-nowrap", colorClass)}>Dalam {daysLeft} hari lagi</Badge>
+      }
     },
   ];
 
