@@ -97,10 +97,18 @@ export function ContractForm({ children, contractToEdit, contractType }: {
 }) {
   const [open, setOpen] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+
+  // Popover states
+  const [pksInstansiOpen, setPksInstansiOpen] = useState(false);
+  const [pksPicGaOpen, setPksPicGaOpen] = useState(false);
+  const [mouInstansiOpen, setMouInstansiOpen] = useState(false);
+  const [mouPicGaOpen, setMouPicGaOpen] = useState(false);
+  
   const [pksTglMulaiOpen, setPksTglMulaiOpen] = useState(false);
   const [pksTglBerakhirOpen, setPksTglBerakhirOpen] = useState(false);
   const [mouTglMulaiOpen, setMouTglMulaiOpen] = useState(false);
   const [mouTglBerakhirOpen, setMouTglBerakhirOpen] = useState(false);
+  
   const { instansi, users, addKontrakPks, addKontrakMou, updateKontrakPks, updateKontrakMou } = useData();
   const isEditMode = !!contractToEdit;
   const picGaUsers = users.filter(u => u.role === 'GA');
@@ -242,7 +250,7 @@ export function ContractForm({ children, contractToEdit, contractType }: {
                                 render={({ field }) => (
                                     <FormItem className="flex flex-col">
                                     <FormLabel>Instansi</FormLabel>
-                                    <Popover>
+                                    <Popover open={pksInstansiOpen} onOpenChange={setPksInstansiOpen}>
                                         <PopoverTrigger asChild>
                                         <FormControl>
                                             <Button
@@ -273,7 +281,8 @@ export function ContractForm({ children, contractToEdit, contractType }: {
                                                             value={item.kodeInstansi}
                                                             key={item.id}
                                                             onSelect={() => {
-                                                                pksForm.setValue("instansiId", item.id)
+                                                                pksForm.setValue("instansiId", item.id);
+                                                                setPksInstansiOpen(false);
                                                             }}
                                                         >
                                                             <Check
@@ -302,7 +311,7 @@ export function ContractForm({ children, contractToEdit, contractType }: {
                                 render={({ field }) => (
                                      <FormItem className="flex flex-col">
                                     <FormLabel>PIC Government Account</FormLabel>
-                                    <Popover>
+                                    <Popover open={pksPicGaOpen} onOpenChange={setPksPicGaOpen}>
                                         <PopoverTrigger asChild>
                                         <FormControl>
                                             <Button
@@ -333,7 +342,8 @@ export function ContractForm({ children, contractToEdit, contractType }: {
                                                             value={item.nama}
                                                             key={item.id}
                                                             onSelect={() => {
-                                                                pksForm.setValue("picGaId", item.id)
+                                                                pksForm.setValue("picGaId", item.id);
+                                                                setPksPicGaOpen(false);
                                                             }}
                                                         >
                                                             <Check
@@ -395,7 +405,7 @@ export function ContractForm({ children, contractToEdit, contractType }: {
                                         render={({ field }) => (
                                             <FormItem className="flex flex-col">
                                             <FormLabel>Instansi</FormLabel>
-                                            <Popover>
+                                            <Popover open={mouInstansiOpen} onOpenChange={setMouInstansiOpen}>
                                                 <PopoverTrigger asChild>
                                                 <FormControl>
                                                     <Button
@@ -426,7 +436,8 @@ export function ContractForm({ children, contractToEdit, contractType }: {
                                                                     value={item.kodeInstansi}
                                                                     key={item.id}
                                                                     onSelect={() => {
-                                                                        mouForm.setValue("instansiId", item.id)
+                                                                        mouForm.setValue("instansiId", item.id);
+                                                                        setMouInstansiOpen(false);
                                                                     }}
                                                                 >
                                                                     <Check
@@ -455,7 +466,7 @@ export function ContractForm({ children, contractToEdit, contractType }: {
                                         render={({ field }) => (
                                             <FormItem className="flex flex-col">
                                             <FormLabel>PIC Government Account</FormLabel>
-                                            <Popover>
+                                            <Popover open={mouPicGaOpen} onOpenChange={setMouPicGaOpen}>
                                                 <PopoverTrigger asChild>
                                                 <FormControl>
                                                     <Button
@@ -486,7 +497,8 @@ export function ContractForm({ children, contractToEdit, contractType }: {
                                                                     value={item.nama}
                                                                     key={item.id}
                                                                     onSelect={() => {
-                                                                        mouForm.setValue("picGaId", item.id)
+                                                                        mouForm.setValue("picGaId", item.id);
+                                                                        setMouPicGaOpen(false);
                                                                     }}
                                                                 >
                                                                     <Check
