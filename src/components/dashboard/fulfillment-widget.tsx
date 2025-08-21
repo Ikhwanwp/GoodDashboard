@@ -37,6 +37,7 @@ const sampleData = {
       { "name": "Purchase Order (PO)", "role": "BA", "status": "pending" },
       { "name": "SPK", "role": "BA", "status": "pending" },
       { "name": "GR", "role": "BA", "status": "pending" },
+      { "name": "BAST", "role": "GA", "status": "pending" },
       { "name": "STTJ", "role": "GA", "status": "pending" },
       { "name": "DO", "role": "GA", "status": "pending" },
       { "name": "Invoicing", "role": "GA", "status": "pending" }
