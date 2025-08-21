@@ -7,7 +7,7 @@ import { FulfillmentTracker } from "@/components/dashboard/fulfillment-tracker";
 
 export default function DashboardBAPage() {
   return (
-    <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">
+    <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8 overflow-hidden">
       <PageHeader title="Dashboard Business Alliance" />
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
