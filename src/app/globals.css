@@ -96,7 +96,7 @@
     bottom: 0;
     width: 30px;
     pointer-events: none;
-    background: linear-gradient(to right, transparent, hsl(var(--card)));
+    background: linear-gradient(to right, transparent, hsl(var(--background)));
     /* The mask ensures the shadow is only visible when there's overflow */
     -webkit-mask-image: linear-gradient(to right, transparent 0, black 30px);
     mask-image: linear-gradient(to right, transparent 0, black 30px);
