@@ -83,3 +83,23 @@
     font-feature-settings: "cv02", "cv03", "cv04", "cv11";
   }
 }
+
+@layer utilities {
+  .with-right-shadow {
+    position: relative;
+  }
+  .with-right-shadow::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: 30px;
+    pointer-events: none;
+    background: linear-gradient(to right, transparent, hsl(var(--card)));
+    /* The mask ensures the shadow is only visible when there's overflow */
+    -webkit-mask-image: linear-gradient(to right, transparent 0, black 30px);
+    mask-image: linear-gradient(to right, transparent 0, black 30px);
+    transition: opacity 0.2s;
+  }
+}
