@@ -21,8 +21,7 @@ export default function ContractsPage() {
     return (
       <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">
         <PageHeader title="Manajemen Kontrak & SPH" />
-        <Skeleton className="h-10 w-52 self-end mb-4" />
-        <div>
+        <div className="py-2">
            <Skeleton className="h-10 w-72 mb-4" />
            <Skeleton className="h-12 w-full mb-4" />
            <Skeleton className="h-96 w-full" />
@@ -33,17 +32,14 @@ export default function ContractsPage() {
 
   return (
     <main className="flex flex-1 flex-col p-4 md:p-8">
-      <PageHeader title="Manajemen Kontrak & SPH" />
+      <PageHeader title="Manajemen Kontrak & SPH">
+        <div className="flex items-center gap-2">
+            <SphForm />
+            <ContractForm />
+        </div>
+      </PageHeader>
       
       <div className="py-2">
-        {/* Sticky container for action buttons */}
-        <div className="sticky top-0 z-10 bg-background py-4 flex justify-end">
-            <div className="flex items-center gap-2">
-                <SphForm />
-                <ContractForm />
-            </div>
-        </div>
-
         <Tabs defaultValue="pks" className="mt-2">
           <TabsList>
             <TabsTrigger value="pks">Kontrak PKS</TabsTrigger>
