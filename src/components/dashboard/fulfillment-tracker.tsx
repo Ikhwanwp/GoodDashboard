@@ -107,9 +107,9 @@ export function FulfillmentTracker() {
         <CardContent>
           {/* Visual Workflow Tracker */}
           <div className="w-full overflow-x-auto pb-4">
-            <div className="relative flex items-center min-w-max">
+            <div className="relative flex items-start pt-6 min-w-max">
               {sampleData.workflow.steps.map((step, index) => (
-                <div key={step.name} className="flex items-center z-10">
+                <div key={step.name} className="flex items-start z-10 relative">
                   <div
                     className={cn(
                         "flex flex-col items-center gap-2 cursor-pointer group",
@@ -119,7 +119,7 @@ export function FulfillmentTracker() {
                   >
                     <div
                       className={cn(
-                        "flex h-12 w-12 items-center justify-center rounded-full border-2 transition-all",
+                        "flex h-12 w-12 items-center justify-center rounded-full border-2 transition-all bg-background z-10",
                         step.status === "completed" && "bg-primary border-primary text-primary-foreground",
                         step.status === "active" && "bg-accent border-accent text-accent-foreground animate-pulse",
                         step.status === "pending" && "bg-muted border-border text-muted-foreground"
@@ -139,7 +139,7 @@ export function FulfillmentTracker() {
                   {index < sampleData.workflow.steps.length - 1 && (
                      <div
                         className={cn(
-                          "h-1 w-16 transition-colors",
+                          "absolute h-1 w-full top-6 -right-1/2 transition-colors",
                           step.status === 'completed' ? 'bg-primary' : 'bg-border'
                         )}
                       />
