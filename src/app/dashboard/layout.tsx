@@ -45,7 +45,7 @@ const gaMenuItems = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { href: "/dashboard/instansi", label: "Instansi", icon: Building2 },
   { href: "/dashboard/contracts", label: "Kontrak", icon: Handshake },
-  { href: "/dashboard/fulfillment", label: "Fulfillment", icon: ChevronsRight },
+  { href: "/dashboard/fulfillment", label: "Tracking Progress Invoice", icon: ChevronsRight },
   { href: "/dashboard/updates", label: "Status Updates", icon: MessageSquareQuote },
   { href: "/dashboard/pic", label: "PIC", icon: Contact },
   { href: "/dashboard/timeline", label: "Timeline", icon: Clock },
@@ -54,7 +54,7 @@ const gaMenuItems = [
 
 const baMenuItems = [
   { href: "/dashboard-ba", label: "Dashboard BA", icon: LayoutDashboard },
-  { href: "/dashboard/fulfillment", label: "Fulfillment", icon: ChevronsRight },
+  { href: "/dashboard/fulfillment", label: "Tracking Progress Invoice", icon: ChevronsRight },
 ];
 
 function AuthWrapper({ children }: { children: React.ReactNode }) {
