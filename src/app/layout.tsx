@@ -1,13 +1,12 @@
 import type { Metadata } from 'next';
-import { Roboto } from 'next/font/google';
+import { Inter } from 'next/font/google';
 import './globals.css';
 import { cn } from '@/lib/utils';
 import { Toaster } from "@/components/ui/toaster"
 
-const roboto = Roboto({ 
+const inter = Inter({ 
   subsets: ['latin'], 
-  weight: ['400', '500', '700'],
-  variable: '--font-roboto' 
+  variable: '--font-body' 
 });
 
 export const metadata: Metadata = {
@@ -22,12 +21,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-       <head>
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet" />
-      </head>
-      <body className={cn('min-h-screen bg-background font-body antialiased', roboto.variable)}>
+      <body className={cn('min-h-screen bg-background font-body antialiased', inter.variable)}>
         {children}
         <Toaster />
       </body>

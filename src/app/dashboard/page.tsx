@@ -6,7 +6,6 @@ import { ReminderList } from "@/components/dashboard/reminder-list";
 import { Building2, FileText, Handshake, FileArchive, Banknote } from "lucide-react";
 import { useData } from "@/context/data-context";
 import { Skeleton } from "@/components/ui/skeleton";
-import { FulfillmentWidget } from "@/components/fulfillment/fulfillment-widget";
 
 export default function DashboardPage() {
   const { instansi, kontrakPks, kontrakMou, dokumenSph, loading } = useData();
@@ -78,9 +77,8 @@ export default function DashboardPage() {
         />
       </div>
 
-      <div className="grid gap-8 mt-4 lg:grid-cols-2">
+      <div className="grid gap-8 mt-4 lg:grid-cols-1">
         <ReminderList />
-        <FulfillmentWidget />
       </div>
     </main>
   );

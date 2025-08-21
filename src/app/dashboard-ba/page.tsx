@@ -4,7 +4,6 @@ import { PageHeader } from "@/components/shared/page-header";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Handshake, Users } from "lucide-react";
 import { SummaryCard } from "@/components/dashboard/summary-card";
-import { FulfillmentView } from "@/components/fulfillment/fulfillment-view";
 
 export default function DashboardBAPage() {
   // Dummy data for BA Dashboard
@@ -30,10 +29,6 @@ export default function DashboardBAPage() {
           icon={Users} 
         />
       </div>
-
-       <div className="mt-4">
-        <FulfillmentView />
-       </div>
     </main>
   );
 }
