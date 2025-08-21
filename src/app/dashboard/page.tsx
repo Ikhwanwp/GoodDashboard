@@ -1,4 +1,3 @@
-
 "use client";
 
 import { PageHeader } from "@/components/shared/page-header";
@@ -59,7 +58,7 @@ export default function DashboardPage() {
           variant="active" 
         />
          <SummaryCard 
-          title="Total Nominal Aktif" 
+          title="Total Nilai Kontrak Aktif" 
           value={formatRupiah(totalNominalAktif)} 
           icon={Banknote} 
           variant="active"
