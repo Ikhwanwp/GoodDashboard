@@ -1,4 +1,3 @@
-
 // src/app/dashboard/contracts/pks-columns.tsx
 "use client"
 
@@ -206,7 +205,7 @@ export const getPksColumns = ({ instansi, users, deleteKontrakPks, showActions =
               </div>
           )
       },
-       size: 80,
+       size: 70,
     },
   ];
 

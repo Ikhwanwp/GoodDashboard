@@ -1,4 +1,3 @@
-
 // src/app/dashboard/contracts/mou-columns.tsx
 "use client"
 
@@ -191,7 +190,7 @@ export const getMouColumns = ({ instansi, users, deleteKontrakMou, showActions =
               </div>
           )
       },
-      size: 80,
+      size: 70,
     },
   ];
 

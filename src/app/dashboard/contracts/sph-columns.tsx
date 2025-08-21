@@ -90,7 +90,7 @@ export const getSphColumns = ({ instansi, deleteDokumenSph }: GetSphColumnsParam
              </div>
           )
       },
-       size: 80,
+       size: 70,
     },
     {
       id: "actions",
