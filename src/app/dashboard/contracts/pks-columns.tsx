@@ -27,6 +27,15 @@ type GetPksColumnsParams = {
   showActions?: boolean;
 }
 
+const formatRupiah = (value: number) => {
+  return new Intl.NumberFormat('id-ID', {
+    style: 'currency',
+    currency: 'IDR',
+    minimumFractionDigits: 0,
+  }).format(value);
+};
+
+
 // Custom sorting function
 const customPksSortingFn: SortingFn<KontrakPks> = (rowA, rowB, columnId) => {
     const today = startOfDay(new Date());
@@ -77,6 +86,11 @@ export const getPksColumns = ({ instansi, users, deleteKontrakPks, showActions =
       accessorKey: "judulKontrak",
       header: "Judul Kontrak",
       cell: ({ row }) => <div className="max-w-xs whitespace-normal">{row.original.judulKontrak}</div>,
+    },
+     {
+      accessorKey: "nominal",
+      header: "Nominal",
+      cell: ({ row }) => <div className="font-medium">{formatRupiah(row.original.nominal)}</div>,
     },
     {
       accessorKey: "picGaId",

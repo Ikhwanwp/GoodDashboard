@@ -1,4 +1,5 @@
 
+
 "use client";
 
 import { useState, useEffect } from "react";
@@ -41,6 +42,7 @@ const pksSchema = z.object({
   nomorKontrakPeruri: z.string().min(1, "Nomor Kontrak Peruri harus diisi"),
   nomorKontrakKl: z.string().min(1, "Nomor Kontrak K/L harus diisi"),
   judulKontrak: z.string().min(3, "Judul minimal 3 karakter"),
+  nominal: z.coerce.number().min(0, "Nominal tidak boleh negatif"),
   tanggalMulai: z.date({ required_error: "Tanggal mulai harus diisi" }),
   tanggalBerakhir: z.date({ required_error: "Tanggal berakhir harus diisi" }),
   picGaId: z.string().min(1, "PIC GA harus dipilih"),
@@ -71,7 +73,7 @@ type PksStepFields = {
 
 const pksStepFields: PksStepFields = {
   1: ["instansiId", "picGaId", "judulKontrak", "nomorKontrakPeruri", "nomorKontrakKl"],
-  2: ["tanggalMulai", "tanggalBerakhir", "ruangLingkup", "keterangan", "linkDokumen"],
+  2: ["nominal", "tanggalMulai", "tanggalBerakhir", "ruangLingkup", "keterangan", "linkDokumen"],
 };
 
 type MouStepFields = {
@@ -166,6 +168,7 @@ export function ContractForm({ children, contractToEdit, contractType }: {
         nomorKontrakPeruri: "",
         nomorKontrakKl: "",
         judulKontrak: "",
+        nominal: 0,
         ruangLingkup: "",
         keterangan: "",
         linkDokumen: "",
@@ -425,6 +428,7 @@ export function ContractForm({ children, contractToEdit, contractType }: {
                       )}
                       {currentStep === 2 && (
                          <div className="space-y-4">
+                          <FormField control={pksForm.control} name="nominal" render={({ field }) => (<FormItem><FormLabel>Nominal Kontrak (Rp)</FormLabel><FormControl><Input type="number" placeholder="cth: 50000000" {...field} /></FormControl><FormMessage /></FormItem>)} />
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <FormField control={pksForm.control} name="tanggalMulai" render={({ field }) => (<FormItem className="flex flex-col"><FormLabel>Tanggal Mulai</FormLabel><Popover open={pksTglMulaiOpen} onOpenChange={setPksTglMulaiOpen}><PopoverTrigger asChild><FormControl><Button variant={"outline"} className={cn("w-full justify-start text-left font-normal", !field.value && "text-muted-foreground")}><CalendarIcon className="mr-2 h-4 w-4" />{field.value ? (format(field.value, "PPP")) : (<span>Pilih tanggal</span>)}</Button></FormControl></PopoverTrigger><PopoverContent className="w-auto p-0" align="start"><Calendar mode="single" selected={field.value} onSelect={(date) => { field.onChange(date); setPksTglMulaiOpen(false);}} captionLayout="dropdown-buttons" fromYear={2015} toYear={new Date().getFullYear() + 10} initialFocus /></PopoverContent></Popover><FormMessage /></FormItem>)} />
                             <FormField control={pksForm.control} name="tanggalBerakhir" render={({ field }) => (<FormItem className="flex flex-col"><FormLabel>Tanggal Berakhir</FormLabel><Popover open={pksTglBerakhirOpen} onOpenChange={setPksTglBerakhirOpen}><PopoverTrigger asChild><FormControl><Button variant={"outline"} className={cn("w-full justify-start text-left font-normal", !field.value && "text-muted-foreground")}><CalendarIcon className="mr-2 h-4 w-4" />{field.value ? (format(field.value, "PPP")) : (<span>Pilih tanggal</span>)}</Button></FormControl></PopoverTrigger><PopoverContent className="w-auto p-0" align="start"><Calendar mode="single" selected={field.value} onSelect={(date) => { field.onChange(date); setPksTglBerakhirOpen(false);}} captionLayout="dropdown-buttons" fromYear={2015} toYear={new Date().getFullYear() + 10} initialFocus /></PopoverContent></Popover><FormMessage /></FormItem>)} />

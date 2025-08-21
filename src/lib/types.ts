@@ -1,4 +1,5 @@
 
+
 import type { LucideIcon } from "lucide-react";
 import type { Timestamp } from "firebase/firestore";
 
@@ -55,6 +56,7 @@ export interface KontrakPks {
   nomorKontrakPeruri: string;
   nomorKontrakKl: string;
   judulKontrak: string;
+  nominal: number;
   tanggalMulai: Date;
   tanggalBerakhir: Date;
   picGaId: string;
