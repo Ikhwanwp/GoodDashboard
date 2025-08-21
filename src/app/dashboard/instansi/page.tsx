@@ -17,7 +17,7 @@ export default function InstansiPage() {
         <PageHeader title="Manajemen Instansi">
           <Skeleton className="h-10 w-36" />
         </PageHeader>
-        <div className="container mx-auto py-2">
+        <div className="py-2">
            <Skeleton className="h-12 w-full mb-4" />
            <Skeleton className="h-96 w-full" />
         </div>
@@ -31,7 +31,7 @@ export default function InstansiPage() {
         <InstansiForm />
       </PageHeader>
       
-      <div className="container mx-auto py-2">
+      <div className="py-2">
         <InstansiDataTable columns={InstansiColumns()} data={instansi} />
       </div>
     </main>

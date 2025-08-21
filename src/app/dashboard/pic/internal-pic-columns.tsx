@@ -1,3 +1,4 @@
+
 // src/app/dashboard/pic/internal-pic-columns.tsx
 "use client"
 
@@ -25,6 +26,7 @@ export const InternalPicColumns = (): ColumnDef<User>[] => {
     {
       accessorKey: "nama",
       header: "Nama PIC",
+      size: 200,
     },
     {
       id: "kodeInstansi",
@@ -33,23 +35,27 @@ export const InternalPicColumns = (): ColumnDef<User>[] => {
         const handledInstansi = instansi.filter(i => i.internalPicId === row.original.id);
         if (row.original.role !== 'GA' || handledInstansi.length === 0) return <span className="text-muted-foreground">N/A</span>
         return (
-          <div className="flex flex-wrap gap-1">
+          <div className="flex flex-wrap gap-1 max-w-xs">
             {handledInstansi.map(i => <Badge variant="secondary" key={i.id}>{i.kodeInstansi}</Badge>)}
           </div>
         )
       },
+      size: 250,
     },
     {
       accessorKey: "role",
       header: "Role",
+      size: 100,
     },
     {
       accessorKey: "noHp",
       header: "No HP",
+      size: 150,
     },
     {
       accessorKey: "email",
       header: "Email",
+      size: 220,
     },
      {
       id: "actions",
@@ -57,18 +63,19 @@ export const InternalPicColumns = (): ColumnDef<User>[] => {
         const pic = row.original
 
         return (
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="h-8 w-8 p-0">
-                <span className="sr-only">Open menu</span>
-                <MoreHorizontal className="h-4 w-4" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuLabel>Actions</DropdownMenuLabel>
-              <DropdownMenuItem onClick={() => navigator.clipboard.writeText(pic.id)}>
-                Copy ID
-              </DropdownMenuItem>
+          <div className="text-center">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" className="h-8 w-8 p-0">
+                  <span className="sr-only">Open menu</span>
+                  <MoreHorizontal className="h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                <DropdownMenuItem onClick={() => navigator.clipboard.writeText(pic.id)}>
+                  Copy ID
+                </DropdownMenuItem>
                <PicForm picToEdit={pic} picType="internal">
                  <DropdownMenuItem onSelect={(e) => e.preventDefault()}>Edit PIC</DropdownMenuItem>
               </PicForm>
@@ -82,8 +89,10 @@ export const InternalPicColumns = (): ColumnDef<User>[] => {
               </DeleteConfirmation>
             </DropdownMenuContent>
           </DropdownMenu>
+          </div>
         )
       },
+      size: 50,
     },
   ]
 }

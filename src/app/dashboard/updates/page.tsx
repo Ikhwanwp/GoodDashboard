@@ -17,7 +17,7 @@ export default function UpdatesPage() {
         <PageHeader title="Manajemen Status Pekerjaan">
            <Skeleton className="h-10 w-36" />
         </PageHeader>
-        <div className="container mx-auto py-2">
+        <div className="py-2">
            <Skeleton className="h-12 w-full mb-4" />
            <Skeleton className="h-96 w-full" />
         </div>
@@ -31,7 +31,7 @@ export default function UpdatesPage() {
         <StatusUpdateForm />
       </PageHeader>
       
-      <div className="container mx-auto py-2">
+      <div className="py-2">
         <UpdatesDataTable columns={getUpdatesColumns({ instansi, deleteStatusPekerjaan })} data={statusPekerjaan} />
       </div>
     </main>

@@ -1,3 +1,4 @@
+
 // src/app/dashboard/pic/page.tsx
 "use client";
 
@@ -22,7 +23,7 @@ export default function PicPage() {
         <PageHeader title="Penanggung Jawab (PIC)">
             <Skeleton className="h-10 w-32" />
         </PageHeader>
-        <div className="container mx-auto py-2">
+        <div className="py-2">
            <Skeleton className="h-10 w-72 mb-4" />
            <Skeleton className="h-12 w-full mb-4" />
            <Skeleton className="h-96 w-full" />
@@ -40,7 +41,7 @@ export default function PicPage() {
         <PicForm />
       </PageHeader>
 
-      <div className="container mx-auto py-2">
+      <div className="py-2">
         <Tabs defaultValue="internal">
           <TabsList>
             <TabsTrigger value="internal">PIC Internal (Peruri)</TabsTrigger>

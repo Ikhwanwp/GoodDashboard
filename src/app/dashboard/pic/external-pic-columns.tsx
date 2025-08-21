@@ -27,6 +27,7 @@ export const getExternalPicColumns = ({ instansi, deletePicEksternal, showAction
     {
       accessorKey: "namaPic",
       header: "Nama PIC",
+      size: 200,
     },
     {
       accessorKey: "instansiId",
@@ -45,18 +46,22 @@ export const getExternalPicColumns = ({ instansi, deletePicEksternal, showAction
       },
       // Hiding the individual column filter accessor
       enableColumnFilter: false,
+      size: 150,
     },
     {
       accessorKey: "jabatan",
       header: "Jabatan",
+      size: 200,
     },
     {
       accessorKey: "noHp",
       header: "No HP",
+      size: 150,
     },
     {
       accessorKey: "email",
       header: "Email",
+      size: 220,
     },
   ];
 
@@ -67,6 +72,7 @@ export const getExternalPicColumns = ({ instansi, deletePicEksternal, showAction
         const pic = row.original
 
         return (
+          <div className="text-center">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" className="h-8 w-8 p-0">
@@ -92,8 +98,10 @@ export const getExternalPicColumns = ({ instansi, deletePicEksternal, showAction
               </DeleteConfirmation>
             </DropdownMenuContent>
           </DropdownMenu>
+          </div>
         )
       },
+      size: 50,
     });
   }
   
