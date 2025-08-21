@@ -96,12 +96,12 @@ export const getPksColumns = ({ instansi, users, deleteKontrakPks, showActions =
     },
     {
       accessorKey: "picGaId",
-      header: "PIC Government Account",
+      header: "PIC GA",
       cell: ({ row }) => {
         const pic = users.find(u => u.id === row.original.picGaId);
         return <div>{pic?.nama || 'N/A'}</div>;
       },
-      size: 160,
+      size: 140,
     },
     {
       accessorKey: "statusKontrak",
@@ -245,7 +245,7 @@ export const getPksColumns = ({ instansi, users, deleteKontrakPks, showActions =
           </div>
         )
       },
-      size: 50,
+      size: 40,
     });
   }
   
