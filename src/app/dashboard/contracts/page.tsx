@@ -23,7 +23,7 @@ export default function ContractsPage() {
         <PageHeader title="Manajemen Kontrak & SPH">
           <Skeleton className="h-10 w-52" />
         </PageHeader>
-        <div className="container mx-auto py-2">
+        <div>
            <Skeleton className="h-10 w-72 mb-4" />
            <Skeleton className="h-12 w-full mb-4" />
            <Skeleton className="h-96 w-full" />
@@ -41,7 +41,7 @@ export default function ContractsPage() {
         </div>
       </PageHeader>
       
-      <div className="container mx-auto py-2">
+      <div className="py-2">
         <Tabs defaultValue="pks">
           <TabsList>
             <TabsTrigger value="pks">Kontrak PKS</TabsTrigger>
