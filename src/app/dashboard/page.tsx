@@ -6,6 +6,7 @@ import { ReminderList } from "@/components/dashboard/reminder-list";
 import { Building2, FileText, Handshake, FileArchive, Banknote } from "lucide-react";
 import { useData } from "@/context/data-context";
 import { Skeleton } from "@/components/ui/skeleton";
+import { FulfillmentWidget } from "@/components/fulfillment/fulfillment-widget";
 
 export default function DashboardPage() {
   const { instansi, kontrakPks, kontrakMou, dokumenSph, loading } = useData();
@@ -30,8 +31,13 @@ export default function DashboardPage() {
           <Skeleton className="h-28 w-full" />
           <Skeleton className="h-28 w-full" />
         </div>
-        <div>
-          <Skeleton className="h-96 w-full" />
+        <div className="grid gap-8 mt-4 md:grid-cols-3">
+            <div className="md:col-span-2">
+                <Skeleton className="h-96 w-full" />
+            </div>
+            <div>
+                 <Skeleton className="h-96 w-full" />
+            </div>
         </div>
       </main>
     );
@@ -40,14 +46,16 @@ export default function DashboardPage() {
   const activePks = kontrakPks.filter(k => k.statusKontrak === 'Aktif');
   const activePksCount = activePks.length;
   const totalNominalAktif = activePks.reduce((total, k) => total + (k.nominal || 0), 0);
+  const expiringContracts = [...kontrakPks, ...kontrakMou].filter(c => c.statusKontrak === 'Aktif' && new Date(c.tanggalBerakhir) < new Date(new Date().setDate(new Date().getDate() + 90))).length;
+
 
   return (
     <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">
       <PageHeader title="Dashboard Government Account" />
 
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-5">
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <SummaryCard 
-          title="Jumlah K/L Total" 
+          title="Total K/L Aktif" 
           value={instansi.length.toString()} 
           icon={Building2} 
         />
@@ -58,25 +66,21 @@ export default function DashboardPage() {
           variant="active" 
         />
          <SummaryCard 
-          title="Total Nilai Kontrak Aktif" 
+          title="Nilai Kontrak Aktif" 
           value={formatRupiah(totalNominalAktif)} 
           icon={Banknote} 
           variant="active"
         />
         <SummaryCard 
-          title="Jumlah MoU" 
-          value={kontrakMou.length.toString()} 
+          title="Kontrak Segera Berakhir" 
+          value={expiringContracts.toString()} 
           icon={FileText} 
-        />
-        <SummaryCard 
-          title="Jumlah SPH" 
-          value={dokumenSph.length.toString()} 
-          icon={FileArchive} 
         />
       </div>
 
-      <div>
+      <div className="grid gap-8 mt-4 lg:grid-cols-2">
         <ReminderList />
+        <FulfillmentWidget />
       </div>
     </main>
   );

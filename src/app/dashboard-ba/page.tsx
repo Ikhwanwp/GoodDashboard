@@ -2,16 +2,15 @@
 "use client";
 import { PageHeader } from "@/components/shared/page-header";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Briefcase, Handshake, Users, FileText } from "lucide-react";
+import { Handshake, Users } from "lucide-react";
 import { SummaryCard } from "@/components/dashboard/summary-card";
+import { FulfillmentView } from "@/components/fulfillment/fulfillment-view";
 
 export default function DashboardBAPage() {
   // Dummy data for BA Dashboard
   const summaryData = {
     totalMitra: 25,
     activeKerjasama: 15,
-    totalPic: 40,
-    pendingDocuments: 5,
   };
 
   return (
@@ -20,38 +19,21 @@ export default function DashboardBAPage() {
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <SummaryCard 
-          title="Jumlah Mitra Total" 
-          value={summaryData.totalMitra.toString()} 
+          title="Proyek dalam Proses" 
+          value={"5"} 
+          icon={Handshake}
+          variant="active"
+        />
+        <SummaryCard 
+          title="Proyek Selesai Bulan Ini" 
+          value={"2"} 
           icon={Users} 
-        />
-        <SummaryCard 
-          title="Kerja Sama Aktif" 
-          value={summaryData.activeKerjasama.toString()} 
-          icon={Handshake} 
-          variant="active" 
-        />
-        <SummaryCard 
-          title="Jumlah PIC" 
-          value={summaryData.totalPic.toString()} 
-          icon={Users} 
-        />
-        <SummaryCard 
-          title="Dokumen Tertunda" 
-          value={summaryData.pendingDocuments.toString()} 
-          icon={FileText} 
         />
       </div>
 
-       <Card>
-        <CardHeader>
-            <CardTitle>Selamat Datang di Dasbor Business Alliance</CardTitle>
-        </CardHeader>
-        <CardContent>
-            <p className="text-muted-foreground">
-                Ini adalah halaman utama untuk manajemen mitra dan kerja sama. Gunakan menu di sebelah kiri untuk menavigasi fitur yang tersedia.
-            </p>
-        </CardContent>
-       </Card>
+       <div className="mt-4">
+        <FulfillmentView />
+       </div>
     </main>
   );
 }
