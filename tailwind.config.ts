@@ -95,10 +95,14 @@ export default {
             height: '0',
           },
         },
+        'pulse-horizontal': {
+          '50%': { transform: 'translateX(3px)' },
+        },
       },
       animation: {
         'accordion-down': 'accordion-down 0.2s ease-out',
         'accordion-up': 'accordion-up 0.2s ease-out',
+        'pulse-horizontal': 'pulse-horizontal 1.5s ease-in-out infinite',
       },
     },
   },

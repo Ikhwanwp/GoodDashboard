@@ -1,19 +1,62 @@
 import * as React from "react"
+import { ChevronRight } from "lucide-react"
 
 import { cn } from "@/lib/utils"
 
 const Table = React.forwardRef<
   HTMLTableElement,
   React.HTMLAttributes<HTMLTableElement>
->(({ className, ...props }, ref) => (
-  <div className="relative w-full overflow-auto with-right-shadow">
-    <table
-      ref={ref}
-      className={cn("w-full caption-bottom text-xs md:text-sm", className)}
-      {...props}
-    />
-  </div>
-))
+>(({ className, ...props }, ref) => {
+  const tableContainerRef = React.useRef<HTMLDivElement>(null);
+  const [showIndicator, setShowIndicator] = React.useState(false);
+
+  React.useEffect(() => {
+    const checkScroll = () => {
+      const el = tableContainerRef.current;
+      if (el) {
+        const hasOverflow = el.scrollWidth > el.clientWidth;
+        const isScrolledToEnd = el.scrollWidth - el.scrollLeft <= el.clientWidth + 5; // +5 for tolerance
+        setShowIndicator(hasOverflow && !isScrolledToEnd);
+      }
+    };
+
+    const currentRef = tableContainerRef.current;
+    if (currentRef) {
+        // Initial check
+        checkScroll();
+        // Listen for scroll events
+        currentRef.addEventListener('scroll', checkScroll);
+        // Also check on window resize
+        window.addEventListener('resize', checkScroll);
+
+        // Check again after a short delay to account for rendering variations
+        const timer = setTimeout(checkScroll, 150);
+
+        return () => {
+            currentRef.removeEventListener('scroll', checkScroll);
+            window.removeEventListener('resize', checkScroll);
+            clearTimeout(timer);
+        };
+    }
+  }, []);
+
+  return (
+    <div className="relative w-full">
+      <div ref={tableContainerRef} className="overflow-auto">
+        <table
+          ref={ref}
+          className={cn("w-full caption-bottom text-xs md:text-sm", className)}
+          {...props}
+        />
+      </div>
+      {showIndicator && (
+        <div className="absolute top-0 right-0 h-full w-12 bg-gradient-to-l from-background to-transparent flex items-center justify-end pointer-events-none">
+            <ChevronRight className="h-6 w-6 text-primary animate-pulse-horizontal" />
+        </div>
+      )}
+    </div>
+  )
+})
 Table.displayName = "Table"
 
 const TableHeader = React.forwardRef<
