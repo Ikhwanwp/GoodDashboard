@@ -35,11 +35,11 @@ const sampleData = {
       { "name": "Sales Order (SO)", "role": "GA", "status": "completed" },
       { "name": "Purchase Req. (PR)", "role": "BA", "status": "active" },
       { "name": "Purchase Order (PO)", "role": "BA", "status": "pending" },
-      { "name": "SPK", "role": "BA", "status": "pending" },
-      { "name": "GR", "role": "BA", "status": "pending" },
-      { "name": "BAST", "role": "GA", "status": "pending" },
-      { "name": "STTJ", "role": "GA", "status": "pending" },
-      { "name": "DO", "role": "GA", "status": "pending" },
+      { "name": "Surat Perintah Kerja (SPK)", "role": "BA", "status": "pending" },
+      { "name": "Goods Receipt (GR)", "role": "BA", "status": "pending" },
+      { "name": "Berita Acara Serah Terima (BAST)", "role": "GA", "status": "pending" },
+      { "name": "Surat Tanda Terima Jaminan (STTJ)", "role": "GA", "status": "pending" },
+      { "name": "Delivery Order (DO)", "role": "GA", "status": "pending" },
       { "name": "Invoicing", "role": "GA", "status": "pending" }
     ],
     "history": [

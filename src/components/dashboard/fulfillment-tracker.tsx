@@ -50,11 +50,11 @@ const sampleData = {
       { "name": "Sales Order (SO)", "role": "GA", "status": "completed" },
       { "name": "Purchase Req. (PR)", "role": "BA", "status": "active" },
       { "name": "Purchase Order (PO)", "role": "BA", "status": "pending" },
-      { "name": "SPK", "role": "BA", "status": "pending" },
-      { "name": "GR", "role": "BA", "status": "pending" },
-      { "name": "BAST", "role": "GA", "status": "pending" },
-      { "name": "STTJ", "role": "GA", "status": "pending" },
-      { "name": "DO", "role": "GA", "status": "pending" },
+      { "name": "Surat Perintah Kerja (SPK)", "role": "BA", "status": "pending" },
+      { "name": "Goods Receipt (GR)", "role": "BA", "status": "pending" },
+      { "name": "Berita Acara Serah Terima (BAST)", "role": "GA", "status": "pending" },
+      { "name": "Surat Tanda Terima Jaminan (STTJ)", "role": "GA", "status": "pending" },
+      { "name": "Delivery Order (DO)", "role": "GA", "status": "pending" },
       { "name": "Invoicing", "role": "GA", "status": "pending" }
     ],
     "history": [
@@ -109,10 +109,10 @@ export function FulfillmentTracker() {
           <div className="w-full overflow-x-auto pb-4">
             <div className="relative flex items-start pt-6 min-w-max">
               {sampleData.workflow.steps.map((step, index) => (
-                <div key={step.name} className="flex items-start z-10 relative">
+                <div key={step.name} className="flex-1 flex flex-col items-center relative">
                   <div
                     className={cn(
-                        "flex flex-col items-center gap-2 cursor-pointer group",
+                        "flex flex-col items-center gap-2 cursor-pointer group z-10",
                          step.status === 'pending' && 'opacity-50'
                     )}
                     onClick={() => handleStepClick(step)}
@@ -131,15 +131,15 @@ export function FulfillmentTracker() {
                         <Circle className="h-6 w-6" />
                       )}
                     </div>
-                    <div className="text-center text-xs w-20">
+                    <div className="text-center text-xs w-24">
                       <p className="font-semibold text-foreground">{step.name}</p>
                       <p className="text-muted-foreground group-hover:text-foreground transition-colors">{step.role}</p>
                     </div>
                   </div>
-                  {index < sampleData.workflow.steps.length - 1 && (
+                   {index < sampleData.workflow.steps.length - 1 && (
                      <div
                         className={cn(
-                          "absolute h-1 w-full top-6 -right-1/2 transition-colors",
+                          "absolute h-1 top-[22px] left-1/2 w-full -z-1",
                           step.status === 'completed' ? 'bg-primary' : 'bg-border'
                         )}
                       />
