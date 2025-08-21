@@ -45,6 +45,7 @@ export const InstansiColumns = (): ColumnDef<Instansi>[] => {
       },
       enableSorting: true,
       enableHiding: false,
+      size: 50,
     },
     {
       accessorKey: "kodeInstansi",
@@ -59,6 +60,7 @@ export const InstansiColumns = (): ColumnDef<Instansi>[] => {
           </Button>
         )
       },
+      size: 100,
     },
     {
       accessorKey: "namaInstansi",
@@ -75,17 +77,20 @@ export const InstansiColumns = (): ColumnDef<Instansi>[] => {
             {status}
           </Badge>
         )
-      }
+      },
+      size: 120,
     },
     {
       accessorKey: "jenisLayanan",
       header: "Jenis Layanan",
+       size: 150,
     },
     {
       accessorKey: "tanggalUpdateTerakhir",
       header: "Update Terakhir",
       cell: ({ row }) => format(row.original.tanggalUpdateTerakhir, "dd MMM yyyy"),
       enableSorting: true,
+      size: 150,
     },
     {
       id: "actions",
@@ -93,37 +98,40 @@ export const InstansiColumns = (): ColumnDef<Instansi>[] => {
         const instansi = row.original
 
         return (
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="h-8 w-8 p-0">
-                <span className="sr-only">Open menu</span>
-                <MoreHorizontal className="h-4 w-4" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuLabel>Actions</DropdownMenuLabel>
-              <DropdownMenuItem asChild>
-                  <Link href={`/dashboard/instansi/${instansi.id}`} className="flex items-center">
-                      <Eye className="mr-2 h-4 w-4" />
-                      Lihat Detail
-                  </Link>
-              </DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <InstansiForm instansiToEdit={instansi}>
-                <DropdownMenuItem onSelect={(e) => e.preventDefault()}>Edit Instansi</DropdownMenuItem>
-              </InstansiForm>
-              <DeleteConfirmation 
-                onConfirm={() => deleteInstansi(instansi.id)}
-                itemName={instansi.namaInstansi}
-              >
-                <DropdownMenuItem onSelect={(e) => e.preventDefault()} className="text-destructive">
-                  Hapus
+          <div className="text-center">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" className="h-8 w-8 p-0">
+                  <span className="sr-only">Open menu</span>
+                  <MoreHorizontal className="h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                <DropdownMenuItem asChild>
+                    <Link href={`/dashboard/instansi/${instansi.id}`} className="flex items-center">
+                        <Eye className="mr-2 h-4 w-4" />
+                        Lihat Detail
+                    </Link>
                 </DropdownMenuItem>
-              </DeleteConfirmation>
-            </DropdownMenuContent>
-          </DropdownMenu>
+                <DropdownMenuSeparator />
+                <InstansiForm instansiToEdit={instansi}>
+                  <DropdownMenuItem onSelect={(e) => e.preventDefault()}>Edit Instansi</DropdownMenuItem>
+                </InstansiForm>
+                <DeleteConfirmation 
+                  onConfirm={() => deleteInstansi(instansi.id)}
+                  itemName={instansi.namaInstansi}
+                >
+                  <DropdownMenuItem onSelect={(e) => e.preventDefault()} className="text-destructive">
+                    Hapus
+                  </DropdownMenuItem>
+                </DeleteConfirmation>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
         )
       },
+      size: 50,
     },
   ]
 }

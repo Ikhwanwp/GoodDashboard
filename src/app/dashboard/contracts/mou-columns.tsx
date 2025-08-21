@@ -59,6 +59,7 @@ export const getMouColumns = ({ instansi, users, deleteKontrakMou, showActions =
     {
       accessorKey: "nomorMouPeruri",
       header: "Nomor MoU",
+      size: 150,
     },
     {
       accessorKey: "instansiId",
@@ -71,6 +72,7 @@ export const getMouColumns = ({ instansi, users, deleteKontrakMou, showActions =
         const i = instansi.find(i => i.id === row.original.instansiId);
         return i?.namaInstansi.toLowerCase().includes(value.toLowerCase()) || false;
       },
+      size: 120,
     },
     {
       accessorKey: "isiMou",
@@ -83,7 +85,8 @@ export const getMouColumns = ({ instansi, users, deleteKontrakMou, showActions =
       cell: ({ row }) => {
         const pic = users.find(u => u.id === row.original.picGaId);
         return <div>{pic?.nama || 'N/A'}</div>;
-      }
+      },
+      size: 180,
     },
     {
       accessorKey: "statusKontrak",
@@ -101,12 +104,15 @@ export const getMouColumns = ({ instansi, users, deleteKontrakMou, showActions =
       cell: ({ row }) => {
         const status = row.original.statusKontrak;
         return (
-          <Badge variant={status === "Aktif" ? "default" : "destructive"}>
-            {status}
-          </Badge>
+          <div className="text-center">
+            <Badge variant={status === "Aktif" ? "default" : "destructive"}>
+              {status}
+            </Badge>
+          </div>
         )
       },
       sortingFn: customMouSortingFn,
+      size: 100,
     },
     {
       accessorKey: "tanggalMulai",
@@ -122,6 +128,7 @@ export const getMouColumns = ({ instansi, users, deleteKontrakMou, showActions =
         )
       },
       cell: ({ row }) => format(row.original.tanggalMulai, "dd MMM yyyy"),
+      size: 120,
     },
     {
       accessorKey: "tanggalBerakhir",
@@ -137,6 +144,7 @@ export const getMouColumns = ({ instansi, users, deleteKontrakMou, showActions =
         )
       },
       cell: ({ row }) => format(row.original.tanggalBerakhir, "dd MMM yyyy"),
+      size: 120,
     },
      {
       id: "sisaHari",
@@ -165,6 +173,7 @@ export const getMouColumns = ({ instansi, users, deleteKontrakMou, showActions =
         return <Badge className={cn("whitespace-nowrap", colorClass)}>Dalam {daysLeft} hari lagi</Badge>
       },
       sortingFn: customMouSortingFn,
+      size: 150,
     },
     {
       accessorKey: "linkDokumen",
@@ -173,13 +182,16 @@ export const getMouColumns = ({ instansi, users, deleteKontrakMou, showActions =
           const link = row.original.linkDokumen;
           if (!link || link === '#') return <span className="text-muted-foreground">N/A</span>
           return (
-              <Button asChild variant="ghost" size="icon">
-                  <Link href={link} target="_blank" rel="noopener noreferrer">
-                      <LinkIcon className="h-4 w-4"/>
-                  </Link>
-              </Button>
+              <div className="text-center">
+                <Button asChild variant="ghost" size="icon">
+                    <Link href={link} target="_blank" rel="noopener noreferrer">
+                        <LinkIcon className="h-4 w-4"/>
+                    </Link>
+                </Button>
+              </div>
           )
-      }
+      },
+      size: 80,
     },
   ];
 
@@ -190,33 +202,36 @@ export const getMouColumns = ({ instansi, users, deleteKontrakMou, showActions =
         const contract = row.original
 
         return (
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="h-8 w-8 p-0">
-                <span className="sr-only">Open menu</span>
-                <MoreHorizontal className="h-4 w-4" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuLabel>Actions</DropdownMenuLabel>
-              <DropdownMenuItem onClick={() => navigator.clipboard.writeText(contract.id)}>
-                Copy ID
-              </DropdownMenuItem>
-              <ContractForm contractToEdit={contract} contractType="mou">
-                 <DropdownMenuItem onSelect={(e) => e.preventDefault()}>Edit MoU</DropdownMenuItem>
-              </ContractForm>
-              <DeleteConfirmation
-                onConfirm={() => deleteKontrakMou(contract.id)}
-                itemName={contract.isiMou}
-              >
-                <DropdownMenuItem onSelect={(e) => e.preventDefault()} className="text-destructive">
-                  Hapus
+          <div className="text-center">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" className="h-8 w-8 p-0">
+                  <span className="sr-only">Open menu</span>
+                  <MoreHorizontal className="h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                <DropdownMenuItem onClick={() => navigator.clipboard.writeText(contract.id)}>
+                  Copy ID
                 </DropdownMenuItem>
-              </DeleteConfirmation>
-            </DropdownMenuContent>
-          </DropdownMenu>
+                <ContractForm contractToEdit={contract} contractType="mou">
+                  <DropdownMenuItem onSelect={(e) => e.preventDefault()}>Edit MoU</DropdownMenuItem>
+                </ContractForm>
+                <DeleteConfirmation
+                  onConfirm={() => deleteKontrakMou(contract.id)}
+                  itemName={contract.isiMou}
+                >
+                  <DropdownMenuItem onSelect={(e) => e.preventDefault()} className="text-destructive">
+                    Hapus
+                  </DropdownMenuItem>
+                </DeleteConfirmation>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
         )
       },
+       size: 50,
     });
   }
 

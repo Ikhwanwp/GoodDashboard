@@ -28,6 +28,7 @@ export const getSphColumns = ({ instansi, deleteDokumenSph }: GetSphColumnsParam
     {
       accessorKey: "nomorSuratPeruri",
       header: "Nomor Surat",
+       size: 150,
     },
     {
       accessorKey: "instansiId",
@@ -39,7 +40,8 @@ export const getSphColumns = ({ instansi, deleteDokumenSph }: GetSphColumnsParam
       filterFn: (row, id, value) => {
         const sphInstansi = instansi.find(i => i.id === row.original.instansiId);
         return sphInstansi?.namaInstansi.toLowerCase().includes(value.toLowerCase()) || false;
-      }
+      },
+      size: 120,
     },
     {
       accessorKey: "perihal",
@@ -70,6 +72,7 @@ export const getSphColumns = ({ instansi, deleteDokumenSph }: GetSphColumnsParam
             return <span className="text-muted-foreground">Invalid Date</span>
         }
       },
+      size: 150,
     },
     {
       accessorKey: "linkDokumen",
@@ -78,13 +81,16 @@ export const getSphColumns = ({ instansi, deleteDokumenSph }: GetSphColumnsParam
           const link = row.original.linkDokumen;
           if (!link || link === '#') return <span className="text-muted-foreground">N/A</span>
           return (
+             <div className="text-center">
               <Button asChild variant="ghost" size="icon">
                   <Link href={link} target="_blank" rel="noopener noreferrer">
                       <LinkIcon className="h-4 w-4"/>
                   </Link>
               </Button>
+             </div>
           )
-      }
+      },
+       size: 80,
     },
     {
       id: "actions",
@@ -92,31 +98,34 @@ export const getSphColumns = ({ instansi, deleteDokumenSph }: GetSphColumnsParam
         const sph = row.original
         
         return (
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="h-8 w-8 p-0">
-                <span className="sr-only">Open menu</span>
-                <MoreHorizontal className="h-4 w-4" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuLabel>Actions</DropdownMenuLabel>
-              <SphForm sphToEdit={sph}>
-                <DropdownMenuItem onSelect={(e) => e.preventDefault()}>Edit SPH</DropdownMenuItem>
-              </SphForm>
-              <DeleteConfirmation
-                onConfirm={() => deleteDokumenSph(sph.id)}
-                itemName={sph.perihal}
-              >
-                <DropdownMenuItem onSelect={(e) => e.preventDefault()} className="text-destructive flex items-center">
-                  <Trash2 className="mr-2 h-4 w-4"/>
-                  Hapus
-                </DropdownMenuItem>
-              </DeleteConfirmation>
-            </DropdownMenuContent>
-          </DropdownMenu>
+          <div className="text-center">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" className="h-8 w-8 p-0">
+                  <span className="sr-only">Open menu</span>
+                  <MoreHorizontal className="h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                <SphForm sphToEdit={sph}>
+                  <DropdownMenuItem onSelect={(e) => e.preventDefault()}>Edit SPH</DropdownMenuItem>
+                </SphForm>
+                <DeleteConfirmation
+                  onConfirm={() => deleteDokumenSph(sph.id)}
+                  itemName={sph.perihal}
+                >
+                  <DropdownMenuItem onSelect={(e) => e.preventDefault()} className="text-destructive flex items-center">
+                    <Trash2 className="mr-2 h-4 w-4"/>
+                    Hapus
+                  </DropdownMenuItem>
+                </DeleteConfirmation>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
         )
       },
+       size: 50,
     },
   ]
 }

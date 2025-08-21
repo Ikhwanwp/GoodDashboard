@@ -51,6 +51,7 @@ export const getUpdatesColumns = ({ instansi, deleteStatusPekerjaan, showActions
           return <span className="text-destructive">Invalid Date</span>;
         }
       },
+      size: 120,
     },
     {
       accessorKey: "instansiId",
@@ -59,11 +60,13 @@ export const getUpdatesColumns = ({ instansi, deleteStatusPekerjaan, showActions
         const i = instansi.find(i => i.id === row.original.instansiId);
         return <div className="font-medium">{i?.kodeInstansi || 'N/A'}</div>;
       },
+       size: 120,
     },
     {
       accessorKey: "judulUpdate",
       header: "Judul Update",
       cell: ({ row }) => <div className="max-w-xs truncate">{row.original.judulUpdate}</div>,
+      size: 200,
     },
     {
       accessorKey: "type",
@@ -71,7 +74,8 @@ export const getUpdatesColumns = ({ instansi, deleteStatusPekerjaan, showActions
       cell: ({ row }) => {
         const type = row.original.type;
         return type ? <Badge variant="outline">{type}</Badge> : <span className="text-muted-foreground">N/A</span>
-      }
+      },
+      size: 150,
     },
      {
       accessorKey: "subject",
@@ -82,6 +86,7 @@ export const getUpdatesColumns = ({ instansi, deleteStatusPekerjaan, showActions
         accessorKey: "tanggalUpdate",
         header: "Tgl Update",
         cell: ({ row }) => format(row.original.tanggalUpdate, "dd MMM yyyy"),
+        size: 120,
     },
   ];
 
@@ -92,33 +97,36 @@ export const getUpdatesColumns = ({ instansi, deleteStatusPekerjaan, showActions
         const update = row.original
         
         return (
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="h-8 w-8 p-0">
-                <span className="sr-only">Open menu</span>
-                <MoreHorizontal className="h-4 w-4" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuLabel>Actions</DropdownMenuLabel>
-              <DropdownMenuItem onClick={() => navigator.clipboard.writeText(update.id)}>
-                Copy ID
-              </DropdownMenuItem>
-              <StatusUpdateForm updateToEdit={update}>
-                 <DropdownMenuItem onSelect={(e) => e.preventDefault()}>Edit Update</DropdownMenuItem>
-              </StatusUpdateForm>
-              <DeleteConfirmation 
-                onConfirm={() => deleteStatusPekerjaan(update.id)}
-                itemName={update.judulUpdate}
-              >
-                <DropdownMenuItem onSelect={(e) => e.preventDefault()} className="text-destructive">
-                  Hapus
+           <div className="text-center">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" className="h-8 w-8 p-0">
+                  <span className="sr-only">Open menu</span>
+                  <MoreHorizontal className="h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                <DropdownMenuItem onClick={() => navigator.clipboard.writeText(update.id)}>
+                  Copy ID
                 </DropdownMenuItem>
-              </DeleteConfirmation>
-            </DropdownMenuContent>
-          </DropdownMenu>
+                <StatusUpdateForm updateToEdit={update}>
+                  <DropdownMenuItem onSelect={(e) => e.preventDefault()}>Edit Update</DropdownMenuItem>
+                </StatusUpdateForm>
+                <DeleteConfirmation 
+                  onConfirm={() => deleteStatusPekerjaan(update.id)}
+                  itemName={update.judulUpdate}
+                >
+                  <DropdownMenuItem onSelect={(e) => e.preventDefault()} className="text-destructive">
+                    Hapus
+                  </DropdownMenuItem>
+                </DeleteConfirmation>
+              </DropdownMenuContent>
+            </DropdownMenu>
+           </div>
         )
       },
+       size: 50,
     });
   }
 

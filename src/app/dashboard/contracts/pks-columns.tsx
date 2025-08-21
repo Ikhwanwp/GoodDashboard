@@ -69,6 +69,7 @@ export const getPksColumns = ({ instansi, users, deleteKontrakPks, showActions =
     {
       accessorKey: "nomorKontrakPeruri",
       header: "Nomor Kontrak",
+      size: 150,
     },
     {
       accessorKey: "instansiId",
@@ -81,6 +82,7 @@ export const getPksColumns = ({ instansi, users, deleteKontrakPks, showActions =
         const i = instansi.find(i => i.id === row.original.instansiId);
         return i?.namaInstansi.toLowerCase().includes(value.toLowerCase()) || false;
       },
+       size: 120,
     },
     {
       accessorKey: "judulKontrak",
@@ -91,6 +93,7 @@ export const getPksColumns = ({ instansi, users, deleteKontrakPks, showActions =
       accessorKey: "nominal",
       header: "Nominal",
       cell: ({ row }) => <div className="font-medium">{formatRupiah(row.original.nominal)}</div>,
+      size: 150,
     },
     {
       accessorKey: "picGaId",
@@ -98,7 +101,8 @@ export const getPksColumns = ({ instansi, users, deleteKontrakPks, showActions =
       cell: ({ row }) => {
         const pic = users.find(u => u.id === row.original.picGaId);
         return <div>{pic?.nama || 'N/A'}</div>;
-      }
+      },
+      size: 180,
     },
     {
       accessorKey: "statusKontrak",
@@ -116,12 +120,15 @@ export const getPksColumns = ({ instansi, users, deleteKontrakPks, showActions =
       cell: ({ row }) => {
         const status = row.original.statusKontrak;
         return (
-          <Badge variant={status === "Aktif" ? "default" : "destructive"}>
-            {status}
-          </Badge>
+          <div className="text-center">
+            <Badge variant={status === "Aktif" ? "default" : "destructive"}>
+              {status}
+            </Badge>
+          </div>
         )
       },
       sortingFn: customPksSortingFn,
+      size: 100,
     },
     {
       accessorKey: "tanggalMulai",
@@ -137,6 +144,7 @@ export const getPksColumns = ({ instansi, users, deleteKontrakPks, showActions =
         )
       },
       cell: ({ row }) => format(row.original.tanggalMulai, "dd MMM yyyy"),
+      size: 120,
     },
     {
       accessorKey: "tanggalBerakhir",
@@ -152,6 +160,7 @@ export const getPksColumns = ({ instansi, users, deleteKontrakPks, showActions =
         )
       },
       cell: ({ row }) => format(row.original.tanggalBerakhir, "dd MMM yyyy"),
+      size: 120,
     },
     {
       id: "sisaHari",
@@ -178,7 +187,8 @@ export const getPksColumns = ({ instansi, users, deleteKontrakPks, showActions =
         }
 
         return <Badge className={cn("whitespace-nowrap", colorClass)}>Dalam {daysLeft} hari lagi</Badge>
-      }
+      },
+       size: 150,
     },
     {
       accessorKey: "linkDokumen",
@@ -187,13 +197,16 @@ export const getPksColumns = ({ instansi, users, deleteKontrakPks, showActions =
           const link = row.original.linkDokumen;
           if (!link || link === '#') return <span className="text-muted-foreground">N/A</span>
           return (
-              <Button asChild variant="ghost" size="icon">
-                  <Link href={link} target="_blank" rel="noopener noreferrer">
-                      <LinkIcon className="h-4 w-4"/>
-                  </Link>
-              </Button>
+              <div className="text-center">
+                <Button asChild variant="ghost" size="icon">
+                    <Link href={link} target="_blank" rel="noopener noreferrer">
+                        <LinkIcon className="h-4 w-4"/>
+                    </Link>
+                </Button>
+              </div>
           )
-      }
+      },
+       size: 80,
     },
   ];
 
@@ -204,33 +217,36 @@ export const getPksColumns = ({ instansi, users, deleteKontrakPks, showActions =
         const contract = row.original
 
         return (
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="h-8 w-8 p-0">
-                <span className="sr-only">Open menu</span>
-                <MoreHorizontal className="h-4 w-4" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuLabel>Actions</DropdownMenuLabel>
-              <DropdownMenuItem onClick={() => navigator.clipboard.writeText(contract.id)}>
-                Copy ID
-              </DropdownMenuItem>
-               <ContractForm contractToEdit={contract} contractType="pks">
-                 <DropdownMenuItem onSelect={(e) => e.preventDefault()}>Edit Kontrak</DropdownMenuItem>
-              </ContractForm>
-              <DeleteConfirmation 
-                onConfirm={() => deleteKontrakPks(contract.id)}
-                itemName={contract.judulKontrak}
-              >
-                <DropdownMenuItem onSelect={(e) => e.preventDefault()} className="text-destructive">
-                  Hapus
+          <div className="text-center">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" className="h-8 w-8 p-0">
+                  <span className="sr-only">Open menu</span>
+                  <MoreHorizontal className="h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                <DropdownMenuItem onClick={() => navigator.clipboard.writeText(contract.id)}>
+                  Copy ID
                 </DropdownMenuItem>
-              </DeleteConfirmation>
-            </DropdownMenuContent>
-          </DropdownMenu>
+                <ContractForm contractToEdit={contract} contractType="pks">
+                  <DropdownMenuItem onSelect={(e) => e.preventDefault()}>Edit Kontrak</DropdownMenuItem>
+                </ContractForm>
+                <DeleteConfirmation 
+                  onConfirm={() => deleteKontrakPks(contract.id)}
+                  itemName={contract.judulKontrak}
+                >
+                  <DropdownMenuItem onSelect={(e) => e.preventDefault()} className="text-destructive">
+                    Hapus
+                  </DropdownMenuItem>
+                </DeleteConfirmation>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
         )
       },
+      size: 50,
     });
   }
   
