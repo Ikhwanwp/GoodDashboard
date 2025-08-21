@@ -83,14 +83,3 @@
     font-feature-settings: "cv02", "cv03", "cv04", "cv11";
   }
 }
-
-@layer utilities {
-  @keyframes pulse-horizontal {
-    50% {
-      transform: translateX(3px);
-    }
-  }
-  .animate-pulse-horizontal {
-      animation: pulse-horizontal 1.5s ease-in-out infinite;
-  }
-}

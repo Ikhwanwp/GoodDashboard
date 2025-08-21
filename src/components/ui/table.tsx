@@ -10,35 +10,40 @@ const Table = React.forwardRef<
   const tableContainerRef = React.useRef<HTMLDivElement>(null);
   const [showIndicator, setShowIndicator] = React.useState(false);
 
+  // Use a ResizeObserver to detect changes in the container or table size
   React.useEffect(() => {
+    const el = tableContainerRef.current;
+
     const checkScroll = () => {
-      const el = tableContainerRef.current;
       if (el) {
         const hasOverflow = el.scrollWidth > el.clientWidth;
-        const isScrolledToEnd = el.scrollWidth - el.scrollLeft <= el.clientWidth + 5; // +5 for tolerance
+        const isScrolledToEnd = Math.abs(el.scrollWidth - el.scrollLeft - el.clientWidth) < 1;
         setShowIndicator(hasOverflow && !isScrolledToEnd);
       }
     };
+    
+    if (!el) return;
 
-    const currentRef = tableContainerRef.current;
-    if (currentRef) {
-        // Initial check
-        checkScroll();
-        // Listen for scroll events
-        currentRef.addEventListener('scroll', checkScroll);
-        // Also check on window resize
-        window.addEventListener('resize', checkScroll);
+    // Check on mount and on scroll
+    checkScroll();
+    el.addEventListener('scroll', checkScroll);
 
-        // Check again after a short delay to account for rendering variations
-        const timer = setTimeout(checkScroll, 150);
-
-        return () => {
-            currentRef.removeEventListener('scroll', checkScroll);
-            window.removeEventListener('resize', checkScroll);
-            clearTimeout(timer);
-        };
+    // Use ResizeObserver to automatically check when size changes
+    const resizeObserver = new ResizeObserver(checkScroll);
+    resizeObserver.observe(el);
+    
+    // Also observe the table itself if it's a child
+    const tableEl = el.querySelector('table');
+    if (tableEl) {
+      resizeObserver.observe(tableEl);
     }
-  }, []);
+
+
+    return () => {
+      el.removeEventListener('scroll', checkScroll);
+      resizeObserver.disconnect();
+    };
+  }, []); // Empty dependency array ensures this runs once on mount and cleans up on unmount
 
   return (
     <div className="relative w-full">
@@ -50,7 +55,7 @@ const Table = React.forwardRef<
         />
       </div>
       {showIndicator && (
-        <div className="absolute top-0 right-0 h-full w-12 bg-gradient-to-l from-background to-transparent flex items-center justify-end pointer-events-none">
+        <div className="absolute top-0 right-0 h-full w-12 bg-gradient-to-l from-background via-background/80 to-transparent flex items-center justify-end pointer-events-none">
             <ChevronRight className="h-6 w-6 text-primary animate-pulse-horizontal" />
         </div>
       )}
