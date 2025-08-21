@@ -159,7 +159,7 @@ function AuthWrapper({ children }: { children: React.ReactNode }) {
           <div className="flex justify-end p-2 md:hidden">
             <SidebarTrigger />
           </div>
-           <div className="flex items-center gap-2 p-2">
+           <div className="flex items-center gap-2 p-2 overflow-hidden">
                 <SidebarTrigger className="hidden md:flex" />
             </div>
           {children}
