@@ -1,3 +1,4 @@
+
 "use client";
 
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -25,6 +26,7 @@ export function ReminderList() {
     .sort((a, b) => a.daysLeft - b.daysLeft);
 
   const getPicName = (picId: string) => users.find(u => u.id === picId)?.nama || 'N/A';
+  const getInstansiKode = (instansiId: string) => instansi.find(i => i.id === instansiId)?.kodeInstansi || 'N/A';
   
   const getDaysLeftColor = (days: number) => {
     if (days < 30) return "bg-destructive text-destructive-foreground";
@@ -48,16 +50,17 @@ export function ReminderList() {
                     <AlertTriangle className="h-5 w-5" />
                   </div>
                   <div className="flex-1">
-                    <div className="flex items-center gap-2">
-                      <p className="font-semibold">{'judulKontrak' in contract ? contract.judulKontrak : contract.isiMou}</p>
+                    <div className="flex items-center gap-2 mb-1">
+                      <p className="font-semibold">{getInstansiKode(contract.instansiId)}</p>
                       <Badge variant={contract.type === 'PKS' ? 'default' : 'secondary'}>{contract.type}</Badge>
                     </div>
-                    <div className="text-sm text-muted-foreground space-y-1 mt-1">
+                     <p className="text-sm text-muted-foreground font-medium">{'judulKontrak' in contract ? contract.judulKontrak : contract.isiMou}</p>
+                    <div className="text-sm text-muted-foreground space-y-1 mt-2">
                       <p className="flex items-center gap-2"><CalendarClock className="h-4 w-4" /> Berakhir pada: {format(contract.tanggalBerakhir, 'dd MMMM yyyy', { locale: id })}</p>
                       <p className="flex items-center gap-2"><User className="h-4 w-4" /> PIC GA: {getPicName(contract.picGaId)}</p>
                     </div>
                   </div>
-                   <div className={`text-sm font-bold ml-auto px-2 py-1 rounded-md ${getDaysLeftColor(contract.daysLeft)}`}>
+                   <div className={`text-sm font-bold ml-auto px-2 py-1 rounded-md self-start ${getDaysLeftColor(contract.daysLeft)}`}>
                     {contract.daysLeft} hari lagi
                   </div>
                 </li>
