@@ -57,6 +57,7 @@ Stores details for PKS (Perjanjian Kerja Sama) contracts.
   - `nomorKontrakPeruri`: `string`
   - `nomorKontrakKl`: `string`
   - `judulKontrak`: `string`
+  - `nominal`: `number` (e.g., 50000000)
   - `tanggalMulai`: `timestamp`
   - `tanggalBerakhir`: `timestamp`
   - `picGaId`: `string` (Reference to a document ID in the `users` collection)
@@ -75,12 +76,14 @@ Stores details for MoU (Memorandum of Understanding) contracts.
 - **Fields**:
   - `instansiId`: `string` (Reference to a document ID in the `instansi` collection)
   - `nomorMouPeruri`: `string`
+  - `nomorMouKl`: `string`
   - `isiMou`: `string`
   - `tanggalMulai`: `timestamp`
   - `tanggalBerakhir`: `timestamp`
   - `picGaId`: `string` (Reference to a document ID in the `users` collection)
   - `ruangLingkup`: `string`
   - `keterangan`: `string`
+  - `statusKontrak`: `string` ("Aktif", "Berakhir")
 
 ---
 
@@ -113,4 +116,3 @@ Stores work status updates for each institution.
   - `linkMom`: `string` (Optional URL to Meeting Minutes)
   - `type`: `string` (Optional, from AI classification)
   - `subject`: `string` (Optional, from AI classification)
-
