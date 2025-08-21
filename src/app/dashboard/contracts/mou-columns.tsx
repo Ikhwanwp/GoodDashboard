@@ -1,3 +1,4 @@
+
 // src/app/dashboard/contracts/mou-columns.tsx
 "use client"
 
@@ -85,7 +86,7 @@ export const getMouColumns = ({ instansi, users, deleteKontrakMou, showActions =
         const pic = users.find(u => u.id === row.original.picGaId);
         return <div>{pic?.nama || 'N/A'}</div>;
       },
-      size: 140,
+      size: 100,
     },
     {
       accessorKey: "statusKontrak",
@@ -127,7 +128,7 @@ export const getMouColumns = ({ instansi, users, deleteKontrakMou, showActions =
         )
       },
       cell: ({ row }) => format(row.original.tanggalMulai, "dd MMM yyyy"),
-      size: 120,
+      size: 110,
     },
     {
       accessorKey: "tanggalBerakhir",
@@ -143,7 +144,7 @@ export const getMouColumns = ({ instansi, users, deleteKontrakMou, showActions =
         )
       },
       cell: ({ row }) => format(row.original.tanggalBerakhir, "dd MMM yyyy"),
-      size: 120,
+      size: 110,
     },
      {
       id: "sisaHari",
@@ -172,7 +173,7 @@ export const getMouColumns = ({ instansi, users, deleteKontrakMou, showActions =
         return <Badge className={cn("whitespace-nowrap", colorClass)}>Dalam {daysLeft} hari lagi</Badge>
       },
       sortingFn: customMouSortingFn,
-      size: 140,
+      size: 120,
     },
     {
       accessorKey: "linkDokumen",

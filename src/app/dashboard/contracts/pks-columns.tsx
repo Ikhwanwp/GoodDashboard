@@ -1,3 +1,4 @@
+
 // src/app/dashboard/contracts/pks-columns.tsx
 "use client"
 
@@ -101,7 +102,7 @@ export const getPksColumns = ({ instansi, users, deleteKontrakPks, showActions =
         const pic = users.find(u => u.id === row.original.picGaId);
         return <div>{pic?.nama || 'N/A'}</div>;
       },
-      size: 140,
+      size: 100,
     },
     {
       accessorKey: "statusKontrak",
@@ -143,7 +144,7 @@ export const getPksColumns = ({ instansi, users, deleteKontrakPks, showActions =
         )
       },
       cell: ({ row }) => format(row.original.tanggalMulai, "dd MMM yyyy"),
-      size: 120,
+      size: 110,
     },
     {
       accessorKey: "tanggalBerakhir",
@@ -159,7 +160,7 @@ export const getPksColumns = ({ instansi, users, deleteKontrakPks, showActions =
         )
       },
       cell: ({ row }) => format(row.original.tanggalBerakhir, "dd MMM yyyy"),
-      size: 120,
+      size: 110,
     },
     {
       id: "sisaHari",
@@ -187,7 +188,7 @@ export const getPksColumns = ({ instansi, users, deleteKontrakPks, showActions =
 
         return <Badge className={cn("whitespace-nowrap", colorClass)}>Dalam {daysLeft} hari lagi</Badge>
       },
-       size: 140,
+       size: 120,
     },
     {
       accessorKey: "linkDokumen",
