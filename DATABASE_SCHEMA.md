@@ -113,3 +113,4 @@ Stores work status updates for each institution.
   - `linkMom`: `string` (Optional URL to Meeting Minutes)
   - `type`: `string` (Optional, from AI classification)
   - `subject`: `string` (Optional, from AI classification)
+
