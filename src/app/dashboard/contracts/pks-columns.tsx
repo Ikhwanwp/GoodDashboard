@@ -68,7 +68,7 @@ export const getPksColumns = ({ instansi, users, deleteKontrakPks, showActions =
     {
       accessorKey: "nomorKontrakPeruri",
       header: "Nomor Kontrak",
-      size: 150,
+      size: 140,
     },
     {
       accessorKey: "instansiId",
@@ -81,7 +81,7 @@ export const getPksColumns = ({ instansi, users, deleteKontrakPks, showActions =
         const i = instansi.find(i => i.id === row.original.instansiId);
         return i?.namaInstansi.toLowerCase().includes(value.toLowerCase()) || false;
       },
-       size: 120,
+       size: 110,
     },
     {
       accessorKey: "judulKontrak",
@@ -101,7 +101,7 @@ export const getPksColumns = ({ instansi, users, deleteKontrakPks, showActions =
         const pic = users.find(u => u.id === row.original.picGaId);
         return <div>{pic?.nama || 'N/A'}</div>;
       },
-      size: 180,
+      size: 160,
     },
     {
       accessorKey: "statusKontrak",
@@ -187,7 +187,7 @@ export const getPksColumns = ({ instansi, users, deleteKontrakPks, showActions =
 
         return <Badge className={cn("whitespace-nowrap", colorClass)}>Dalam {daysLeft} hari lagi</Badge>
       },
-       size: 150,
+       size: 140,
     },
     {
       accessorKey: "linkDokumen",
