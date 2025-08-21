@@ -19,6 +19,7 @@ import {
   Briefcase,
   Sparkles,
   Banknote,
+  PanelLeft,
 } from "lucide-react";
 
 import {
@@ -161,6 +162,9 @@ function AuthWrapper({ children }: { children: React.ReactNode }) {
           <div className="flex justify-end p-2 md:hidden">
             <SidebarTrigger />
           </div>
+           <div className="flex items-center gap-2 p-2">
+                <SidebarTrigger className="hidden md:flex" />
+            </div>
           {children}
         </SidebarInset>
       </SidebarProvider>
