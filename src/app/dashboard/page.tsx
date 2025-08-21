@@ -1,31 +1,22 @@
+
 "use client";
 
 import { PageHeader } from "@/components/shared/page-header";
 import { SummaryCard } from "@/components/dashboard/summary-card";
 import { ReminderList } from "@/components/dashboard/reminder-list";
-import { Building2, FileText, Handshake, FileArchive, Banknote } from "lucide-react";
+import { Building2, FileText, Handshake } from "lucide-react";
 import { useData } from "@/context/data-context";
 import { Skeleton } from "@/components/ui/skeleton";
+import { FulfillmentWidget } from "@/components/dashboard/fulfillment-widget";
 
 export default function DashboardPage() {
-  const { instansi, kontrakPks, kontrakMou, dokumenSph, loading } = useData();
-  
-  const formatRupiah = (value: number) => {
-    return new Intl.NumberFormat('id-ID', {
-      style: 'currency',
-      currency: 'IDR',
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0,
-    }).format(value);
-  };
+  const { instansi, kontrakPks, kontrakMou, loading } = useData();
 
   if (loading) {
     return (
       <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">
         <PageHeader title="Dashboard" />
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-5">
-          <Skeleton className="h-28 w-full" />
-          <Skeleton className="h-28 w-full" />
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           <Skeleton className="h-28 w-full" />
           <Skeleton className="h-28 w-full" />
           <Skeleton className="h-28 w-full" />
@@ -38,13 +29,12 @@ export default function DashboardPage() {
                  <Skeleton className="h-96 w-full" />
             </div>
         </div>
+        <Skeleton className="h-64 w-full mt-4" />
       </main>
     );
   }
   
-  const activePks = kontrakPks.filter(k => k.statusKontrak === 'Aktif');
-  const activePksCount = activePks.length;
-  const totalNominalAktif = activePks.reduce((total, k) => total + (k.nominal || 0), 0);
+  const activePksCount = kontrakPks.filter(k => k.statusKontrak === 'Aktif').length;
   const expiringContracts = [...kontrakPks, ...kontrakMou].filter(c => c.statusKontrak === 'Aktif' && new Date(c.tanggalBerakhir) < new Date(new Date().setDate(new Date().getDate() + 90))).length;
 
 
@@ -52,7 +42,7 @@ export default function DashboardPage() {
     <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">
       <PageHeader title="Dashboard Government Account" />
 
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
         <SummaryCard 
           title="Total K/L Aktif" 
           value={instansi.length.toString()} 
@@ -64,12 +54,6 @@ export default function DashboardPage() {
           icon={Handshake} 
           variant="active" 
         />
-         <SummaryCard 
-          title="Nilai Kontrak Aktif" 
-          value={formatRupiah(totalNominalAktif)} 
-          icon={Banknote} 
-          variant="active"
-        />
         <SummaryCard 
           title="Kontrak Segera Berakhir" 
           value={expiringContracts.toString()} 
@@ -77,8 +61,18 @@ export default function DashboardPage() {
         />
       </div>
 
-      <div className="grid gap-8 mt-4 lg:grid-cols-1">
-        <ReminderList />
+      <div className="grid gap-8 mt-4 lg:grid-cols-3">
+        <div className="lg:col-span-2">
+          <ReminderList />
+        </div>
+        <div className="lg:col-span-1">
+           {/* Placeholder for Partnership Health Score */}
+           <Skeleton className="h-full w-full" />
+        </div>
+      </div>
+      
+      <div className="mt-4">
+        <FulfillmentWidget />
       </div>
     </main>
   );

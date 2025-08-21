@@ -20,6 +20,7 @@ import {
   Sparkles,
   Banknote,
   PanelLeft,
+  ChevronsRight,
 } from "lucide-react";
 
 import {
@@ -44,6 +45,7 @@ const gaMenuItems = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { href: "/dashboard/instansi", label: "Instansi", icon: Building2 },
   { href: "/dashboard/contracts", label: "Kontrak", icon: Handshake },
+  { href: "/dashboard/fulfillment", label: "Fulfillment", icon: ChevronsRight },
   { href: "/dashboard/updates", label: "Status Updates", icon: MessageSquareQuote },
   { href: "/dashboard/pic", label: "PIC", icon: Contact },
   { href: "/dashboard/timeline", label: "Timeline", icon: Clock },
@@ -52,12 +54,7 @@ const gaMenuItems = [
 
 const baMenuItems = [
   { href: "/dashboard-ba", label: "Dashboard BA", icon: LayoutDashboard },
-  { href: "/dashboard-ba/mitra", label: "Mitra", icon: Handshake },
-  { href: "/dashboard-ba/kerjasama", label: "Kerja Sama", icon: Briefcase },
-  { href: "/dashboard-ba/tasks", label: "Tasks", icon: MessageSquareQuote },
-  { href: "/dashboard-ba/pic", label: "PIC", icon: Contact },
-  { href: "/dashboard-ba/timeline", label: "Timeline BA", icon: Clock },
-  { href: "/dashboard-ba/reminders", label: "Reminders", icon: FileText },
+  { href: "/dashboard/fulfillment", label: "Fulfillment", icon: ChevronsRight },
 ];
 
 function AuthWrapper({ children }: { children: React.ReactNode }) {
@@ -72,13 +69,13 @@ function AuthWrapper({ children }: { children: React.ReactNode }) {
     }
     
     if (currentUser) {
-      const isBaPath = pathname.startsWith('/dashboard-ba');
+      const isBaPath = pathname.startsWith('/dashboard-ba') || pathname.startsWith('/dashboard/fulfillment');
       const isGaPath = pathname.startsWith('/dashboard');
 
       if (currentUser.role === 'BA' && !isBaPath) {
         router.push('/dashboard-ba');
-      } else if (currentUser.role === 'GA' && isBaPath) {
-        router.push('/dashboard');
+      } else if (currentUser.role !== 'BA' && pathname.startsWith('/dashboard-ba')) {
+         router.push('/dashboard');
       }
     }
   }, [currentUser, loading, router, pathname]);
@@ -105,7 +102,7 @@ function AuthWrapper({ children }: { children: React.ReactNode }) {
   const homePath = currentUser.role === 'BA' ? "/dashboard-ba" : "/dashboard";
 
   // If the role and path don't match, show loader while redirecting
-  if ((currentUser.role === 'BA' && !pathname.startsWith('/dashboard-ba')) || (currentUser.role === 'GA' && pathname.startsWith('/dashboard-ba'))) {
+  if ((currentUser.role === 'BA' && !(pathname.startsWith('/dashboard-ba') || pathname.startsWith('/dashboard/fulfillment'))) || (currentUser.role !== 'BA' && pathname.startsWith('/dashboard-ba'))) {
     return (
       <div className="flex h-screen w-full items-center justify-center">
         <Loader2 className="h-8 w-8 animate-spin" />
@@ -130,7 +127,7 @@ function AuthWrapper({ children }: { children: React.ReactNode }) {
                 <SidebarMenuItem key={item.href}>
                   <SidebarMenuButton
                     asChild
-                    isActive={pathname.startsWith(item.href) && (item.href !== '/dashboard' || pathname === '/dashboard')}
+                    isActive={pathname === item.href || (pathname.startsWith(item.href) && item.href !== '/dashboard' && item.href !== '/dashboard-ba')}
                     tooltip={item.label}
                   >
                     <Link href={item.href}>
