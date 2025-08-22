@@ -4,7 +4,7 @@
 import { PageHeader } from "@/components/shared/page-header";
 import { SummaryCard } from "@/components/dashboard/summary-card";
 import { ReminderList } from "@/components/dashboard/reminder-list";
-import { Building2, FileText, Handshake } from "lucide-react";
+import { Building2, FileText, Handshake, Banknote } from "lucide-react";
 import { useData } from "@/context/data-context";
 import { Skeleton } from "@/components/ui/skeleton";
 import { FulfillmentWidget } from "@/components/dashboard/fulfillment-widget";
@@ -16,7 +16,8 @@ export default function DashboardPage() {
     return (
       <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">
         <PageHeader title="Dashboard" />
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+          <Skeleton className="h-28 w-full" />
           <Skeleton className="h-28 w-full" />
           <Skeleton className="h-28 w-full" />
           <Skeleton className="h-28 w-full" />
@@ -34,7 +35,19 @@ export default function DashboardPage() {
     );
   }
   
-  const activePksCount = kontrakPks.filter(k => k.statusKontrak === 'Aktif').length;
+  const activePks = kontrakPks.filter(k => k.statusKontrak === 'Aktif');
+  const activePksCount = activePks.length;
+  const totalActiveRevenue = activePks.reduce((acc, contract) => acc + contract.nominal, 0);
+
+  const formatRupiah = (value: number) => {
+    return new Intl.NumberFormat('id-ID', {
+      style: 'currency',
+      currency: 'IDR',
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0,
+    }).format(value);
+  };
+  
   const expiringContracts = [...kontrakPks, ...kontrakMou].filter(c => c.statusKontrak === 'Aktif' && new Date(c.tanggalBerakhir) < new Date(new Date().setDate(new Date().getDate() + 90))).length;
 
 
@@ -42,7 +55,7 @@ export default function DashboardPage() {
     <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">
       <PageHeader title="Dashboard Government Account" />
 
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <SummaryCard 
           title="Total K/L Aktif" 
           value={instansi.length.toString()} 
@@ -52,7 +65,12 @@ export default function DashboardPage() {
           title="Kontrak PKS Aktif" 
           value={activePksCount.toString()} 
           icon={Handshake} 
-          variant="active" 
+        />
+        <SummaryCard 
+            title="Total Pendapatan Aktif" 
+            value={formatRupiah(totalActiveRevenue)} 
+            icon={Banknote} 
+            variant="active" 
         />
         <SummaryCard 
           title="Kontrak Segera Berakhir" 
