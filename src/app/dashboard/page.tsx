@@ -79,13 +79,13 @@ export default function DashboardPage() {
         />
       </div>
 
-      <div className="grid gap-8 mt-4 lg:grid-cols-3">
-        <div className="lg:col-span-2">
+      <div className="grid gap-8 mt-4 lg:grid-cols-5">
+        <div className="lg:col-span-3">
           <ReminderList />
         </div>
-        <div className="lg:col-span-1">
+        <div className="lg:col-span-2">
            {/* Placeholder for Partnership Health Score */}
-           <Skeleton className="h-full w-full" />
+           <Skeleton className="h-full w-full min-h-[300px]" />
         </div>
       </div>
       
