@@ -21,6 +21,7 @@ import {
   Banknote,
   PanelLeft,
   ChevronsRight,
+  BookOpen,
 } from "lucide-react";
 
 import {
@@ -49,6 +50,7 @@ const gaMenuItems = [
   { href: "/dashboard/updates", label: "Status Updates", icon: MessageSquareQuote },
   { href: "/dashboard/pic", label: "PIC", icon: Contact },
   { href: "/dashboard/timeline", label: "Timeline", icon: Clock },
+  { href: "/dashboard/pengetahuan", label: "Pusat Pengetahuan", icon: BookOpen },
 ];
 
 const baMenuItems = [
@@ -68,13 +70,10 @@ function AuthWrapper({ children }: { children: React.ReactNode }) {
     
     if (currentUser) {
       const isBaPath = pathname.startsWith('/dashboard-ba');
-      const isFulfillmentPath = pathname.startsWith('/dashboard/fulfillment');
-
-      // Allow BA to access their dashboard and the fulfillment page
-      if (currentUser.role === 'BA' && !isBaPath && !isFulfillmentPath) {
+      
+      if (currentUser.role === 'BA' && !isBaPath) {
         router.push('/dashboard-ba');
       } 
-      // Redirect other roles away from BA dashboard
       else if (currentUser.role !== 'BA' && isBaPath) {
          router.push('/dashboard');
       }
@@ -104,7 +103,7 @@ function AuthWrapper({ children }: { children: React.ReactNode }) {
 
   // Check for path mismatch to show a loader during redirect
   if (
-    (currentUser.role === 'BA' && !pathname.startsWith('/dashboard-ba') && !pathname.startsWith('/dashboard/fulfillment')) ||
+    (currentUser.role === 'BA' && !pathname.startsWith('/dashboard-ba')) ||
     (currentUser.role !== 'BA' && pathname.startsWith('/dashboard-ba'))
   ) {
     return (
@@ -134,8 +133,7 @@ function AuthWrapper({ children }: { children: React.ReactNode }) {
                     asChild
                     isActive={
                       pathname === item.href || 
-                      (pathname.startsWith(item.href) && item.href !== '/dashboard' && item.href !== '/dashboard-ba') ||
-                      (item.href === '/dashboard-ba' && pathname === '/dashboard/fulfillment') // Special case for BA
+                      (pathname.startsWith(item.href) && item.href !== '/dashboard' && item.href !== '/dashboard-ba')
                     }
                     tooltip={item.label}
                   >
