@@ -19,13 +19,14 @@ import type { ColumnDef } from '@tanstack/react-table';
 import type { KontrakPks, KontrakMou, StatusPekerjaan, PicEksternal } from '@/lib/types';
 import { ExternalPicTable } from '../../pic/external-pic-table';
 import { getExternalPicColumns } from '../../pic/external-pic-columns';
-import { User, Sparkles } from 'lucide-react';
+import { User, Sparkles, FilePlus2 } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { summarizeInstansiAction } from '@/lib/actions';
 import { SummaryDisplay } from '@/components/instansi/summary-display';
 import type { SummarizeInstansiOutput } from '@/ai/flows/summarize-instansi-flow';
+import { MomForm } from '@/components/forms/mom-form';
 
 export default function InstansiDetailPage() {
   const params = useParams();
@@ -120,10 +121,18 @@ export default function InstansiDetailPage() {
   return (
     <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">
       <PageHeader title={currentInstansi.namaInstansi}>
-         <Button onClick={handleGenerateSummary} disabled={isGenerating}>
-            <Sparkles className="mr-2 h-4 w-4" />
-            {isGenerating ? "Menghasilkan..." : "Buat Ringkasan AI"}
-        </Button>
+        <div className="flex items-center gap-2">
+            <MomForm instansi={currentInstansi}>
+                 <Button variant="outline">
+                    <FilePlus2 className="mr-2 h-4 w-4" />
+                    Buat MoM
+                 </Button>
+            </MomForm>
+            <Button onClick={handleGenerateSummary} disabled={isGenerating}>
+                <Sparkles className="mr-2 h-4 w-4" />
+                {isGenerating ? "Menghasilkan..." : "Buat Ringkasan AI"}
+            </Button>
+         </div>
       </PageHeader>
       
       <div className="grid gap-8">
