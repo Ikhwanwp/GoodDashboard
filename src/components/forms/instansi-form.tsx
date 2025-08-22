@@ -239,8 +239,8 @@ export function InstansiForm({ children, instansiToEdit }: InstansiFormProps) {
                               setDatePickerOpen(false);
                             }}
                             captionLayout="dropdown-buttons"
-                            fromYear={1945}
-                            toYear={new Date().getFullYear()}
+                            fromDate={new Date("1945-01-01")}
+                            toDate={new Date()}
                             disabled={(date) =>
                               date > new Date() || date < new Date("1900-01-01")
                             }
