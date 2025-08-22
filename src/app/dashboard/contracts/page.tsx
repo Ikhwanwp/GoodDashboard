@@ -1,4 +1,3 @@
-
 "use client";
 
 import { PageHeader } from "@/components/shared/page-header";
@@ -13,6 +12,7 @@ import { useData } from "@/context/data-context";
 import { ContractForm } from "@/components/forms/contract-form";
 import { SphForm } from "@/components/forms/sph-form";
 import { Skeleton } from "@/components/ui/skeleton";
+import { ArchiveDocumentModal } from "@/components/shared/archive-document-modal";
 
 export default function ContractsPage() {
   const { kontrakPks, kontrakMou, dokumenSph, loading, instansi, users, deleteKontrakPks, deleteKontrakMou, deleteDokumenSph } = useData();
@@ -34,6 +34,7 @@ export default function ContractsPage() {
     <main className="flex flex-1 flex-col p-4 md:p-8">
       <PageHeader title="Manajemen Kontrak & SPH">
         <div className="flex items-center gap-2">
+            <ArchiveDocumentModal />
             <SphForm />
             <ContractForm />
         </div>
