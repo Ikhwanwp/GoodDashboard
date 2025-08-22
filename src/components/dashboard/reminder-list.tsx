@@ -21,16 +21,17 @@ export function ReminderList() {
     .sort((a, b) => a.daysLeft - b.daysLeft);
 
   const upcomingBirthdays = instansi
-    .map(i => ({...i, daysLeft: differenceInDays(i.tanggalUlangTahun, now)}))
+    .map(i => ({...i, daysLeft: differenceInDays(new Date(new Date().getFullYear(), i.tanggalUlangTahun.getMonth(), i.tanggalUlangTahun.getDate()), now)}))
     .filter(i => i.daysLeft >= 0 && i.daysLeft <= 30)
     .sort((a, b) => a.daysLeft - b.daysLeft);
+
 
   const getPicName = (picId: string) => users.find(u => u.id === picId)?.nama || 'N/A';
   const getInstansiKode = (instansiId: string) => instansi.find(i => i.id === instansiId)?.kodeInstansi || 'N/A';
   
   const getDaysLeftColor = (days: number) => {
-    if (days < 30) return "bg-destructive text-destructive-foreground";
-    if (days < 60) return "bg-orange-500 text-white";
+    if (days <= 30) return "bg-destructive text-destructive-foreground";
+    if (days <= 60) return "bg-orange-500 text-white";
     return "bg-green-500 text-white";
   }
 
@@ -46,22 +47,22 @@ export function ReminderList() {
             <ul className="space-y-4">
               {expiringContracts.map(contract => (
                 <li key={contract.id} className="flex items-start gap-4 p-3 rounded-lg bg-secondary/50">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 text-primary">
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
                     <AlertTriangle className="h-5 w-5" />
                   </div>
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2 mb-1">
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 mb-1 flex-wrap">
                       <p className="font-semibold">{getInstansiKode(contract.instansiId)}</p>
                       <Badge variant={contract.type === 'PKS' ? 'default' : 'secondary'}>{contract.type}</Badge>
+                      <div className={`text-xs font-bold ml-auto px-2 py-1 rounded-md self-start text-center whitespace-nowrap ${getDaysLeftColor(contract.daysLeft)}`}>
+                        {contract.daysLeft} hari lagi
+                      </div>
                     </div>
-                     <p className="text-sm text-muted-foreground font-medium">{'judulKontrak' in contract ? contract.judulKontrak : contract.isiMou}</p>
+                     <p className="text-sm text-muted-foreground font-medium whitespace-normal">{'judulKontrak' in contract ? contract.judulKontrak : contract.isiMou}</p>
                     <div className="text-sm text-muted-foreground space-y-1 mt-2">
                       <p className="flex items-center gap-2"><CalendarClock className="h-4 w-4" /> Berakhir pada: {format(contract.tanggalBerakhir, 'dd MMMM yyyy', { locale: id })}</p>
                       <p className="flex items-center gap-2"><User className="h-4 w-4" /> PIC GA: {getPicName(contract.picGaId)}</p>
                     </div>
-                  </div>
-                   <div className={`text-sm font-bold ml-auto px-2 py-1 rounded-md self-start ${getDaysLeftColor(contract.daysLeft)}`}>
-                    {contract.daysLeft} hari lagi
                   </div>
                 </li>
               ))}
@@ -87,10 +88,10 @@ export function ReminderList() {
                   </div>
                   <div className="flex-1">
                     <p className="font-semibold">{instansi.namaInstansi}</p>
-                    <p className="text-sm text-muted-foreground mt-1 flex items-center gap-2"><CalendarClock className="h-4 w-4" /> {format(instansi.tanggalUlangTahun, 'dd MMMM yyyy', { locale: id })}</p>
+                    <p className="text-sm text-muted-foreground mt-1 flex items-center gap-2"><CalendarClock className="h-4 w-4" /> {format(instansi.tanggalUlangTahun, 'dd MMMM', { locale: id })}</p>
                   </div>
                   <div className="text-sm font-bold text-accent ml-auto">
-                    {instansi.daysLeft} hari lagi
+                    {instansi.daysLeft === 0 ? "Hari Ini!" : `${instansi.daysLeft} hari lagi`}
                   </div>
                 </li>
               ))}
