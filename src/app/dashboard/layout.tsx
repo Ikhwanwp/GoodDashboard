@@ -53,7 +53,6 @@ const gaMenuItems = [
 
 const baMenuItems = [
   { href: "/dashboard-ba", label: "Dashboard BA", icon: LayoutDashboard },
-  { href: "/dashboard/fulfillment", label: "Tracking Progress Invoice", icon: ChevronsRight },
 ];
 
 function AuthWrapper({ children }: { children: React.ReactNode }) {
@@ -68,12 +67,15 @@ function AuthWrapper({ children }: { children: React.ReactNode }) {
     }
     
     if (currentUser) {
-      const isBaPath = pathname.startsWith('/dashboard-ba') || pathname.startsWith('/dashboard/fulfillment');
-      const isGaPath = pathname.startsWith('/dashboard');
+      const isBaPath = pathname.startsWith('/dashboard-ba');
+      const isFulfillmentPath = pathname.startsWith('/dashboard/fulfillment');
 
-      if (currentUser.role === 'BA' && !isBaPath) {
+      // Allow BA to access their dashboard and the fulfillment page
+      if (currentUser.role === 'BA' && !isBaPath && !isFulfillmentPath) {
         router.push('/dashboard-ba');
-      } else if (currentUser.role !== 'BA' && pathname.startsWith('/dashboard-ba')) {
+      } 
+      // Redirect other roles away from BA dashboard
+      else if (currentUser.role !== 'BA' && isBaPath) {
          router.push('/dashboard');
       }
     }
@@ -100,14 +102,18 @@ function AuthWrapper({ children }: { children: React.ReactNode }) {
   const logoText = currentUser.role === 'BA' ? "BA Monitor" : "Govtech Dashboard";
   const homePath = currentUser.role === 'BA' ? "/dashboard-ba" : "/dashboard";
 
-  // If the role and path don't match, show loader while redirecting
-  if ((currentUser.role === 'BA' && !(pathname.startsWith('/dashboard-ba') || pathname.startsWith('/dashboard/fulfillment'))) || (currentUser.role !== 'BA' && pathname.startsWith('/dashboard-ba'))) {
+  // Check for path mismatch to show a loader during redirect
+  if (
+    (currentUser.role === 'BA' && !pathname.startsWith('/dashboard-ba') && !pathname.startsWith('/dashboard/fulfillment')) ||
+    (currentUser.role !== 'BA' && pathname.startsWith('/dashboard-ba'))
+  ) {
     return (
       <div className="flex h-screen w-full items-center justify-center">
         <Loader2 className="h-8 w-8 animate-spin" />
       </div>
     );
   }
+
 
   return (
       <SidebarProvider>
@@ -126,7 +132,11 @@ function AuthWrapper({ children }: { children: React.ReactNode }) {
                 <SidebarMenuItem key={item.href}>
                   <SidebarMenuButton
                     asChild
-                    isActive={pathname === item.href || (pathname.startsWith(item.href) && item.href !== '/dashboard' && item.href !== '/dashboard-ba')}
+                    isActive={
+                      pathname === item.href || 
+                      (pathname.startsWith(item.href) && item.href !== '/dashboard' && item.href !== '/dashboard-ba') ||
+                      (item.href === '/dashboard-ba' && pathname === '/dashboard/fulfillment') // Special case for BA
+                    }
                     tooltip={item.label}
                   >
                     <Link href={item.href}>
