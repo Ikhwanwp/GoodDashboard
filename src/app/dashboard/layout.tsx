@@ -49,7 +49,6 @@ const gaMenuItems = [
   { href: "/dashboard/updates", label: "Status Updates", icon: MessageSquareQuote },
   { href: "/dashboard/pic", label: "PIC", icon: Contact },
   { href: "/dashboard/timeline", label: "Timeline", icon: Clock },
-  { href: "/dashboard/ask-ai", label: "Ask AI", icon: Sparkles },
 ];
 
 const baMenuItems = [

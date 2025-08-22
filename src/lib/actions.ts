@@ -2,7 +2,6 @@
 
 import { classifyStatusUpdate } from '@/ai/flows/classify-status-update';
 import { summarizeInstansi } from '@/ai/flows/summarize-instansi-flow';
-import { askKnowledgeAgent } from '@/ai/flows/knowledge-agent-flow';
 import { z } from 'zod';
 
 const classifySchema = z.object({
@@ -54,20 +53,5 @@ export async function summarizeInstansiAction(data: z.infer<typeof summarizeSche
         console.error(e);
         const errorMessage = e instanceof Error ? e.message : 'An unknown error occurred.';
         return { success: false, error: `Failed to generate summary using AI: ${errorMessage}` };
-    }
-}
-
-export async function askKnowledgeAgentAction(question: string) {
-    if (!question.trim()) {
-        return { success: false, error: 'Question cannot be empty.' };
-    }
-
-    try {
-        const result = await askKnowledgeAgent(question);
-        return { success: true, data: result };
-    } catch (e) {
-        console.error(e);
-        const errorMessage = e instanceof Error ? e.message : 'An unknown error occurred.';
-        return { success: false, error: `Failed to get answer from AI: ${errorMessage}` };
     }
 }
