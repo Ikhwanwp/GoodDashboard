@@ -21,7 +21,8 @@ export function ReminderList() {
     .sort((a, b) => a.daysLeft - b.daysLeft);
 
   const upcomingBirthdays = instansi
-    .map(i => ({...i, daysLeft: differenceInDays(new Date(new Date().getFullYear(), i.tanggalUlangTahun.getMonth(), i.tanggalUlangTahun.getDate()), now)}))
+    .filter(i => !!i.tanggalUlangTahun) // Filter out instansi without a birthday
+    .map(i => ({...i, daysLeft: differenceInDays(new Date(new Date().getFullYear(), i.tanggalUlangTahun!.getMonth(), i.tanggalUlangTahun!.getDate()), now)}))
     .filter(i => i.daysLeft >= 0 && i.daysLeft <= 30)
     .sort((a, b) => a.daysLeft - b.daysLeft);
 
@@ -88,7 +89,7 @@ export function ReminderList() {
                   </div>
                   <div className="flex-1">
                     <p className="font-semibold">{instansi.namaInstansi}</p>
-                    <p className="text-sm text-muted-foreground mt-1 flex items-center gap-2"><CalendarClock className="h-4 w-4" /> {format(instansi.tanggalUlangTahun, 'dd MMMM', { locale: id })}</p>
+                    <p className="text-sm text-muted-foreground mt-1 flex items-center gap-2"><CalendarClock className="h-4 w-4" /> {instansi.tanggalUlangTahun ? format(instansi.tanggalUlangTahun, 'dd MMMM', { locale: id }) : 'N/A'}</p>
                   </div>
                   <div className="text-sm font-bold text-accent ml-auto">
                     {instansi.daysLeft === 0 ? "Hari Ini!" : `${instansi.daysLeft} hari lagi`}
@@ -104,3 +105,4 @@ export function ReminderList() {
     </div>
   );
 }
+
