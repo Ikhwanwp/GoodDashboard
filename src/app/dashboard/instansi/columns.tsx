@@ -68,19 +68,6 @@ export const InstansiColumns = (): ColumnDef<Instansi>[] => {
       cell: ({ row }) => <div className="font-medium">{row.original.namaInstansi}</div>,
     },
     {
-      accessorKey: "statusKementrian",
-      header: "Status",
-      cell: ({ row }) => {
-        const status = row.original.statusKementrian;
-        return (
-          <Badge variant={status === "STG Prioritas" ? "default" : "secondary"}>
-            {status}
-          </Badge>
-        )
-      },
-      size: 120,
-    },
-    {
       accessorKey: "jenisLayanan",
       header: "Jenis Layanan",
        size: 150,
