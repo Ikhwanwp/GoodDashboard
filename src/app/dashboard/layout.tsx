@@ -50,12 +50,9 @@ const gaMenuItems = [
   { href: "/dashboard/updates", label: "Status Updates", icon: MessageSquareQuote },
   { href: "/dashboard/pic", label: "PIC", icon: Contact },
   { href: "/dashboard/timeline", label: "Timeline", icon: Clock },
-  { href: "/dashboard/pengetahuan", label: "Pusat Pengetahuan", icon: BookOpen },
 ];
 
-const baMenuItems = [
-  { href: "/dashboard-ba", label: "Dashboard BA", icon: LayoutDashboard },
-];
+const baMenuItems = [];
 
 function AuthWrapper({ children }: { children: React.ReactNode }) {
   const { currentUser, loading, logout } = useData();
