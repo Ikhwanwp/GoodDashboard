@@ -10,13 +10,14 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { FulfillmentWidget } from "@/components/dashboard/fulfillment-widget";
 
 export default function DashboardPage() {
-  const { instansi, kontrakPks, kontrakMou, loading } = useData();
+  const { instansi, kontrakPks, kontrakMou, dokumenSph, loading } = useData();
 
   if (loading) {
     return (
       <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">
         <PageHeader title="Dashboard" />
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-5">
+          <Skeleton className="h-28 w-full" />
           <Skeleton className="h-28 w-full" />
           <Skeleton className="h-28 w-full" />
           <Skeleton className="h-28 w-full" />
@@ -55,7 +56,7 @@ export default function DashboardPage() {
     <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">
       <PageHeader title="Dashboard Government Account" />
 
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-5">
         <SummaryCard 
           title="Total K/L Aktif" 
           value={instansi.length.toString()} 
@@ -67,15 +68,20 @@ export default function DashboardPage() {
           icon={Handshake} 
         />
         <SummaryCard 
-            title="Total Pendapatan Aktif" 
-            value={formatRupiah(totalActiveRevenue)} 
-            icon={Banknote} 
-            variant="active" 
-        />
-        <SummaryCard 
           title="Kontrak Segera Berakhir" 
           value={expiringContracts.toString()} 
           icon={FileText} 
+        />
+         <SummaryCard 
+          title="Jumlah SPH" 
+          value={dokumenSph.length.toString()} 
+          icon={FileText} 
+        />
+        <SummaryCard 
+            title="Total Pendapatan" 
+            value={formatRupiah(totalActiveRevenue)} 
+            icon={Banknote} 
+            variant="active" 
         />
       </div>
 
