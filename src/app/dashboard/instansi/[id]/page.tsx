@@ -113,8 +113,8 @@ export default function InstansiDetailPage() {
     );
   }
   
-  const pksDetailColumns = getPksColumns({ instansi, deleteKontrakPks, showActions: false });
-  const mouDetailColumns = getMouColumns({ instansi, deleteKontrakMou, showActions: false });
+  const pksDetailColumns = getPksColumns({ instansi, users, deleteKontrakPks, showActions: false });
+  const mouDetailColumns = getMouColumns({ instansi, users, deleteKontrakMou, showActions: false });
   const updatesDetailColumns = getUpdatesColumns({ instansi, deleteStatusPekerjaan, showActions: false });
   const externalPicDetailColumns = getExternalPicColumns({ instansi, deletePicEksternal, showActions: false });
 
