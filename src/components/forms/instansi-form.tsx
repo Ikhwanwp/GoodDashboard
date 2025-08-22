@@ -127,7 +127,6 @@ export function InstansiForm({ children, instansiToEdit }: InstansiFormProps) {
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>{trigger}</DialogTrigger>
 
-      {/* batas tinggi + layout kolom bersih */}
       <DialogContent className="sm:max-w-lg h-[85vh] overflow-hidden p-0 flex flex-col">
         <DialogHeader className="px-6 pt-6">
           <DialogTitle>{isEditMode ? "Edit Instansi" : "Tambah Instansi Baru"}</DialogTitle>
@@ -139,13 +138,11 @@ export function InstansiForm({ children, instansiToEdit }: InstansiFormProps) {
         </DialogHeader>
 
         <Form {...form}>
-          {/* container tengah harus bisa menyusut */}
           <form
             id="instansi-form"
             onSubmit={form.handleSubmit(onSubmit)}
             className="flex-1 min-h-0 overflow-hidden"
           >
-            {/* hanya ScrollArea yang pegang scroll */}
             <ScrollArea className="h-full">
               <div className="space-y-4 py-4 pr-6 pl-6">
                 <FormField
@@ -233,8 +230,7 @@ export function InstansiForm({ children, instansiToEdit }: InstansiFormProps) {
                             </Button>
                           </FormControl>
                         </PopoverTrigger>
-                        {/* popover compact + calendar minimal */}
-                        <PopoverContent align="start" sideOffset={6} className="w-[280px] p-0 rounded-xl shadow-lg">
+                        <PopoverContent align="start" className="w-auto p-0">
                           <Calendar
                             mode="single"
                             selected={field.value}
@@ -242,37 +238,13 @@ export function InstansiForm({ children, instansiToEdit }: InstansiFormProps) {
                               field.onChange(date);
                               setDatePickerOpen(false);
                             }}
-                            captionLayout="buttons"     // header ringkas (tanpa Month/Year labels)
-                            showOutsideDays={false}     // hanya tanggal dalam bulan
+                            captionLayout="dropdown-buttons"
                             fromYear={1945}
                             toYear={new Date().getFullYear()}
                             disabled={(date) =>
                               date > new Date() || date < new Date("1900-01-01")
                             }
                             initialFocus
-                            className="p-2"
-                            classNames={{
-                              months: "flex",
-                              month: "space-y-2",
-                              caption: "flex items-center justify-between px-1",
-                              caption_label: "text-sm font-medium",
-                              nav: "flex items-center gap-1",
-                              nav_button:
-                                "h-7 w-7 rounded-md hover:bg-accent focus:outline-none focus:ring-2 focus:ring-ring",
-                              table: "w-full border-collapse",
-                              head_row: "grid grid-cols-7 px-1",
-                              head_cell:
-                                "text-[11px] font-medium text-muted-foreground text-center py-1",
-                              row: "grid grid-cols-7 gap-y-1",
-                              cell: "text-center",
-                              day:
-                                "h-8 w-8 rounded-md text-sm hover:bg-accent focus:outline-none focus:ring-2 focus:ring-ring",
-                              day_today: "ring-1 ring-primary",
-                              day_selected:
-                                "bg-primary text-primary-foreground hover:bg-primary focus:bg-primary",
-                              day_outside: "opacity-40",
-                              day_disabled: "opacity-40",
-                            }}
                           />
                         </PopoverContent>
                       </Popover>
