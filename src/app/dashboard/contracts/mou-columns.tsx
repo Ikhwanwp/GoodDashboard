@@ -212,9 +212,6 @@ export const getMouColumns = ({ instansi, users, deleteKontrakMou, showActions =
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
                 <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                <DropdownMenuItem onClick={() => navigator.clipboard.writeText(contract.id)}>
-                  Copy ID
-                </DropdownMenuItem>
                 <ContractForm contractToEdit={contract} contractType="mou">
                   <DropdownMenuItem onSelect={(e) => e.preventDefault()}>Edit MoU</DropdownMenuItem>
                 </ContractForm>

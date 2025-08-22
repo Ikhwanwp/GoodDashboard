@@ -73,9 +73,6 @@ export const InternalPicColumns = (): ColumnDef<User>[] => {
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
                 <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                <DropdownMenuItem onClick={() => navigator.clipboard.writeText(pic.id)}>
-                  Copy ID
-                </DropdownMenuItem>
                <PicForm picToEdit={pic} picType="internal">
                  <DropdownMenuItem onSelect={(e) => e.preventDefault()}>Edit PIC</DropdownMenuItem>
               </PicForm>

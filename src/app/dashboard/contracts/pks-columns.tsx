@@ -227,9 +227,6 @@ export const getPksColumns = ({ instansi, users, deleteKontrakPks, showActions =
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
                 <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                <DropdownMenuItem onClick={() => navigator.clipboard.writeText(contract.id)}>
-                  Copy ID
-                </DropdownMenuItem>
                 <ContractForm contractToEdit={contract} contractType="pks">
                   <DropdownMenuItem onSelect={(e) => e.preventDefault()}>Edit Kontrak</DropdownMenuItem>
                 </ContractForm>

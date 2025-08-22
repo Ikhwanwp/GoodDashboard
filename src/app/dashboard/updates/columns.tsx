@@ -107,9 +107,6 @@ export const getUpdatesColumns = ({ instansi, deleteStatusPekerjaan, showActions
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
                 <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                <DropdownMenuItem onClick={() => navigator.clipboard.writeText(update.id)}>
-                  Copy ID
-                </DropdownMenuItem>
                 <StatusUpdateForm updateToEdit={update}>
                   <DropdownMenuItem onSelect={(e) => e.preventDefault()}>Edit Update</DropdownMenuItem>
                 </StatusUpdateForm>

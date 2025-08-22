@@ -82,9 +82,6 @@ export const getExternalPicColumns = ({ instansi, deletePicEksternal, showAction
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               <DropdownMenuLabel>Actions</DropdownMenuLabel>
-              <DropdownMenuItem onClick={() => navigator.clipboard.writeText(pic.id)}>
-                Copy ID
-              </DropdownMenuItem>
                <PicForm picToEdit={pic} picType="external">
                  <DropdownMenuItem onSelect={(e) => e.preventDefault()}>Edit PIC</DropdownMenuItem>
               </PicForm>
