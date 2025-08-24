@@ -25,6 +25,7 @@ This collection stores data for each Ministry/Institution (K/L).
 - **Fields**:
   - `kodeInstansi`: `string` (e.g., "KEMENKEU")
   - `namaInstansi`: `string` (e.g., "Kementerian Keuangan")
+  - `pejabatTerkait`: `string` | `null` (e.g., "Sri Mulyani Indrawati")
   - `tanggalUlangTahun`: `timestamp` | `null`
   - `statusKementrian`: `string` ("STG Prioritas", "Non Prioritas")
   - `jenisLayanan`: `string` (e.g., "Digital Seal")

@@ -45,6 +45,7 @@ import { format } from "date-fns";
 const formSchema = z.object({
   namaInstansi: z.string().min(3, "Nama instansi minimal 3 karakter"),
   kodeInstansi: z.string().min(2, "Kode instansi minimal 2 karakter").max(20, "Kode instansi maksimal 20 karakter"),
+  pejabatTerkait: z.string().optional(),
   tanggalUlangTahun: z.date().optional(),
   statusKementrian: z.enum(["STG Prioritas", "Non Prioritas"], { required_error: "Status kementrian harus dipilih" }),
   jenisLayanan: z.string().optional(),
@@ -72,6 +73,7 @@ export function InstansiForm({ children, instansiToEdit }: InstansiFormProps) {
     if (isEditMode && instansiToEdit) {
       form.reset({
         ...instansiToEdit,
+        pejabatTerkait: instansiToEdit.pejabatTerkait || '',
         jenisLayanan: instansiToEdit.jenisLayanan || '',
         tanggalUlangTahun: instansiToEdit.tanggalUlangTahun ? new Date(instansiToEdit.tanggalUlangTahun) : undefined,
       });
@@ -79,6 +81,7 @@ export function InstansiForm({ children, instansiToEdit }: InstansiFormProps) {
       form.reset({
         namaInstansi: "",
         kodeInstansi: "",
+        pejabatTerkait: "",
         jenisLayanan: "",
         statusKementrian: undefined,
         tanggalUlangTahun: undefined,
@@ -167,6 +170,20 @@ export function InstansiForm({ children, instansiToEdit }: InstansiFormProps) {
                       <FormLabel>Kode Instansi</FormLabel>
                       <FormControl>
                         <Input placeholder="cth: KEMENKEU" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="pejabatTerkait"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Pejabat Terkait (Opsional)</FormLabel>
+                      <FormControl>
+                        <Input placeholder="cth: Sri Mulyani Indrawati" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>

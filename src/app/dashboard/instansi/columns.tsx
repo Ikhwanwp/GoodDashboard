@@ -70,6 +70,12 @@ export const InstansiColumns = ({ users }: InstansiColumnsProps): ColumnDef<Inst
       cell: ({ row }) => <div className="font-medium">{row.original.namaInstansi}</div>,
     },
     {
+      accessorKey: "pejabatTerkait",
+      header: "Pejabat Terkait",
+      cell: ({ row }) => <div className="">{row.original.pejabatTerkait || <span className="text-muted-foreground">N/A</span>}</div>,
+      size: 150,
+    },
+    {
       accessorKey: "jenisLayanan",
       header: "Jenis Layanan",
        size: 150,

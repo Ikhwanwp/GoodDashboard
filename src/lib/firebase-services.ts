@@ -57,6 +57,7 @@ export const getInstansi = async (): Promise<Instansi[]> => {
 export const addInstansiToDB = async (data: Partial<Omit<Instansi, 'id' | 'tanggalUpdateTerakhir' | 'internalPicId'>>) => {
     const dataToSave = {
       ...data,
+      pejabatTerkait: data.pejabatTerkait || "",
       tanggalUlangTahun: data.tanggalUlangTahun || null, // Ensure null instead of undefined
       jenisLayanan: data.jenisLayanan || "",
       tanggalUpdateTerakhir: serverTimestamp(),

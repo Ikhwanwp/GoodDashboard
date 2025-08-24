@@ -12,6 +12,7 @@ export interface Instansi {
   id: string;
   kodeInstansi: string;
   namaInstansi: string;
+  pejabatTerkait?: string;
   tanggalUlangTahun: Date | null;
   statusKementrian: "STG Prioritas" | "Non Prioritas";
   jenisLayanan: string;
@@ -23,6 +24,7 @@ export interface InstansiFromDB {
   id: string;
   kodeInstansi: string;
   namaInstansi: string;
+  pejabatTerkait?: string;
   tanggalUlangTahun: Timestamp | null;
   statusKementrian: "STG Prioritas" | "Non Prioritas";
   jenisLayanan: string;
@@ -162,4 +164,3 @@ export interface FulfillmentFromDB extends Omit<Fulfillment, 'lastUpdatedAt' | '
     steps: WorkflowStepFromDB[];
 }
     
-
