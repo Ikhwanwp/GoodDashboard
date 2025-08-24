@@ -35,12 +35,12 @@ const prompt = ai.definePrompt({
   name: 'getPejabatTerkaitPrompt',
   input: {schema: GetPejabatTerkaitInputSchema},
   output: {schema: GetPejabatTerkaitOutputSchema},
-  prompt: `You are an expert on the current structure of the Indonesian government.
-Given the name of a ministry or government institution (Kementerian/Lembaga), provide the full name of the current minister or head of that institution.
+  prompt: `You are an expert on the current structure of the Indonesian government. Your knowledge is based on the most recent data available up to your last training.
+Given the name of a ministry or government institution (Kementerian/Lembaga), provide the full name of the most current minister or head of that institution according to your latest information. Acknowledge that government cabinets can change.
 
 Institution Name: {{{namaInstansi}}}
 
-Current Minister/Head:`,
+Current Minister/Head based on the latest available data:`,
 });
 
 const getPejabatTerkaitFlow = ai.defineFlow(
