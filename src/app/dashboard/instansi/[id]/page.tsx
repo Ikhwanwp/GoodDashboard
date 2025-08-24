@@ -2,6 +2,7 @@
 // src/app/dashboard/instansi/[id]/page.tsx
 "use client";
 
+import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import { useData } from '@/context/data-context';
 import { PageHeader } from '@/components/shared/page-header';
@@ -19,7 +20,7 @@ import type { ColumnDef } from '@tanstack/react-table';
 import type { KontrakPks, KontrakMou, StatusPekerjaan, PicEksternal } from '@/lib/types';
 import { ExternalPicTable } from '../../pic/external-pic-table';
 import { getExternalPicColumns } from '../../pic/external-pic-columns';
-import { User, Sparkles, FilePlus2 } from 'lucide-react';
+import { User, Sparkles, FilePlus2, ChevronRight } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
@@ -120,6 +121,13 @@ export default function InstansiDetailPage() {
 
   return (
     <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">
+      <div className="flex items-center gap-2 text-sm text-muted-foreground mb-4">
+        <Link href="/dashboard/instansi" className="hover:text-primary">
+          Instansi
+        </Link>
+        <ChevronRight className="h-4 w-4" />
+        <span className="font-semibold text-foreground">{currentInstansi.namaInstansi}</span>
+      </div>
       <PageHeader title={currentInstansi.namaInstansi}>
         <div className="flex items-center gap-2">
             <MomForm instansi={currentInstansi}>
