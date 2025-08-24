@@ -374,7 +374,7 @@ export function PicForm({ children, picToEdit, picType }: PicFormProps) {
                                         <SelectContent>
                                         {instansi.map(inst => (
                                             <SelectItem key={inst.id} value={inst.id}>
-                                            {inst.namaInstansi}
+                                            {inst.kodeInstansi}
                                             </SelectItem>
                                         ))}
                                         </SelectContent>
