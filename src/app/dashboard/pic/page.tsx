@@ -4,27 +4,23 @@
 
 import { PageHeader } from "@/components/shared/page-header";
 import { useData } from "@/context/data-context";
-import { InternalPicTable } from "./internal-pic-table";
-import { InternalPicColumns } from "./internal-pic-columns";
 import { ExternalPicTable } from "./external-pic-table";
 import { getExternalPicColumns } from "./external-pic-columns";
 import { PicForm } from "@/components/forms/pic-form";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 
 
 export default function PicPage() {
-  const { users, instansi, picEksternal, loading, deleteUser, deletePicEksternal } = useData();
+  const { instansi, picEksternal, loading, deletePicEksternal } = useData();
   
   if (loading) {
      return (
        <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">
-        <PageHeader title="Penanggung Jawab (PIC)">
-            <Skeleton className="h-10 w-32" />
+        <PageHeader title="Penanggung Jawab (PIC) Eksternal">
+            <Skeleton className="h-10 w-44" />
         </PageHeader>
         <div className="py-2">
-           <Skeleton className="h-10 w-72 mb-4" />
            <Skeleton className="h-12 w-full mb-4" />
            <Skeleton className="h-96 w-full" />
         </div>
@@ -32,36 +28,24 @@ export default function PicPage() {
      )
   }
 
-  const internalPics = users;
   const externalPics = picEksternal;
 
   return (
     <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">
-      <PageHeader title="Manajemen PIC">
-        <PicForm />
+      <PageHeader title="Manajemen PIC Eksternal">
+        <PicForm picType="external" />
       </PageHeader>
 
       <div className="py-2">
-        <Tabs defaultValue="internal">
-          <TabsList>
-            <TabsTrigger value="internal">PIC Internal (Peruri)</TabsTrigger>
-            <TabsTrigger value="external">PIC Eksternal (K/L)</TabsTrigger>
-          </TabsList>
-          <TabsContent value="internal">
-            <Card className="mt-4">
-              <CardContent className="p-4 md:p-6">
-                <InternalPicTable columns={InternalPicColumns()} data={internalPics} />
-              </CardContent>
-            </Card>
-          </TabsContent>
-          <TabsContent value="external">
-             <Card className="mt-4">
-              <CardContent className="p-4 md:p-6">
-                <ExternalPicTable columns={getExternalPicColumns({ instansi, deletePicEksternal })} data={externalPics} />
-              </CardContent>
-            </Card>
-          </TabsContent>
-        </Tabs>
+         <Card className="mt-4">
+          <CardHeader>
+            <CardTitle>Daftar PIC Eksternal</CardTitle>
+            <CardDescription>Daftar kontak penanggung jawab dari pihak Kementrian/Lembaga.</CardDescription>
+          </CardHeader>
+          <CardContent className="p-4 md:p-6">
+            <ExternalPicTable columns={getExternalPicColumns({ instansi, deletePicEksternal })} data={externalPics} />
+          </CardContent>
+        </Card>
       </div>
     </main>
   );
