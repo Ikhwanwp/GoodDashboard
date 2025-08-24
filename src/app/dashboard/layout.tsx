@@ -10,18 +10,15 @@ import {
   Handshake,
   LayoutDashboard,
   LogOut,
-  Settings,
   Users,
   Clock,
   MessageSquareQuote,
   Contact,
   Loader2,
-  Briefcase,
-  Sparkles,
-  Banknote,
-  PanelLeft,
   ChevronsRight,
   BookOpen,
+  Shield,
+  View,
 } from "lucide-react";
 
 import {
@@ -41,6 +38,12 @@ import { Logo } from "@/components/icons";
 import { Button } from "@/components/ui/button";
 import { DataProvider, useData } from "@/context/data-context";
 import { useEffect } from "react";
+
+const adminMenuItems = [
+  { href: "/admin", label: "Command Center", icon: Shield },
+  { href: "/dashboard", label: "Lihat Dashboard GA", icon: View },
+  { href: "/dashboard-ba", label: "Lihat Dashboard BA", icon: View },
+];
 
 const gaMenuItems = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
@@ -67,11 +70,15 @@ function AuthWrapper({ children }: { children: React.ReactNode }) {
     
     if (currentUser) {
       const isBaPath = pathname.startsWith('/dashboard-ba');
-      
-      if (currentUser.role === 'BA' && !isBaPath) {
+      const isAdminPath = pathname.startsWith('/admin');
+
+      if (currentUser.role === 'Admin' && !isAdminPath) {
+        router.push('/admin');
+      }
+      else if (currentUser.role === 'BA' && !isBaPath) {
         router.push('/dashboard-ba');
       } 
-      else if (currentUser.role !== 'BA' && isBaPath) {
+      else if (currentUser.role === 'GA' && (isBaPath || isAdminPath)) {
          router.push('/dashboard');
       }
     }
@@ -93,17 +100,39 @@ function AuthWrapper({ children }: { children: React.ReactNode }) {
     await logout();
     router.push('/login');
   }
+  
+  let menuItems;
+  let logoText;
+  let homePath;
 
-  const menuItems = currentUser.role === 'BA' ? baMenuItems : gaMenuItems;
-  const logoText = currentUser.role === 'BA' ? "BA Monitor" : "Govtech Dashboard";
-  const homePath = currentUser.role === 'BA' ? "/dashboard-ba" : "/dashboard";
-
-  // Check for path mismatch to show a loader during redirect
+  switch (currentUser.role) {
+    case 'Admin':
+      menuItems = adminMenuItems;
+      logoText = "Admin Center";
+      homePath = "/admin";
+      break;
+    case 'BA':
+      menuItems = baMenuItems;
+      logoText = "BA Monitor";
+      homePath = "/dashboard-ba";
+      break;
+    default: // GA and Viewer
+      menuItems = gaMenuItems;
+      logoText = "Govtech Dashboard";
+      homePath = "/dashboard";
+      break;
+  }
+  
+  const isBaPath = pathname.startsWith('/dashboard-ba');
+  const isAdminPath = pathname.startsWith('/admin');
+  
+  // Role-based redirect loading state
   if (
-    (currentUser.role === 'BA' && !pathname.startsWith('/dashboard-ba')) ||
-    (currentUser.role !== 'BA' && pathname.startsWith('/dashboard-ba'))
+    (currentUser.role === 'Admin' && !isAdminPath) ||
+    (currentUser.role === 'BA' && !isBaPath) ||
+    (currentUser.role === 'GA' && (isBaPath || isAdminPath))
   ) {
-    return (
+     return (
       <div className="flex h-screen w-full items-center justify-center">
         <Loader2 className="h-8 w-8 animate-spin" />
       </div>
@@ -130,7 +159,7 @@ function AuthWrapper({ children }: { children: React.ReactNode }) {
                     asChild
                     isActive={
                       pathname === item.href || 
-                      (pathname.startsWith(item.href) && item.href !== '/dashboard' && item.href !== '/dashboard-ba')
+                      (pathname.startsWith(item.href) && item.href !== '/dashboard' && item.href !== '/dashboard-ba' && item.href !== '/admin')
                     }
                     tooltip={item.label}
                   >
