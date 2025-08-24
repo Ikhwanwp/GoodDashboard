@@ -109,11 +109,30 @@ export function InstansiForm({ children, instansiToEdit }: InstansiFormProps) {
     const result = await getPejabatTerkaitAction({ namaInstansi: namaInstansiValue });
     
     if (result.success && result.data) {
-      form.setValue("pejabatTerkait", result.data.namaPejabat, { shouldValidate: true });
-      toast({
-        title: "Berhasil!",
-        description: `Pejabat untuk ${namaInstansiValue} berhasil ditemukan.`,
-      });
+      const namaPejabat = result.data.namaPejabat;
+      form.setValue("pejabatTerkait", namaPejabat, { shouldValidate: true });
+
+      // If in edit mode, save the change immediately
+      if (isEditMode && instansiToEdit) {
+        try {
+          await updateInstansi(instansiToEdit.id, { pejabatTerkait: namaPejabat });
+          toast({
+            title: "Berhasil Disimpan!",
+            description: `Pejabat ${namaPejabat} telah disimpan untuk ${namaInstansiValue}.`,
+          });
+        } catch (error) {
+           toast({
+            variant: "destructive",
+            title: "Gagal Menyimpan",
+            description: "Data pejabat ditemukan, tapi gagal disimpan otomatis. Harap simpan manual.",
+          });
+        }
+      } else {
+         toast({
+          title: "Berhasil!",
+          description: `Pejabat untuk ${namaInstansiValue} berhasil ditemukan. Jangan lupa simpan form.`,
+        });
+      }
     } else {
       toast({
         variant: "destructive",
