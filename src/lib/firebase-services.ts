@@ -24,7 +24,8 @@ import type {
     KontrakMou, KontrakMouFromDB,
     DokumenSph, DokumenSphFromDB,
     StatusPekerjaan, StatusPekerjaanFromDB,
-    PicEksternal
+    PicEksternal,
+    Fulfillment, FulfillmentFromDB, WorkflowStep
 } from './types';
 import type { User as FirebaseUser } from 'firebase/auth';
 
@@ -34,10 +35,16 @@ function convertTimestamps<T>(docData: any): T {
     for (const key in data) {
         if (data[key] instanceof Timestamp) {
             data[key] = data[key].toDate();
+        } else if (Array.isArray(data[key])) {
+            // Recursively convert timestamps in arrays of objects
+            data[key] = data[key].map(item =>
+                (typeof item === 'object' && item !== null) ? convertTimestamps(item) : item
+            );
         }
     }
     return data as T;
 }
+
 
 // --- Instansi Services ---
 const instansiCollection = collection(db, 'instansi');
@@ -80,7 +87,7 @@ export const deleteInstansiFromDB = async (id: string) => {
     batch.delete(instansiRef);
 
     // 2. Query and delete related documents in other collections
-    const collectionsToDeleteFrom = ['kontrakPks', 'kontrakMou', 'dokumenSph', 'statusPekerjaan', 'picEksternal'];
+    const collectionsToDeleteFrom = ['kontrakPks', 'kontrakMou', 'dokumenSph', 'statusPekerjaan', 'picEksternal', 'fulfillment'];
     for (const coll of collectionsToDeleteFrom) {
         const q = query(collection(db, coll), where("instansiId", "==", id));
         const snapshot = await getDocs(q);
@@ -287,4 +294,103 @@ export const updateStatusPekerjaanInDB = async (id: string, data: Partial<Omit<S
 export const deleteStatusPekerjaanFromDB = async (id: string) => {
     const docRef = doc(db, 'statusPekerjaan', id);
     return await deleteDoc(docRef);
+}
+
+// --- Fulfillment Services ---
+const fulfillmentCollection = collection(db, 'fulfillment');
+const defaultWorkflowSteps: Omit<WorkflowStep, 'completedAt' | 'completedBy' | 'refNumber' | 'notes' | 'linkDokumen'>[] = [
+  { "name": "Kontrak K/L", "role": "GA", "status": "pending" },
+  { "name": "Kode Produk", "role": "GA", "status": "pending" },
+  { "name": "Sales Order (SO)", "role": "GA", "status": "pending" },
+  { "name": "Purchase Req. (PR)", "role": "BA", "status": "pending" },
+  { "name": "Purchase Order (PO)", "role": "BA", "status": "pending" },
+  { "name": "Surat Perintah Kerja (SPK)", "role": "BA", "status": "pending" },
+  { "name": "Goods Receipt (GR)", "role": "BA", "status": "pending" },
+  { "name": "Berita Acara Serah Terima (BAST)", "role": "GA", "status": "pending" },
+  { "name": "Surat Tanda Terima Jaminan (STTJ)", "role": "GA", "status": "pending" },
+  { "name": "Delivery Order (DO)", "role": "GA", "status": "pending" },
+  { "name": "Invoicing", "role": "GA", "status": "pending" }
+];
+
+
+export const getFulfillments = async (): Promise<Fulfillment[]> => {
+    const snapshot = await getDocs(fulfillmentCollection);
+    return snapshot.docs.map(doc => convertTimestamps<Fulfillment>({ ...doc.data(), id: doc.id } as FulfillmentFromDB));
+}
+
+export const getOrCreateFulfillment = async (kontrakId: string): Promise<Fulfillment> => {
+    const docRef = doc(db, 'fulfillment', kontrakId);
+    const docSnap = await getDoc(docRef);
+
+    if (docSnap.exists()) {
+        return convertTimestamps<Fulfillment>({ ...docSnap.data(), id: docSnap.id } as FulfillmentFromDB);
+    } else {
+        const newFulfillment: Omit<Fulfillment, 'id'> = {
+            kontrakId,
+            currentStep: 0,
+            lastUpdatedAt: new Date(), // Will be replaced by server timestamp
+            steps: defaultWorkflowSteps.map(step => ({
+                ...step,
+                status: step.name === "Kontrak K/L" ? 'active' : 'pending',
+                completedAt: null,
+                completedBy: null,
+                refNumber: null,
+                notes: null,
+                linkDokumen: null,
+            }))
+        };
+        
+        await setDoc(docRef, {
+            ...newFulfillment,
+            lastUpdatedAt: serverTimestamp(),
+        });
+        
+        return {
+            ...newFulfillment,
+            id: kontrakId,
+            lastUpdatedAt: new Date(), // Return current date for immediate use
+        };
+    }
+}
+
+export const updateFulfillmentStep = async (
+    kontrakId: string, 
+    stepIndex: number, 
+    stepData: { refNumber: string; notes: string; userId: string; }
+): Promise<void> => {
+    const docRef = doc(db, 'fulfillment', kontrakId);
+    const docSnap = await getDoc(docRef);
+
+    if (!docSnap.exists()) {
+        throw new Error("Fulfillment document not found.");
+    }
+
+    const fulfillment = docSnap.data() as Fulfillment;
+    const { steps } = fulfillment;
+
+    if (stepIndex < 0 || stepIndex >= steps.length) {
+        throw new Error("Invalid step index.");
+    }
+    
+    // Mark current step as completed
+    steps[stepIndex] = {
+        ...steps[stepIndex],
+        status: 'completed',
+        completedAt: serverTimestamp() as any, // Cast for local use, will be timestamp on server
+        completedBy: stepData.userId,
+        refNumber: stepData.refNumber,
+        notes: stepData.notes,
+    };
+    
+    // Mark next step as active, if it exists
+    const nextStepIndex = stepIndex + 1;
+    if (nextStepIndex < steps.length) {
+        steps[nextStepIndex].status = 'active';
+    }
+
+    await updateDoc(docRef, {
+        steps,
+        currentStep: nextStepIndex < steps.length ? nextStepIndex : stepIndex,
+        lastUpdatedAt: serverTimestamp(),
+    });
 }

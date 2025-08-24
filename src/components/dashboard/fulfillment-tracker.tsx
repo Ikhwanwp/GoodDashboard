@@ -1,7 +1,8 @@
 
+
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import {
   Select,
   SelectContent,
@@ -34,52 +35,97 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
-import { CheckCircle, Circle, Loader2, Link as LinkIcon, FileText, Upload } from "lucide-react";
+import { CheckCircle, Circle, Loader2, Link as LinkIcon, Upload, FileText } from "lucide-react";
 import { useData } from "@/context/data-context";
 import { cn } from "@/lib/utils";
-
-// Sample Data
-const sampleData = {
-  "loggedInUserRole": "GA", // Ubah ke "BA" untuk melihat perbedaannya
-  "workflow": {
-    "selectedContract": "PKS_KEMENKEU_2025",
-    "currentStep": 4,
-    "steps": [
-      { "name": "Kontrak K/L", "role": "GA", "status": "completed" },
-      { "name": "Kode Produk", "role": "GA", "status": "completed" },
-      { "name": "Sales Order (SO)", "role": "GA", "status": "completed" },
-      { "name": "Purchase Req. (PR)", "role": "BA", "status": "active" },
-      { "name": "Purchase Order (PO)", "role": "BA", "status": "pending" },
-      { "name": "Surat Perintah Kerja (SPK)", "role": "BA", "status": "pending" },
-      { "name": "Goods Receipt (GR)", "role": "BA", "status": "pending" },
-      { "name": "Berita Acara Serah Terima (BAST)", "role": "GA", "status": "pending" },
-      { "name": "Surat Tanda Terima Jaminan (STTJ)", "role": "GA", "status": "pending" },
-      { "name": "Delivery Order (DO)", "role": "GA", "status": "pending" },
-      { "name": "Invoicing", "role": "GA", "status": "pending" }
-    ],
-    "history": [
-      { "id": 1, "activity": "Sales Order (SO)", "pic": "Andini - GA", "date": "2025-08-20", "ref": "SO/2025/123", "link": "#" },
-      { "id": 2, "activity": "Kode Produk", "pic": "Rahmat - GA", "date": "2025-08-18", "ref": "PROD/XYZ/001", "link": "#" },
-      { "id": 3, "activity": "Kontrak K/L", "pic": "Andini - GA", "date": "2025-08-15", "ref": "PKS/01/2025", "link": "#" },
-    ]
-  }
-};
-
-type WorkflowStep = typeof sampleData.workflow.steps[0];
-
+import type { Fulfillment, WorkflowStep } from "@/lib/types";
+import { Skeleton } from "../ui/skeleton";
+import { format } from "date-fns";
+import { useToast } from "@/hooks/use-toast";
+import { Input } from "../ui/input";
+import { Textarea } from "../ui/textarea";
 
 export function FulfillmentTracker() {
-  const { currentUser } = useData();
-  const [selectedContract, setSelectedContract] = useState("PKS_KEMENKEU_2025");
+  const { currentUser, kontrakPks, users, getOrCreateFulfillment, updateFulfillmentStep, loading } = useData();
+  const [selectedKontrakId, setSelectedKontrakId] = useState<string | null>(null);
+  const [activeFulfillment, setActiveFulfillment] = useState<Fulfillment | null>(null);
+  const [isLoadingFulfillment, setIsLoadingFulfillment] = useState(false);
+  
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedStep, setSelectedStep] = useState<WorkflowStep | null>(null);
+  const [selectedStepIndex, setSelectedStepIndex] = useState<number | null>(null);
+  const [isSavingStep, setIsSavingStep] = useState(false);
 
-  const handleStepClick = (step: WorkflowStep) => {
+  const [refNumber, setRefNumber] = useState("");
+  const [notes, setNotes] = useState("");
+  const { toast } = useToast();
+  
+  const handleContractChange = useCallback(async (kontrakId: string) => {
+    if (!kontrakId) return;
+    setSelectedKontrakId(kontrakId);
+    setIsLoadingFulfillment(true);
+    setActiveFulfillment(null);
+    try {
+      const fulfillmentData = await getOrCreateFulfillment(kontrakId);
+      setActiveFulfillment(fulfillmentData);
+    } catch (error) {
+      console.error("Failed to load fulfillment data:", error);
+    } finally {
+      setIsLoadingFulfillment(false);
+    }
+  }, [getOrCreateFulfillment]);
+
+  const handleStepClick = (step: WorkflowStep, index: number) => {
     setSelectedStep(step);
+    setSelectedStepIndex(index);
+    setRefNumber(step.refNumber || "");
+    setNotes(step.notes || "");
     setIsModalOpen(true);
   };
   
   const canCompleteStep = currentUser?.role === selectedStep?.role;
+
+  const handleCompleteStep = async () => {
+    if (!canCompleteStep || selectedKontrakId === null || selectedStepIndex === null) return;
+
+    if (!refNumber) {
+      toast({
+        variant: "destructive",
+        title: "Nomor Referensi Diperlukan",
+        description: "Harap isi nomor referensi untuk menyelesaikan langkah ini.",
+      });
+      return;
+    }
+
+    setIsSavingStep(true);
+    try {
+      await updateFulfillmentStep(selectedKontrakId, selectedStepIndex, { refNumber, notes });
+      setIsModalOpen(false);
+      // Refetch data for the current contract to show updates
+      handleContractChange(selectedKontrakId);
+    } catch (error) {
+      console.error("Failed to complete step:", error);
+      toast({
+        variant: "destructive",
+        title: "Gagal Menyimpan",
+        description: "Terjadi kesalahan saat memperbarui langkah alur kerja."
+      })
+    } finally {
+      setIsSavingStep(false);
+    }
+  }
+
+  const fulfillmentHistory = activeFulfillment?.steps
+    .filter(step => step.status === 'completed')
+    .map(step => {
+        const pic = users.find(u => u.id === step.completedBy);
+        return {
+            ...step,
+            picName: pic?.nama || 'N/A',
+        };
+    })
+    .sort((a,b) => (b.completedAt?.getTime() || 0) - (a.completedAt?.getTime() || 0));
+
 
   return (
     <>
@@ -91,102 +137,123 @@ export function FulfillmentTracker() {
                 <CardDescription>Pilih kontrak untuk melihat progres dan riwayat aktivitasnya.</CardDescription>
             </div>
             <div className="w-full md:w-auto md:min-w-[300px]">
-                <Select value={selectedContract} onValueChange={setSelectedContract}>
+                <Select value={selectedKontrakId || ""} onValueChange={handleContractChange} disabled={loading}>
                 <SelectTrigger>
                     <SelectValue placeholder="Pilih kontrak..." />
                 </SelectTrigger>
                 <SelectContent>
-                    <SelectItem value="PKS_KEMENKEU_2025">PKS Kemenkeu 2025</SelectItem>
-                    <SelectItem value="MOU_BSSN_2024">MoU BSSN 2024</SelectItem>
-                    <SelectItem value="PKS_OJK_2024">PKS OJK 2024</SelectItem>
+                    {kontrakPks.filter(k => k.statusKontrak === 'Aktif').map(k => (
+                        <SelectItem key={k.id} value={k.id}>{k.judulKontrak}</SelectItem>
+                    ))}
                 </SelectContent>
                 </Select>
             </div>
           </div>
         </CardHeader>
         <CardContent>
-          {/* Visual Workflow Tracker */}
-          <div className="w-full overflow-x-auto pb-4">
-            <div className="relative flex items-start pt-6 min-w-max">
-              {sampleData.workflow.steps.map((step, index) => (
-                <div key={step.name} className="flex-1 flex flex-col items-center relative">
-                  <div
-                    className={cn(
-                        "flex flex-col items-center gap-2 cursor-pointer group z-10",
-                         step.status === 'pending' && 'opacity-50'
-                    )}
-                    onClick={() => handleStepClick(step)}
-                  >
-                    <div
-                      className={cn(
-                        "flex h-12 w-12 items-center justify-center rounded-full border-2 transition-all bg-background z-10",
-                        step.status === "completed" && "bg-primary border-primary text-primary-foreground",
-                        step.status === "active" && "bg-accent border-accent text-accent-foreground animate-pulse",
-                        step.status === "pending" && "bg-muted border-border text-muted-foreground"
-                      )}
-                    >
-                      {step.status === "completed" ? (
-                        <CheckCircle className="h-6 w-6" />
-                      ) : (
-                        <Circle className="h-6 w-6" />
-                      )}
-                    </div>
-                    <div className="text-center text-xs w-24">
-                      <p className="font-semibold text-foreground">{step.name}</p>
-                      <p className="text-muted-foreground group-hover:text-foreground transition-colors">{step.role}</p>
-                    </div>
-                  </div>
-                   {index < sampleData.workflow.steps.length - 1 && (
-                     <div
-                        className={cn(
-                          "absolute h-1 top-[22px] left-1/2 w-full -z-1",
-                          step.status === 'completed' ? 'bg-primary' : 'bg-border'
+          {isLoadingFulfillment && (
+            <div className="flex flex-col items-center justify-center p-8 gap-4">
+                <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+                <p className="text-muted-foreground">Memuat data alur kerja...</p>
+            </div>
+          )}
+          {!selectedKontrakId && !isLoadingFulfillment && (
+             <div className="text-center text-muted-foreground py-16">
+              <p>Silakan pilih kontrak PKS yang aktif untuk memulai.</p>
+            </div>
+          )}
+          {activeFulfillment && !isLoadingFulfillment && (
+            <>
+                {/* Visual Workflow Tracker */}
+                <div className="w-full overflow-x-auto pb-4">
+                    <div className="relative flex items-start pt-6 min-w-max">
+                    {activeFulfillment.steps.map((step, index) => (
+                        <div key={step.name} className="flex-1 flex flex-col items-center relative">
+                        <div
+                            className={cn(
+                                "flex flex-col items-center gap-2 cursor-pointer group z-10",
+                                step.status === 'pending' && 'opacity-50'
+                            )}
+                            onClick={() => handleStepClick(step, index)}
+                        >
+                            <div
+                            className={cn(
+                                "flex h-12 w-12 items-center justify-center rounded-full border-2 transition-all bg-background z-10",
+                                step.status === "completed" && "bg-primary border-primary text-primary-foreground",
+                                step.status === "active" && "bg-accent border-accent text-accent-foreground animate-pulse",
+                                step.status === "pending" && "bg-muted border-border text-muted-foreground"
+                            )}
+                            >
+                            {step.status === "completed" ? (
+                                <CheckCircle className="h-6 w-6" />
+                            ) : (
+                                <Circle className="h-6 w-6" />
+                            )}
+                            </div>
+                            <div className="text-center text-xs w-24">
+                            <p className="font-semibold text-foreground">{step.name}</p>
+                            <p className="text-muted-foreground group-hover:text-foreground transition-colors">{step.role}</p>
+                            </div>
+                        </div>
+                        {index < activeFulfillment.steps.length - 1 && (
+                            <div
+                                className={cn(
+                                "absolute h-1 top-[22px] left-1/2 w-full -z-1",
+                                step.status === 'completed' ? 'bg-primary' : 'bg-border'
+                                )}
+                            />
                         )}
-                      />
-                  )}
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Activity History Table */}
-          <div className="mt-8">
-            <h3 className="text-lg font-semibold mb-4">Riwayat Aktivitas</h3>
-            <div className="rounded-md border">
-                <Table>
-                <TableHeader>
-                    <TableRow>
-                    <TableHead>No.</TableHead>
-                    <TableHead>Aktivitas</TableHead>
-                    <TableHead>PIC</TableHead>
-                    <TableHead>Tanggal Selesai</TableHead>
-                    <TableHead>No. Referensi</TableHead>
-                    <TableHead className="text-center">Dokumen</TableHead>
-                    </TableRow>
-                </TableHeader>
-                <TableBody>
-                    {sampleData.workflow.history.map((item, index) => (
-                    <TableRow key={item.id}>
-                        <TableCell>{index + 1}</TableCell>
-                        <TableCell className="font-medium">{item.activity}</TableCell>
-                        <TableCell>{item.pic}</TableCell>
-                        <TableCell>{item.date}</TableCell>
-                        <TableCell>
-                        <Badge variant="outline">{item.ref}</Badge>
-                        </TableCell>
-                        <TableCell className="text-center">
-                        <Button variant="ghost" size="icon" asChild>
-                            <a href={item.link} target="_blank" rel="noopener noreferrer">
-                            <LinkIcon className="h-4 w-4" />
-                            </a>
-                        </Button>
-                        </TableCell>
-                    </TableRow>
+                        </div>
                     ))}
-                </TableBody>
-                </Table>
-            </div>
-          </div>
+                    </div>
+                </div>
+
+                {/* Activity History Table */}
+                <div className="mt-8">
+                    <h3 className="text-lg font-semibold mb-4">Riwayat Aktivitas</h3>
+                    <div className="rounded-md border">
+                        <Table>
+                        <TableHeader>
+                            <TableRow>
+                            <TableHead>Aktivitas</TableHead>
+                            <TableHead>PIC</TableHead>
+                            <TableHead>Tanggal Selesai</TableHead>
+                            <TableHead>No. Referensi</TableHead>
+                            <TableHead className="text-center">Dokumen</TableHead>
+                            </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                            {fulfillmentHistory && fulfillmentHistory.length > 0 ? (
+                                fulfillmentHistory.map((item) => (
+                                <TableRow key={item.name}>
+                                    <TableCell className="font-medium">{item.name}</TableCell>
+                                    <TableCell>{item.picName} ({item.role})</TableCell>
+                                    <TableCell>{item.completedAt ? format(item.completedAt, 'dd MMM yyyy, HH:mm') : 'N/A'}</TableCell>
+                                    <TableCell>
+                                        <Badge variant="outline">{item.refNumber}</Badge>
+                                    </TableCell>
+                                    <TableCell className="text-center">
+                                    <Button variant="ghost" size="icon" asChild disabled={!item.linkDokumen}>
+                                        <a href={item.linkDokumen!} target="_blank" rel="noopener noreferrer">
+                                        <LinkIcon className="h-4 w-4" />
+                                        </a>
+                                    </Button>
+                                    </TableCell>
+                                </TableRow>
+                                ))
+                            ) : (
+                                <TableRow>
+                                    <TableCell colSpan={5} className="h-24 text-center text-muted-foreground">
+                                        Belum ada aktivitas yang selesai.
+                                    </TableCell>
+                                </TableRow>
+                            )}
+                        </TableBody>
+                        </Table>
+                    </div>
+                </div>
+            </>
+          )}
         </CardContent>
       </Card>
 
@@ -203,11 +270,11 @@ export function FulfillmentTracker() {
           <div className="py-4 space-y-4">
              <div>
                 <label htmlFor="ref" className="text-sm font-medium">Nomor Referensi</label>
-                <input id="ref" className="w-full mt-1 p-2 border rounded-md" readOnly={!canCompleteStep} placeholder="Contoh: SO/2025/123"/>
+                <Input id="ref" value={refNumber} onChange={(e) => setRefNumber(e.target.value)} className="w-full mt-1" readOnly={!canCompleteStep} placeholder="Contoh: SO/2025/123"/>
              </div>
               <div>
                 <label htmlFor="notes" className="text-sm font-medium">Catatan (Opsional)</label>
-                <textarea id="notes" className="w-full mt-1 p-2 border rounded-md" rows={3} readOnly={!canCompleteStep} placeholder="Informasi tambahan..."/>
+                <Textarea id="notes" value={notes} onChange={(e) => setNotes(e.target.value)} className="w-full mt-1" rows={3} readOnly={!canCompleteStep} placeholder="Informasi tambahan..."/>
              </div>
              <div>
                 <label htmlFor="doc" className="text-sm font-medium">Dokumen Pendukung</label>
@@ -222,12 +289,15 @@ export function FulfillmentTracker() {
              </div>
           </div>
           <DialogFooter>
-             {!canCompleteStep && (
+             {!canCompleteStep && selectedStep?.status !== 'completed' && (
                 <p className="text-sm text-destructive mr-auto">Anda tidak memiliki izin untuk menyelesaikan langkah ini.</p>
              )}
+             {selectedStep?.status === 'completed' && (
+                <p className="text-sm text-muted-foreground mr-auto">Langkah ini sudah selesai.</p>
+             )}
             <Button variant="outline" onClick={() => setIsModalOpen(false)}>Batal</Button>
-            <Button disabled={!canCompleteStep}>
-                <CheckCircle className="mr-2 h-4 w-4" />
+            <Button onClick={handleCompleteStep} disabled={!canCompleteStep || isSavingStep || selectedStep?.status === 'completed'}>
+                {isSavingStep ? <Loader2 className="animate-spin mr-2"/> : <CheckCircle className="mr-2 h-4 w-4" />}
                 Selesaikan Langkah
             </Button>
           </DialogFooter>

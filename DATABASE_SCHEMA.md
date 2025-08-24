@@ -117,3 +117,24 @@ Stores work status updates for each institution.
   - `linkMom`: `string` (Optional URL to Meeting Minutes)
   - `type`: `string` (Optional, from AI classification)
   - `subject`: `string` (Optional, from AI classification)
+
+---
+
+### 8. `fulfillment`
+
+Stores the state of the contract fulfillment workflow for each contract.
+
+- **Document ID**: `kontrakId` (same as the ID from `kontrakPks` collection)
+- **Fields**:
+  - `kontrakId`: `string` (Reference to `kontrakPks` document ID)
+  - `currentStep`: `number` (Index of the currently active step in the `steps` array)
+  - `lastUpdatedAt`: `timestamp`
+  - `steps`: `array` of `map` (objects)
+    - `name`: `string` (e.g., "Kontrak K/L", "Kode Produk")
+    - `role`: `string` ("GA" or "BA")
+    - `status`: `string` ("completed", "active", "pending")
+    - `completedAt`: `timestamp` | `null`
+    - `completedBy`: `string` | `null` (User ID of the completer)
+    - `refNumber`: `string` | `null`
+    - `notes`: `string` | `null`
+    - `linkDokumen`: `string` | `null` (URL to supporting document)

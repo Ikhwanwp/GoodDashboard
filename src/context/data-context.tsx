@@ -1,8 +1,9 @@
 
+
 "use client";
 
 import { createContext, useContext, useState, ReactNode, useEffect, useCallback } from 'react';
-import type { Instansi, User, UserWithPassword, KontrakPks, KontrakMou, StatusPekerjaan, DokumenSph, PicEksternal } from '@/lib/types';
+import type { Instansi, User, UserWithPassword, KontrakPks, KontrakMou, StatusPekerjaan, DokumenSph, PicEksternal, Fulfillment } from '@/lib/types';
 import { onAuthStateChanged, signOut, type User as FirebaseUser } from 'firebase/auth';
 import { auth } from '@/lib/firebase-config';
 import {
@@ -12,11 +13,12 @@ import {
     getKontrakPks, addKontrakPksToDB, updateKontrakPksInDB, deleteKontrakPksFromDB,
     getKontrakMou, addKontrakMouToDB, updateKontrakMouInDB, deleteKontrakMouFromDB,
     getDokumenSph, addDokumenSphToDB, updateDokumenSphInDB, deleteDokumenSphFromDB,
-    getStatusPekerjaan, addStatusPekerjaanToDB, updateStatusPekerjaanInDB, deleteStatusPekerjaanFromDB
+    getStatusPekerjaan, addStatusPekerjaanToDB, updateStatusPekerjaanInDB, deleteStatusPekerjaanFromDB,
+    getFulfillments, getOrCreateFulfillment, updateFulfillmentStep,
 } from '@/lib/firebase-services';
 import { useToast } from "@/hooks/use-toast";
 
-type CollectionName = 'users' | 'instansi' | 'kontrakPks' | 'kontrakMou' | 'dokumenSph' | 'statusPekerjaan' | 'picEksternal';
+type CollectionName = 'users' | 'instansi' | 'kontrakPks' | 'kontrakMou' | 'dokumenSph' | 'statusPekerjaan' | 'picEksternal' | 'fulfillments';
 
 interface DataContextType {
   currentUser: User | null;
@@ -29,6 +31,7 @@ interface DataContextType {
   dokumenSph: DokumenSph[];
   statusPekerjaan: StatusPekerjaan[];
   picEksternal: PicEksternal[];
+  fulfillments: Fulfillment[];
   error: Error | null;
   reloadData: (collections?: CollectionName[]) => Promise<void>;
   // Instansi
@@ -59,6 +62,9 @@ interface DataContextType {
   addPicEksternal: (data: Omit<PicEksternal, 'id'>) => Promise<void>;
   updatePicEksternal: (id: string, data: Partial<PicEksternal>) => Promise<void>;
   deletePicEksternal: (id: string) => Promise<void>;
+  // Fulfillment
+  getOrCreateFulfillment: (kontrakId: string) => Promise<Fulfillment>;
+  updateFulfillmentStep: (kontrakId: string, stepIndex: number, stepData: { refNumber: string, notes: string }) => Promise<void>;
 }
 
 const DataContext = createContext<DataContextType | undefined>(undefined);
@@ -72,6 +78,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
   const [dokumenSph, setDokumenSph] = useState<DokumenSph[]>([]);
   const [statusPekerjaan, setStatusPekerjaan] = useState<StatusPekerjaan[]>([]);
   const [picEksternal, setPicEksternal] = useState<PicEksternal[]>([]);
+  const [fulfillments, setFulfillments] = useState<Fulfillment[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<Error | null>(null);
   const { toast } = useToast();
@@ -83,7 +90,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
     }
     setError(null);
     try {
-        const allCollections: CollectionName[] = ['users', 'instansi', 'kontrakPks', 'kontrakMou', 'dokumenSph', 'statusPekerjaan', 'picEksternal'];
+        const allCollections: CollectionName[] = ['users', 'instansi', 'kontrakPks', 'kontrakMou', 'dokumenSph', 'statusPekerjaan', 'picEksternal', 'fulfillments'];
         const collections = collectionsToReload || allCollections;
 
         const dataFetchers = {
@@ -94,6 +101,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
             dokumenSph: getDokumenSph,
             statusPekerjaan: getStatusPekerjaan,
             picEksternal: getPicEksternal,
+            fulfillments: getFulfillments,
         };
 
         const setters: { [key in CollectionName]: React.Dispatch<React.SetStateAction<any[]>> } = {
@@ -104,6 +112,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
             dokumenSph: setDokumenSph,
             statusPekerjaan: setStatusPekerjaan,
             picEksternal: setPicEksternal,
+            fulfillments: setFulfillments,
         };
 
         const fetchPromises = collections.map(async (collectionName) => {
@@ -154,6 +163,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
         setDokumenSph([]);
         setStatusPekerjaan([]);
         setPicEksternal([]);
+        setFulfillments([]);
       }
       setLoading(false);
     });
@@ -202,6 +212,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
     dokumenSph,
     statusPekerjaan,
     picEksternal,
+    fulfillments,
     error,
     reloadData: fetchData,
     // Instansi
@@ -225,7 +236,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
          throw err;
       }
     },
-    deleteInstansi: createApiFunction(deleteInstansiFromDB, "Data instansi telah dihapus.", ['instansi', 'kontrakPks', 'kontrakMou', 'dokumenSph', 'statusPekerjaan', 'picEksternal']),
+    deleteInstansi: createApiFunction(deleteInstansiFromDB, "Data instansi telah dihapus.", ['instansi', 'kontrakPks', 'kontrakMou', 'dokumenSph', 'statusPekerjaan', 'picEksternal', 'fulfillments']),
     // Kontrak PKS
     addKontrakPks: createApiFunction(addKontrakPksToDB, "Kontrak PKS baru berhasil ditambahkan.", ['kontrakPks']),
     updateKontrakPks: createApiFunction(updateKontrakPksInDB, "Kontrak PKS berhasil diperbarui.", ['kontrakPks']),
@@ -288,6 +299,29 @@ export function DataProvider({ children }: { children: ReactNode }) {
     addPicEksternal: createApiFunction(addPicEksternalToDB, "PIC Eksternal baru berhasil ditambahkan.", ['picEksternal']),
     updatePicEksternal: createApiFunction(updatePicEksternalInDB, "PIC Eksternal berhasil diperbarui.", ['picEksternal']),
     deletePicEksternal: createApiFunction(deletePicEksternalFromDB, "PIC Eksternal telah dihapus.", ['picEksternal']),
+    // Fulfillment
+    getOrCreateFulfillment: async (kontrakId: string) => {
+        try {
+            return await getOrCreateFulfillment(kontrakId);
+        } catch (err) {
+            console.error(err);
+            toast({
+                variant: "destructive",
+                title: "Gagal memuat alur kerja",
+                description: "Tidak dapat mengambil atau membuat data pelacakan untuk kontrak ini."
+            });
+            throw err;
+        }
+    },
+    updateFulfillmentStep: async (kontrakId: string, stepIndex: number, stepData: { refNumber: string, notes: string }) => {
+      if (!currentUser) throw new Error("User not authenticated");
+      const dataWithUser = { ...stepData, userId: currentUser.id };
+      await createApiFunction(
+        updateFulfillmentStep,
+        "Langkah alur kerja berhasil diperbarui.",
+        ['fulfillments']
+      )(kontrakId, stepIndex, dataWithUser);
+    },
   };
 
   return <DataContext.Provider value={value}>{children}</DataContext.Provider>;

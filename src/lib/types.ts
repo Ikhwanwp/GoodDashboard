@@ -131,4 +131,35 @@ export type TimelineEvent = {
   icon: LucideIcon;
 };
 
+// For Fulfillment Tracking
+export type WorkflowStepStatus = "completed" | "active" | "pending";
+
+export interface WorkflowStep {
+  name: string;
+  role: "GA" | "BA";
+  status: WorkflowStepStatus;
+  completedAt: Date | null;
+  completedBy: string | null; // User ID
+  refNumber: string | null;
+  notes: string | null;
+  linkDokumen: string | null;
+}
+
+export interface WorkflowStepFromDB extends Omit<WorkflowStep, 'completedAt'> {
+    completedAt: Timestamp | null;
+}
+
+export interface Fulfillment {
+    id: string;
+    kontrakId: string;
+    currentStep: number;
+    lastUpdatedAt: Date;
+    steps: WorkflowStep[];
+}
+
+export interface FulfillmentFromDB extends Omit<Fulfillment, 'lastUpdatedAt' | 'steps'> {
+    lastUpdatedAt: Timestamp;
+    steps: WorkflowStepFromDB[];
+}
     
+
