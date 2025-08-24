@@ -2,7 +2,7 @@
 
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import {
   Select,
   SelectContent,
@@ -46,7 +46,8 @@ import { Input } from "../ui/input";
 import { Textarea } from "../ui/textarea";
 
 export function FulfillmentTracker() {
-  const { currentUser, kontrakPks, users, getOrCreateFulfillment, updateFulfillmentStep, loading } = useData();
+  const { currentUser, instansi, kontrakPks, users, getOrCreateFulfillment, updateFulfillmentStep, loading } = useData();
+  const [selectedInstansiId, setSelectedInstansiId] = useState<string | null>(null);
   const [selectedKontrakId, setSelectedKontrakId] = useState<string | null>(null);
   const [activeFulfillment, setActiveFulfillment] = useState<Fulfillment | null>(null);
   const [isLoadingFulfillment, setIsLoadingFulfillment] = useState(false);
@@ -59,6 +60,12 @@ export function FulfillmentTracker() {
   const [refNumber, setRefNumber] = useState("");
   const [notes, setNotes] = useState("");
   const { toast } = useToast();
+
+  const handleInstansiChange = (instansiId: string) => {
+    setSelectedInstansiId(instansiId);
+    setSelectedKontrakId(null);
+    setActiveFulfillment(null);
+  }
   
   const handleContractChange = useCallback(async (kontrakId: string) => {
     if (!kontrakId) return;
@@ -74,6 +81,11 @@ export function FulfillmentTracker() {
       setIsLoadingFulfillment(false);
     }
   }, [getOrCreateFulfillment]);
+
+  const availableContracts = useMemo(() => {
+    if (!selectedInstansiId) return [];
+    return kontrakPks.filter(k => k.instansiId === selectedInstansiId && k.statusKontrak === 'Aktif');
+  }, [selectedInstansiId, kontrakPks]);
 
   const handleStepClick = (step: WorkflowStep, index: number) => {
     setSelectedStep(step);
@@ -134,16 +146,26 @@ export function FulfillmentTracker() {
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
             <div className="flex-1">
                 <CardTitle>Pelacakan Alur Pemenuhan Kontrak</CardTitle>
-                <CardDescription>Pilih kontrak untuk melihat progres dan riwayat aktivitasnya.</CardDescription>
+                <CardDescription>Pilih K/L dan kontrak untuk melihat progres aktivitasnya.</CardDescription>
             </div>
-            <div className="w-full md:w-auto md:min-w-[300px]">
-                <Select value={selectedKontrakId || ""} onValueChange={handleContractChange} disabled={loading}>
-                <SelectTrigger>
-                    <SelectValue placeholder="Pilih kontrak..." />
+             <div className="flex flex-col md:flex-row gap-4">
+                <Select value={selectedInstansiId || ""} onValueChange={handleInstansiChange} disabled={loading}>
+                <SelectTrigger className="w-full md:w-[250px]">
+                    <SelectValue placeholder="Pilih K/L..." />
                 </SelectTrigger>
                 <SelectContent>
-                    {kontrakPks.filter(k => k.statusKontrak === 'Aktif').map(k => (
-                        <SelectItem key={k.id} value={k.id}>{k.judulKontrak}</SelectItem>
+                    {instansi.map(i => (
+                        <SelectItem key={i.id} value={i.id}>{i.kodeInstansi}</SelectItem>
+                    ))}
+                </SelectContent>
+                </Select>
+                <Select value={selectedKontrakId || ""} onValueChange={handleContractChange} disabled={!selectedInstansiId || loading}>
+                <SelectTrigger className="w-full md:w-[300px]">
+                    <SelectValue placeholder={!selectedInstansiId ? "Pilih K/L dulu" : "Pilih nomor kontrak..."} />
+                </SelectTrigger>
+                <SelectContent>
+                    {availableContracts.map(k => (
+                        <SelectItem key={k.id} value={k.id}>{k.nomorKontrakPeruri}</SelectItem>
                     ))}
                 </SelectContent>
                 </Select>
