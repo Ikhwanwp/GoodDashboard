@@ -41,15 +41,13 @@ import { useEffect } from "react";
 
 const adminMenuItems = [
   { href: "/admin", label: "Command Center", icon: Shield },
-  { href: "/dashboard", label: "Lihat Dashboard GA", icon: View },
-  { href: "/dashboard-ba", label: "Lihat Dashboard BA", icon: View },
 ];
 
 const gaMenuItems = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { href: "/dashboard/instansi", label: "Instansi", icon: Building2 },
   { href: "/dashboard/contracts", label: "Kontrak", icon: Handshake },
-  { href: "/dashboard/fulfillment", label: "Tracking Progress Invoice", icon: ChevronsRight },
+  { href: "/dashboard/fulfillment", label: "Tracking Invoice", icon: ChevronsRight },
   { href: "/dashboard/updates", label: "Status Updates", icon: MessageSquareQuote },
   { href: "/dashboard/pic", label: "PIC", icon: Contact },
   { href: "/dashboard/timeline", label: "Timeline", icon: Clock },
@@ -81,6 +79,10 @@ function AuthWrapper({ children }: { children: React.ReactNode }) {
       else if (currentUser.role === 'GA' && (isBaPath || isAdminPath)) {
          router.push('/dashboard');
       }
+      // New logic to protect admin routes
+      else if (currentUser.role !== 'Admin' && isAdminPath) {
+        router.push('/dashboard');
+      }
     }
   }, [currentUser, loading, router, pathname]);
 
@@ -105,38 +107,21 @@ function AuthWrapper({ children }: { children: React.ReactNode }) {
   let logoText;
   let homePath;
 
-  switch (currentUser.role) {
-    case 'Admin':
-      menuItems = adminMenuItems;
-      logoText = "Admin Center";
-      homePath = "/admin";
-      break;
-    case 'BA':
-      menuItems = baMenuItems;
-      logoText = "BA Monitor";
-      homePath = "/dashboard-ba";
-      break;
-    default: // GA and Viewer
-      menuItems = gaMenuItems;
-      logoText = "Govtech Dashboard";
-      homePath = "/dashboard";
-      break;
-  }
-  
-  const isBaPath = pathname.startsWith('/dashboard-ba');
-  const isAdminPath = pathname.startsWith('/admin');
-  
-  // Role-based redirect loading state
-  if (
-    (currentUser.role === 'Admin' && !isAdminPath) ||
-    (currentUser.role === 'BA' && !isBaPath) ||
-    (currentUser.role === 'GA' && (isBaPath || isAdminPath))
-  ) {
-     return (
-      <div className="flex h-screen w-full items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin" />
-      </div>
-    );
+  const isViewingAsAdmin = currentUser.role === 'Admin' && (pathname.startsWith('/dashboard') || pathname.startsWith('/dashboard-ba'));
+
+  // Determine which menu to show
+  if (currentUser.role === 'Admin' && !isViewingAsAdmin) {
+    menuItems = adminMenuItems;
+    logoText = "Admin Center";
+    homePath = "/admin";
+  } else if (currentUser.role === 'BA' || (isViewingAsAdmin && pathname.startsWith('/dashboard-ba'))) {
+    menuItems = baMenuItems;
+    logoText = "BA Monitor";
+    homePath = "/dashboard-ba";
+  } else { // GA or Admin viewing GA
+    menuItems = gaMenuItems;
+    logoText = "Govtech Dashboard";
+    homePath = "/dashboard";
   }
 
 
@@ -159,7 +144,7 @@ function AuthWrapper({ children }: { children: React.ReactNode }) {
                     asChild
                     isActive={
                       pathname === item.href || 
-                      (pathname.startsWith(item.href) && item.href !== '/dashboard' && item.href !== '/dashboard-ba' && item.href !== '/admin')
+                      (pathname.startsWith(item.href) && !['/dashboard', '/dashboard-ba', '/admin'].includes(item.href))
                     }
                     tooltip={item.label}
                   >
