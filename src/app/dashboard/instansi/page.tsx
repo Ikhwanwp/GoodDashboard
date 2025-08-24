@@ -9,7 +9,7 @@ import { InstansiForm } from "@/components/forms/instansi-form";
 import { Skeleton } from "@/components/ui/skeleton";
 
 export default function InstansiPage() {
-  const { instansi, loading } = useData();
+  const { instansi, users, loading } = useData();
 
   if (loading) {
     return (
@@ -32,7 +32,7 @@ export default function InstansiPage() {
       </PageHeader>
       
       <div className="py-2">
-        <InstansiDataTable columns={InstansiColumns()} data={instansi} />
+        <InstansiDataTable columns={InstansiColumns({ users })} data={instansi} />
       </div>
     </main>
   );

@@ -2,7 +2,7 @@
 "use client"
 
 import type { ColumnDef } from "@tanstack/react-table"
-import type { Instansi } from "@/lib/types"
+import type { Instansi, User } from "@/lib/types"
 import { MoreHorizontal, ArrowUpDown, Eye } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import {
@@ -13,14 +13,16 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { Badge } from "@/components/ui/badge"
-import { format } from "date-fns"
 import { useData } from "@/context/data-context"
 import { InstansiForm } from "@/components/forms/instansi-form"
 import { DeleteConfirmation } from "@/components/shared/delete-confirmation"
 import Link from "next/link"
 
-export const InstansiColumns = (): ColumnDef<Instansi>[] => {
+type InstansiColumnsProps = {
+  users: User[];
+}
+
+export const InstansiColumns = ({ users }: InstansiColumnsProps): ColumnDef<Instansi>[] => {
   const { deleteInstansi } = useData();
 
   return [
@@ -72,13 +74,16 @@ export const InstansiColumns = (): ColumnDef<Instansi>[] => {
       header: "Jenis Layanan",
        size: 150,
     },
-    // {
-    //   accessorKey: "tanggalUpdateTerakhir",
-    //   header: "Update Terakhir",
-    //   cell: ({ row }) => format(row.original.tanggalUpdateTerakhir, "dd MMM yyyy"),
-    //   enableSorting: true,
-    //   size: 150,
-    // },
+    {
+        accessorKey: "internalPicId",
+        header: "PIC Internal",
+        cell: ({ row }) => {
+            const picId = row.original.internalPicId;
+            const pic = users.find(u => u.id === picId);
+            return pic ? pic.nama : <span className="text-muted-foreground">Belum ada</span>
+        },
+        size: 150,
+    },
     {
       id: "actions",
       cell: ({ row }) => {
