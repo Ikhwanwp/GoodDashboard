@@ -47,7 +47,7 @@ const internalPicSchemaBase = z.object({
   nama: z.string().min(3, "Nama harus diisi"),
   email: z.string().email("Format email tidak valid"),
   noHp: z.string().regex(phoneRegex, 'Nomor HP tidak valid').min(10, "Nomor HP minimal 10 digit").max(15, "Nomor HP maksimal 15 digit").or(z.literal('')),
-  role: z.enum(["Admin", "GA", "BA", "Viewer"], { required_error: "Role harus dipilih" }),
+  role: z.enum(["Admin", "GA", "BA"], { required_error: "Role harus dipilih" }),
   handledInstansiIds: z.array(z.string()).optional(),
 });
 
@@ -282,7 +282,6 @@ export function PicForm({ children, picToEdit, picType }: PicFormProps) {
                                                 <SelectItem value="GA">GA (Government Account)</SelectItem>
                                                 <SelectItem value="BA">BA (Business Alliance)</SelectItem>
                                                 <SelectItem value="Admin">Admin</SelectItem>
-                                                <SelectItem value="Viewer">Viewer</SelectItem>
                                             </SelectContent>
                                         </Select>
                                         <FormMessage />

@@ -13,7 +13,7 @@ This collection stores information about internal users of the application. The 
   - `nama`: `string` (e.g., "Genta Anugrah")
   - `email`: `string` (e.g., "genta@peruri.co.id")
   - `noHp`: `string` (e.g., "081234567891")
-  - `role`: `string` ("Admin", "GA", "BA", "Viewer")
+  - `role`: `string` ("Admin", "GA", "BA")
 
 ---
 

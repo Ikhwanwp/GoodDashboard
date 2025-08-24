@@ -35,7 +35,7 @@ export interface User {
   nama: string;
   email: string;
   noHp: string;
-  role: "Admin" | "GA" | "BA" | "Viewer";
+  role: "Admin" | "GA" | "BA";
   handledInstansiIds?: string[]; // Used in form, not in DB directly
 }
 

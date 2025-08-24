@@ -113,14 +113,9 @@ export const getOrCreateUser = async (firebaseUser: FirebaseUser): Promise<User>
         }
         return userData;
     } else {
-        const newUser: Omit<User, 'id'> = {
-            email: firebaseUser.email || 'N/A',
-            nama: firebaseUser.displayName || firebaseUser.email?.split('@')[0] || 'New User',
-            noHp: firebaseUser.phoneNumber || '',
-            role: 'Viewer' // Default role for new users
-        };
-        await setDoc(userRef, newUser);
-        return { id: userRef.id, ...newUser };
+        // If a user exists in Auth but not in Firestore, they shouldn't be able to log in.
+        // An admin must create their user document first.
+        throw new Error("User document not found. Please contact an administrator.");
     }
 }
 
@@ -215,7 +210,7 @@ export const getKontrakPks = async (): Promise<KontrakPks[]> => {
         return data;
     });
 };
-export const addKontrakPksToDB = async (data: Omit<KontrakPks, 'id' | 'statusKontrak'>) => {
+export const addKontrakPksToDB = async (data: Omit<KontrakPks, 'id' | 'statusKontrak' >) => {
     return await addDoc(kontrakPksCollection, { ...data, statusKontrak: 'Aktif' }); // Status will be recalculated on fetch
 }
 export const updateKontrakPksInDB = async (id: string, data: Partial<Omit<KontrakPks, 'id'>>) => {
@@ -293,4 +288,3 @@ export const deleteStatusPekerjaanFromDB = async (id: string) => {
     const docRef = doc(db, 'statusPekerjaan', id);
     return await deleteDoc(docRef);
 }
-
