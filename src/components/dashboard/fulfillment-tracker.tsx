@@ -159,14 +159,30 @@ export function FulfillmentTracker() {
                     ))}
                 </SelectContent>
                 </Select>
-                <Select value={selectedKontrakId || ""} onValueChange={handleContractChange} disabled={!selectedInstansiId || loading}>
+                <Select 
+                    value={selectedKontrakId || ""} 
+                    onValueChange={handleContractChange} 
+                    disabled={!selectedInstansiId || loading || availableContracts.length === 0}
+                >
                 <SelectTrigger className="w-full md:w-[300px]">
-                    <SelectValue placeholder={!selectedInstansiId ? "Pilih K/L dulu" : "Pilih nomor kontrak..."} />
+                    <SelectValue 
+                        placeholder={
+                            !selectedInstansiId 
+                            ? "Pilih K/L dulu" 
+                            : availableContracts.length === 0
+                            ? "Tidak ada kontrak aktif"
+                            : "Pilih nomor kontrak..."
+                        } 
+                    />
                 </SelectTrigger>
                 <SelectContent>
-                    {availableContracts.map(k => (
-                        <SelectItem key={k.id} value={k.id}>{k.nomorKontrakPeruri}</SelectItem>
-                    ))}
+                    {availableContracts.length > 0 ? (
+                        availableContracts.map(k => (
+                            <SelectItem key={k.id} value={k.id}>{k.nomorKontrakPeruri}</SelectItem>
+                        ))
+                    ) : (
+                        <div className="px-2 py-1.5 text-sm text-muted-foreground">K/L ini tidak memiliki kontrak PKS aktif untuk dilacak.</div>
+                    )}
                 </SelectContent>
                 </Select>
             </div>
