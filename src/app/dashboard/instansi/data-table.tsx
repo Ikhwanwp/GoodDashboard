@@ -35,7 +35,7 @@ export function InstansiDataTable<TData, TValue>({
   data,
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = useState<SortingState>([
-    { id: "tanggalUpdateTerakhir", desc: true }
+    { id: "kodeInstansi", desc: false }
   ])
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
 
