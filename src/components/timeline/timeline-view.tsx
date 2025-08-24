@@ -1,3 +1,4 @@
+
 "use client"
 
 import { useState, useMemo } from 'react';
@@ -89,7 +90,7 @@ export function TimelineView({ instansiList }: TimelineViewProps) {
             <SelectContent>
               {instansiList.map(instansi => (
                 <SelectItem key={instansi.id} value={instansi.id}>
-                  {instansi.namaInstansi}
+                  {instansi.kodeInstansi}
                 </SelectItem>
               ))}
             </SelectContent>

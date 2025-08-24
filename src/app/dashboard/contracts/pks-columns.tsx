@@ -80,7 +80,7 @@ export const getPksColumns = ({ instansi, users, deleteKontrakPks, showActions =
       },
       filterFn: (row, id, value) => {
         const i = instansi.find(i => i.id === row.original.instansiId);
-        return i?.namaInstansi.toLowerCase().includes(value.toLowerCase()) || false;
+        return i?.kodeInstansi.toLowerCase().includes(value.toLowerCase()) || false;
       },
        size: 110,
     },

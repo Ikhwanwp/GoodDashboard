@@ -64,7 +64,7 @@ export function SphDataTable<TData, TValue>({
             className="max-w-sm"
             />
             <Input
-            placeholder="Cari nama instansi..."
+            placeholder="Cari kode instansi..."
             value={(table.getColumn("instansiId")?.getFilterValue() as string) ?? ""}
             onChange={(event) =>
                 table.getColumn("instansiId")?.setFilterValue(event.target.value)

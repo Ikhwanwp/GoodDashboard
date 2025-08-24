@@ -39,7 +39,7 @@ export const getSphColumns = ({ instansi, deleteDokumenSph }: GetSphColumnsParam
       },
       filterFn: (row, id, value) => {
         const sphInstansi = instansi.find(i => i.id === row.original.instansiId);
-        return sphInstansi?.namaInstansi.toLowerCase().includes(value.toLowerCase()) || false;
+        return sphInstansi?.kodeInstansi.toLowerCase().includes(value.toLowerCase()) || false;
       },
       size: 120,
     },

@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
@@ -316,7 +317,7 @@ export function ArchiveDocumentModal() {
                               {field.value
                                 ? instansi.find(
                                     (item) => item.id === field.value
-                                  )?.namaInstansi
+                                  )?.kodeInstansi
                                 : "Pilih K/L..."}
                               <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                             </Button>
@@ -330,7 +331,7 @@ export function ArchiveDocumentModal() {
                               <CommandGroup>
                                 {instansi.map((item) => (
                                   <CommandItem
-                                    value={item.namaInstansi}
+                                    value={item.kodeInstansi}
                                     key={item.id}
                                     onSelect={() => {
                                       form.setValue("instansiId", item.id);
@@ -345,7 +346,7 @@ export function ArchiveDocumentModal() {
                                           : "opacity-0"
                                       )}
                                     />
-                                    {item.namaInstansi}
+                                    {item.kodeInstansi}
                                   </CommandItem>
                                 ))}
                               </CommandGroup>

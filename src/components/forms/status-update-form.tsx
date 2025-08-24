@@ -235,7 +235,7 @@ export function StatusUpdateForm({ children, updateToEdit }: StatusUpdateFormPro
                           <SelectContent>
                             {instansi.map(inst => (
                               <SelectItem key={inst.id} value={inst.id}>
-                                {inst.namaInstansi}
+                                {inst.kodeInstansi}
                               </SelectItem>
                             ))}
                           </SelectContent>
@@ -433,7 +433,3 @@ export function StatusUpdateForm({ children, updateToEdit }: StatusUpdateFormPro
     </Dialog>
   );
 }
-
-    
-
-    

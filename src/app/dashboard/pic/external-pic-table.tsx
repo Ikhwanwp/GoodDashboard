@@ -1,3 +1,4 @@
+
 // src/app/dashboard/pic/external-pic-table.tsx
 "use client"
 
@@ -59,7 +60,7 @@ export function ExternalPicTable<TData, TValue>({
           <div className="relative w-full">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
-              placeholder="Cari nama PIC atau instansi..."
+              placeholder="Cari nama PIC atau kode instansi..."
               value={(table.getColumn("namaPic")?.getFilterValue() as string) ?? ""}
               onChange={(event) => {
                   table.getColumn("namaPic")?.setFilterValue(event.target.value)

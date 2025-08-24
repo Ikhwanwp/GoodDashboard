@@ -30,12 +30,12 @@ interface DataTableProps<TData, TValue> {
   data: TData[]
 }
 
-export function PksDataTable<TData, TValue>({
+export function MouDataTable<TData, TValue>({
   columns,
   data,
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = useState<SortingState>([
-    { id: "statusKontrak", desc: false } // Default sort by our custom function
+    { id: "statusKontrak", desc: false } // Default sort by status
   ])
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
 
@@ -58,21 +58,21 @@ export function PksDataTable<TData, TValue>({
     <div>
         <div className="flex items-center py-4 gap-4">
             <Input
-            placeholder="Cari judul kontrak..."
-            value={(table.getColumn("judulKontrak")?.getFilterValue() as string) ?? ""}
+            placeholder="Cari tentang MoU..."
+            value={(table.getColumn("isiMou")?.getFilterValue() as string) ?? ""}
             onChange={(event) =>
-                table.getColumn("judulKontrak")?.setFilterValue(event.target.value)
+                table.getColumn("isiMou")?.setFilterValue(event.target.value)
             }
             className="max-w-sm"
             />
-            <Input
-            placeholder="Cari kode instansi..."
-            value={(table.getColumn("instansiId")?.getFilterValue() as string) ?? ""}
-            onChange={(event) =>
-                table.getColumn("instansiId")?.setFilterValue(event.target.value)
-            }
-            className="max-w-sm"
-            />
+             <Input
+              placeholder="Cari kode instansi..."
+              value={(table.getColumn("instansiId")?.getFilterValue() as string) ?? ""}
+              onChange={(event) =>
+                  table.getColumn("instansiId")?.setFilterValue(event.target.value)
+              }
+              className="max-w-sm"
+              />
         </div>
         <div className="rounded-md border">
         <Table>

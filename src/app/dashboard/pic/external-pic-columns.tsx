@@ -41,7 +41,7 @@ export const getExternalPicColumns = ({ instansi, deletePicEksternal, showAction
         const namaPic = row.original.namaPic;
         const searchTerm = value.toLowerCase();
         
-        return picInstansi?.namaInstansi.toLowerCase().includes(searchTerm) || 
+        return picInstansi?.kodeInstansi.toLowerCase().includes(searchTerm) || 
                namaPic.toLowerCase().includes(searchTerm);
       },
       // Hiding the individual column filter accessor
