@@ -72,13 +72,13 @@ export const InstansiColumns = (): ColumnDef<Instansi>[] => {
       header: "Jenis Layanan",
        size: 150,
     },
-    {
-      accessorKey: "tanggalUpdateTerakhir",
-      header: "Update Terakhir",
-      cell: ({ row }) => format(row.original.tanggalUpdateTerakhir, "dd MMM yyyy"),
-      enableSorting: true,
-      size: 150,
-    },
+    // {
+    //   accessorKey: "tanggalUpdateTerakhir",
+    //   header: "Update Terakhir",
+    //   cell: ({ row }) => format(row.original.tanggalUpdateTerakhir, "dd MMM yyyy"),
+    //   enableSorting: true,
+    //   size: 150,
+    // },
     {
       id: "actions",
       cell: ({ row }) => {
