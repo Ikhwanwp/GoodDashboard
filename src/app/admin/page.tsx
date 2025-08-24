@@ -21,21 +21,40 @@ import {
 import { MoreHorizontal } from "lucide-react";
 import { format } from 'date-fns';
 import { useToast } from "@/hooks/use-toast";
-
-
-// Sample Data - In a real app, this would come from the DataContext or API calls
-const sampleAuditLog = [
-    { id: 1, user: "Genta Anugrah", action: "Kontrak PKS Dibuat", detail: "PKS/01/2025 untuk Kemenkeu", timestamp: new Date(Date.now() - 3600000) },
-    { id: 2, user: "Admin", action: "Peran Diubah", detail: "Mengubah peran Budi dari GA ke Admin", timestamp: new Date(Date.now() - 7200000) },
-    { id: 3, user: "Rini Wulandari", action: "Status Update", detail: "Finalisasi untuk MoU BSSN", timestamp: new Date(Date.now() - 10800000) },
-    { id: 4, user: "Genta Anugrah", action: "SPH Dihapus", detail: "Menghapus SPH/03/2024", timestamp: new Date(Date.now() - 86400000) },
-    { id: 5, user: "Budi Santoso", action: "Login", detail: "Berhasil login dari perangkat baru", timestamp: new Date(Date.now() - 90000000) },
-];
+import { useMemo } from "react";
 
 
 export default function AdminCommandCenterPage() {
     const { users, loading } = useData();
     const { toast } = useToast();
+
+    // Generate dynamic sample data based on real users
+    const sampleAuditLog = useMemo(() => {
+        if (!users || users.length === 0) return [];
+        
+        const actions = [
+            { action: "Kontrak PKS Dibuat", detail: "PKS/01/2025 untuk Kemenkeu" },
+            { action: "Peran Diubah", detail: "Mengubah peran salah satu user dari GA ke Admin" },
+            { action: "Status Update", detail: "Finalisasi untuk MoU BSSN" },
+            { action: "SPH Dihapus", detail: "Menghapus SPH/03/2024" },
+            { action: "Login", detail: "Berhasil login dari perangkat baru" },
+            { action: "Instansi Ditambahkan", detail: "Menambahkan instansi baru: Kemenparekraf" },
+            { action: "PIC Eksternal Diedit", detail: "Memperbarui kontak PIC dari BSSN" },
+        ];
+
+        return Array.from({ length: 7 }, (_, i) => {
+            const user = users[i % users.length]; // Cycle through real users
+            const action = actions[i % actions.length];
+            return {
+                id: i + 1,
+                user: user.nama,
+                action: action.action,
+                detail: action.detail,
+                timestamp: new Date(Date.now() - (i + 1) * 3600000 * Math.random()) // Randomize timestamp
+            };
+        }).sort((a,b) => b.timestamp.getTime() - a.timestamp.getTime());
+
+    }, [users]);
     
     const totalUsers = users.length;
     const gaUsers = users.filter(u => u.role === 'GA').length;
@@ -68,7 +87,7 @@ export default function AdminCommandCenterPage() {
                         <CardHeader className="flex flex-row items-center justify-between">
                             <div>
                                 <CardTitle>Log Aktivitas Terbaru</CardTitle>
-                                <CardDescription>5 aktivitas terakhir di sistem.</CardDescription>
+                                <CardDescription>Aktivitas terakhir di sistem.</CardDescription>
                             </div>
                             <Button variant="outline" size="sm" asChild>
                                 <a href="#audit-log">Lihat Semua</a>
