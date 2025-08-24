@@ -2,6 +2,7 @@
 
 import { classifyStatusUpdate } from '@/ai/flows/classify-status-update';
 import { summarizeInstansi } from '@/ai/flows/summarize-instansi-flow';
+import { getPejabatTerkait } from '@/ai/flows/get-pejabat-terkait-flow';
 import { z } from 'zod';
 
 const classifySchema = z.object({
@@ -54,4 +55,27 @@ export async function summarizeInstansiAction(data: z.infer<typeof summarizeSche
         const errorMessage = e instanceof Error ? e.message : 'An unknown error occurred.';
         return { success: false, error: `Failed to generate summary using AI: ${errorMessage}` };
     }
+}
+
+const pejabatSchema = z.object({
+  namaInstansi: z.string().min(3, { message: 'Nama Instansi is required.' }),
+});
+
+export async function getPejabatTerkaitAction(data: { namaInstansi: string }) {
+  const validation = pejabatSchema.safeParse(data);
+
+  if (!validation.success) {
+    const error = validation.error.flatten().fieldErrors;
+    const errorMessage = Object.values(error).flat().join(' ');
+    return { success: false, error: errorMessage || 'Invalid input.' };
+  }
+
+  try {
+    const result = await getPejabatTerkait(validation.data);
+    return { success: true, data: result };
+  } catch (e) {
+    console.error(e);
+    const errorMessage = e instanceof Error ? e.message : 'An unknown error occurred.';
+    return { success: false, error: `Failed to get official's name using AI: ${errorMessage}` };
+  }
 }

@@ -5,7 +5,7 @@ import { useState, useEffect } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
-import { CalendarIcon, Loader2, PlusCircle } from "lucide-react";
+import { CalendarIcon, Loader2, PlusCircle, Sparkles } from "lucide-react";
 
 import {
   Dialog,
@@ -38,9 +38,11 @@ import { Calendar } from "@/components/ui/calendar";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
 import { useData } from "@/context/data-context";
+import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
 import type { Instansi } from "@/lib/types";
 import { format } from "date-fns";
+import { getPejabatTerkaitAction } from "@/lib/actions";
 
 const formSchema = z.object({
   namaInstansi: z.string().min(3, "Nama instansi minimal 3 karakter"),
@@ -60,13 +62,17 @@ export function InstansiForm({ children, instansiToEdit }: InstansiFormProps) {
   const [open, setOpen] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [isDatePickerOpen, setDatePickerOpen] = useState(false);
+  const [isGeneratingPejabat, setIsGeneratingPejabat] = useState(false);
 
   const { instansi, addInstansi, updateInstansi } = useData();
+  const { toast } = useToast();
   const isEditMode = !!instansiToEdit;
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
   });
+  
+  const namaInstansiValue = form.watch("namaInstansi");
 
   useEffect(() => {
     if (!open) return;
@@ -89,10 +95,38 @@ export function InstansiForm({ children, instansiToEdit }: InstansiFormProps) {
     }
   }, [open, isEditMode, instansiToEdit, form]);
 
+  const handleGeneratePejabat = async () => {
+    if (!namaInstansiValue) {
+      toast({
+        variant: "destructive",
+        title: "Nama Instansi Diperlukan",
+        description: "Harap isi nama instansi terlebih dahulu untuk menggunakan AI.",
+      });
+      return;
+    }
+
+    setIsGeneratingPejabat(true);
+    const result = await getPejabatTerkaitAction({ namaInstansi: namaInstansiValue });
+    
+    if (result.success && result.data) {
+      form.setValue("pejabatTerkait", result.data.namaPejabat, { shouldValidate: true });
+      toast({
+        title: "Berhasil!",
+        description: `Pejabat untuk ${namaInstansiValue} berhasil ditemukan.`,
+      });
+    } else {
+      toast({
+        variant: "destructive",
+        title: "Gagal Menghasilkan Nama Pejabat",
+        description: result.error || "Terjadi kesalahan pada server AI.",
+      });
+    }
+    setIsGeneratingPejabat(false);
+  };
+
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setIsSaving(true);
 
-    // Check for unique kodeInstansi
     const isCodeTaken = instansi.some(
       (item) => item.kodeInstansi.toLowerCase() === values.kodeInstansi.toLowerCase() && item.id !== instansiToEdit?.id
     );
@@ -182,9 +216,22 @@ export function InstansiForm({ children, instansiToEdit }: InstansiFormProps) {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Pejabat Terkait (Opsional)</FormLabel>
-                      <FormControl>
-                        <Input placeholder="cth: Sri Mulyani Indrawati" {...field} />
-                      </FormControl>
+                      <div className="relative">
+                        <FormControl>
+                          <Input placeholder="cth: Sri Mulyani Indrawati" {...field} className="pr-10" />
+                        </FormControl>
+                         <Button 
+                            type="button" 
+                            variant="ghost" 
+                            size="icon" 
+                            className="absolute right-1 top-1/2 -translate-y-1/2 h-8 w-8 text-accent hover:text-accent/90"
+                            onClick={handleGeneratePejabat}
+                            disabled={isGeneratingPejabat || !namaInstansiValue}
+                            title="Generate with AI"
+                        >
+                            {isGeneratingPejabat ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
+                        </Button>
+                      </div>
                       <FormMessage />
                     </FormItem>
                   )}
