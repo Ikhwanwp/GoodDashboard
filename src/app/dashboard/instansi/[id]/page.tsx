@@ -154,6 +154,10 @@ export default function InstansiDetailPage() {
                   <p className="font-semibold text-muted-foreground">Kode Instansi</p>
                   <p>{currentInstansi.kodeInstansi}</p>
                 </div>
+                 <div>
+                  <p className="font-semibold text-muted-foreground">Pejabat Terkait</p>
+                  <p>{currentInstansi.pejabatTerkait || 'N/A'}</p>
+                </div>
                 <div>
                   <p className="font-semibold text-muted-foreground">Jenis Layanan</p>
                   <p>{currentInstansi.jenisLayanan}</p>
