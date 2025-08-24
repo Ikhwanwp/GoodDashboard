@@ -72,7 +72,19 @@ export const InstansiColumns = ({ users }: InstansiColumnsProps): ColumnDef<Inst
     {
       accessorKey: "pejabatTerkait",
       header: "Pejabat Terkait",
-      cell: ({ row }) => <div className="">{row.original.pejabatTerkait || <span className="text-muted-foreground">N/A</span>}</div>,
+      cell: ({ row }) => {
+        const pejabat = row.original.pejabatTerkait;
+        const isNotAvailable = !pejabat || pejabat === "Belum ada informasi mengenai kepala badan ini";
+        return (
+          <div className="">
+            {isNotAvailable ? (
+              <span className="text-muted-foreground">N/A</span>
+            ) : (
+              pejabat
+            )}
+          </div>
+        );
+      },
       size: 150,
     },
     {
