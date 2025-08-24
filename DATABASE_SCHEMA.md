@@ -13,7 +13,7 @@ This collection stores information about internal users of the application. The 
   - `nama`: `string` (e.g., "Genta Anugrah")
   - `email`: `string` (e.g., "genta@peruri.co.id")
   - `noHp`: `string` (e.g., "081234567891")
-  - `role`: `string` ("Admin", "PIC GA", "Viewer")
+  - `role`: `string` ("Admin", "GA", "BA", "Viewer")
 
 ---
 
@@ -25,7 +25,7 @@ This collection stores data for each Ministry/Institution (K/L).
 - **Fields**:
   - `kodeInstansi`: `string` (e.g., "KEMENKEU")
   - `namaInstansi`: `string` (e.g., "Kementerian Keuangan")
-  - `tanggalUlangTahun`: `timestamp`
+  - `tanggalUlangTahun`: `timestamp` | `null`
   - `statusKementrian`: `string` ("STG Prioritas", "Non Prioritas")
   - `jenisLayanan`: `string` (e.g., "Digital Seal")
   - `tanggalUpdateTerakhir`: `timestamp`
@@ -63,7 +63,7 @@ Stores details for PKS (Perjanjian Kerja Sama) contracts.
   - `picGaId`: `string` (Reference to a document ID in the `users` collection)
   - `ruangLingkup`: `string`
   - `keterangan`: `string`
-  - `statusKontrak`: `string` ("Aktif", "Berakhir")
+  - `statusKontrak`: `string` ("Aktif", "Berakhir") - This is calculated on the client-side and not stored in DB.
   - `linkDokumen`: `string` (Optional URL to the document)
 
 ---
@@ -83,7 +83,8 @@ Stores details for MoU (Memorandum of Understanding) contracts.
   - `picGaId`: `string` (Reference to a document ID in the `users` collection)
   - `ruangLingkup`: `string`
   - `keterangan`: `string`
-  - `statusKontrak`: `string` ("Aktif", "Berakhir")
+  - `statusKontrak`: `string` ("Aktif", "Berakhir") - This is calculated on the client-side and not stored in DB.
+  - `linkDokumen`: `string` (Optional URL to the document)
 
 ---
 
