@@ -16,7 +16,7 @@ import {
   getDoc,
   setDoc,
 } from 'firebase/firestore';
-import { createUserWithEmailAndPassword } from 'firebase/auth';
+import { createUserWithEmailAndPassword, initializeAuth, browserLocalPersistence } from 'firebase/auth';
 import type {
     Instansi, InstansiFromDB,
     User, UserWithPassword,
@@ -28,6 +28,7 @@ import type {
     Fulfillment, FulfillmentFromDB, WorkflowStep
 } from './types';
 import type { User as FirebaseUser } from 'firebase/auth';
+import { getApp } from 'firebase/app';
 
 // Generic function to convert Firestore timestamps to JS Dates
 function convertTimestamps<T>(docData: any): T {
@@ -133,8 +134,13 @@ export const addUserToDB = async (data: UserWithPassword) => {
         throw new Error("Password is required to create a new user.");
     }
     
-    // 1. Create user in Firebase Auth
-    const userCredential = await createUserWithEmailAndPassword(auth, data.email, data.password);
+    // Create a temporary auth instance to prevent the current user from being logged out
+    const tempAuth = initializeAuth(getApp(), {
+        persistence: browserLocalPersistence,
+    });
+    
+    // 1. Create user in Firebase Auth using the temporary instance
+    const userCredential = await createUserWithEmailAndPassword(tempAuth, data.email, data.password);
     const user = userCredential.user;
 
     // 2. Prepare user data for Firestore

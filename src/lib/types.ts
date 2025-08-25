@@ -41,7 +41,11 @@ export interface User {
   handledInstansiIds?: string[]; // Used in form, not in DB directly
 }
 
-export type UserWithPassword = Omit<User, 'id'> & { password?: string };
+export type UserWithPassword = Omit<User, 'id' | 'handledInstansiIds'> & { 
+  password?: string;
+  isEdit: boolean;
+  handledInstansiIds?: string[];
+};
 
 export interface PicEksternal {
   id: string;
