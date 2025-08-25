@@ -87,6 +87,11 @@ export function FulfillmentTracker() {
     return kontrakPks.filter(k => k.instansiId === selectedInstansiId && k.statusKontrak === 'Aktif');
   }, [selectedInstansiId, kontrakPks]);
 
+  const instansiWithPksContracts = useMemo(() => {
+    const instansiIdsWithPks = new Set(kontrakPks.map(k => k.instansiId));
+    return instansi.filter(i => instansiIdsWithPks.has(i.id));
+  }, [instansi, kontrakPks]);
+
   const handleStepClick = (step: WorkflowStep, index: number) => {
     setSelectedStep(step);
     setSelectedStepIndex(index);
@@ -154,7 +159,7 @@ export function FulfillmentTracker() {
                     <SelectValue placeholder="Pilih K/L..." />
                 </SelectTrigger>
                 <SelectContent>
-                    {instansi.map(i => (
+                    {instansiWithPksContracts.map(i => (
                         <SelectItem key={i.id} value={i.id}>{i.kodeInstansi}</SelectItem>
                     ))}
                 </SelectContent>
