@@ -20,13 +20,8 @@ import type { ColumnDef } from '@tanstack/react-table';
 import type { KontrakPks, KontrakMou, StatusPekerjaan, PicEksternal } from '@/lib/types';
 import { ExternalPicTable } from '../../pic/external-pic-table';
 import { getExternalPicColumns } from '../../pic/external-pic-columns';
-import { User, Sparkles, FilePlus2, ChevronRight } from 'lucide-react';
+import { User, FilePlus2, ChevronRight } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
-import { useState } from 'react';
-import { Button } from '@/components/ui/button';
-import { summarizeInstansiAction } from '@/lib/actions';
-import { SummaryDisplay } from '@/components/instansi/summary-display';
-import type { SummarizeInstansiOutput } from '@/ai/flows/summarize-instansi-flow';
 import { MomForm } from '@/components/forms/mom-form';
 
 export default function InstansiDetailPage() {
@@ -45,40 +40,6 @@ export default function InstansiDetailPage() {
     deletePicEksternal,
     loading,
   } = useData();
-  const [isGenerating, setIsGenerating] = useState(false);
-  const [summary, setSummary] = useState<SummarizeInstansiOutput | null>(null);
-  const [summaryError, setSummaryError] = useState<string | null>(null);
-
-  const handleGenerateSummary = async () => {
-    if (!currentInstansi) return;
-    setIsGenerating(true);
-    setSummary(null);
-    setSummaryError(null);
-
-    const dataForAI = {
-      namaInstansi: currentInstansi.namaInstansi,
-      detailInstansi: JSON.stringify({
-        kode: currentInstansi.kodeInstansi,
-        jenisLayanan: currentInstansi.jenisLayanan,
-        status: currentInstansi.statusKementrian,
-        picInternal: pic?.nama || 'N/A',
-      }),
-      kontrakPks: JSON.stringify(filteredPks.map(c => ({judul: c.judulKontrak, tglBerakhir: c.tanggalBerakhir, status: c.statusKontrak}))),
-      kontrakMou: JSON.stringify(filteredMou.map(m => ({isi: m.isiMou, tglBerakhir: m.tanggalBerakhir}))),
-      statusPekerjaan: JSON.stringify(filteredUpdates.slice(0,5).map(s => ({judul: s.judulUpdate, deskripsi: s.deskripsi, tgl: s.tanggalEvent}))),
-      picEksternal: JSON.stringify(filteredExternalPics.map(p => ({nama: p.namaPic, jabatan: p.jabatan}))),
-    };
-
-    const result = await summarizeInstansiAction(dataForAI);
-
-    if (result.success && result.data) {
-      setSummary(result.data);
-    } else {
-      setSummaryError(result.error || 'Gagal menghasilkan ringkasan.');
-    }
-    setIsGenerating(false);
-  }
-
 
   if (loading) {
     return (
@@ -131,26 +92,16 @@ export default function InstansiDetailPage() {
       <PageHeader title={currentInstansi.namaInstansi}>
         <div className="flex items-center gap-2">
             <MomForm instansi={currentInstansi}>
-                 <Button variant="outline">
+                 <button className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2">
                     <FilePlus2 className="mr-2 h-4 w-4" />
                     Buat MoM
-                 </Button>
+                 </button>
             </MomForm>
-            <Button onClick={handleGenerateSummary} disabled={isGenerating}>
-                <Sparkles className="mr-2 h-4 w-4" />
-                {isGenerating ? "Menghasilkan..." : "Buat Ringkasan AI"}
-            </Button>
          </div>
       </PageHeader>
       
       <div className="grid gap-8">
         
-        <SummaryDisplay 
-          summary={summary}
-          error={summaryError}
-          isGenerating={isGenerating}
-        />
-
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           <Card className="lg:col-span-2">
             <CardHeader>

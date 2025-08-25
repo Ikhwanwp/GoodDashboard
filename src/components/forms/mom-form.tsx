@@ -129,7 +129,7 @@ export function MomForm({ children, instansi }: MomFormProps) {
         </DialogHeader>
 
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="flex-1 overflow-y-auto px-6 space-y-6">
+          <form onSubmit={form.handleSubmit(onSubmit)} id="mom-form" className="flex-1 overflow-y-auto px-6 space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <FormField
                 control={form.control}
