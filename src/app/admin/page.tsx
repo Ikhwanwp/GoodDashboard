@@ -3,7 +3,7 @@
 
 import { PageHeader } from "@/components/shared/page-header";
 import { SummaryCard } from "@/components/dashboard/summary-card";
-import { Users, UserCheck, UserCog, History, PlusCircle, Search, Edit, Eye, KeyRound } from "lucide-react";
+import { Users, UserCheck, UserCog, History, PlusCircle, Edit, Trash2 } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -20,13 +20,12 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { MoreHorizontal } from "lucide-react";
 import { format } from 'date-fns';
-import { useToast } from "@/hooks/use-toast";
 import { useMemo } from "react";
+import { DeleteConfirmation } from "@/components/shared/delete-confirmation";
 
 
 export default function AdminCommandCenterPage() {
-    const { users, loading } = useData();
-    const { toast } = useToast();
+    const { users, loading, deleteUser } = useData();
 
     // Generate dynamic sample data based on real users
     const sampleAuditLog = useMemo(() => {
@@ -60,13 +59,6 @@ export default function AdminCommandCenterPage() {
     const gaUsers = users.filter(u => u.role === 'GA').length;
     const baUsers = users.filter(u => u.role === 'BA').length;
     const activityLast24h = sampleAuditLog.filter(log => log.timestamp > new Date(Date.now() - 24 * 60 * 60 * 1000)).length;
-    
-    const handleImpersonate = (userName: string) => {
-        toast({
-            title: "Fitur Impersonasi",
-            description: `Fungsi "Login Sebagai ${userName}" akan diimplementasikan di sini.`,
-        });
-    }
 
     return (
         <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">
@@ -123,7 +115,7 @@ export default function AdminCommandCenterPage() {
                                     <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                                         <div>
                                             <CardTitle>Daftar Pengguna</CardTitle>
-                                            <CardDescription>Tambah, edit, atau impersonasi pengguna.</CardDescription>
+                                            <CardDescription>Tambah, edit, atau hapus pengguna.</CardDescription>
                                         </div>
                                         <PicForm picType="internal">
                                             <Button>
@@ -158,9 +150,15 @@ export default function AdminCommandCenterPage() {
                                                                     <PicForm picToEdit={user} picType="internal">
                                                                         <DropdownMenuItem onSelect={e => e.preventDefault()}><Edit className="mr-2" /> Edit Peran</DropdownMenuItem>
                                                                     </PicForm>
-                                                                    <DropdownMenuItem onClick={() => handleImpersonate(user.nama)}>
-                                                                        <KeyRound className="mr-2" /> Login Sebagai
-                                                                    </DropdownMenuItem>
+                                                                     <DeleteConfirmation 
+                                                                        onConfirm={() => deleteUser(user.id)}
+                                                                        itemName={`pengguna ${user.nama}`}
+                                                                    >
+                                                                        <DropdownMenuItem onSelect={(e) => e.preventDefault()} className="text-destructive">
+                                                                            <Trash2 className="mr-2 h-4 w-4" />
+                                                                            Hapus Akun
+                                                                        </DropdownMenuItem>
+                                                                    </DeleteConfirmation>
                                                                 </DropdownMenuContent>
                                                             </DropdownMenu>
                                                         </TableCell>
