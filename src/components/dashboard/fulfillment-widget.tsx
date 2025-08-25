@@ -25,22 +25,26 @@ import { useData } from "@/context/data-context";
 import { useMemo } from "react";
 
 export function FulfillmentWidget() {
-  const { fulfillments, kontrakPks, loading } = useData();
+  const { fulfillments, kontrakPks, instansi, loading } = useData();
 
   const trackedContracts = useMemo(() => {
-    if (!fulfillments || !kontrakPks) return [];
+    if (!fulfillments || !kontrakPks || !instansi) return [];
 
     return fulfillments
       .map(fulfillment => {
         const contract = kontrakPks.find(k => k.id === fulfillment.kontrakId);
         if (!contract) return null;
 
+        const kl = instansi.find(i => i.id === contract.instansiId);
+        if (!kl) return null;
+
         const currentStep = fulfillment.steps[fulfillment.currentStep];
         if (!currentStep) return null;
         
         return {
           id: fulfillment.id,
-          contractName: contract.judulKontrak,
+          contractNumber: contract.nomorKontrakPeruri,
+          kodeInstansi: kl.kodeInstansi,
           status: `Step ${fulfillment.currentStep + 1}: ${currentStep.name}`,
           pic: `Tim ${currentStep.role}`,
           lastUpdatedAt: fulfillment.lastUpdatedAt,
@@ -49,7 +53,7 @@ export function FulfillmentWidget() {
       .filter(Boolean)
       .sort((a, b) => b!.lastUpdatedAt.getTime() - a!.lastUpdatedAt.getTime())
       .slice(0, 5);
-  }, [fulfillments, kontrakPks]);
+  }, [fulfillments, kontrakPks, instansi]);
 
   return (
     <Card>
@@ -68,7 +72,8 @@ export function FulfillmentWidget() {
             <Table>
             <TableHeader>
                 <TableRow>
-                <TableHead>Nama Kontrak</TableHead>
+                <TableHead>Kode Instansi</TableHead>
+                <TableHead>Nomor Kontrak</TableHead>
                 <TableHead>Status Saat Ini</TableHead>
                 <TableHead>PIC Saat Ini</TableHead>
                 </TableRow>
@@ -76,7 +81,10 @@ export function FulfillmentWidget() {
             <TableBody>
                 {trackedContracts.length > 0 ? trackedContracts.map((item) => (
                 <TableRow key={item!.id}>
-                    <TableCell className="font-medium">{item!.contractName}</TableCell>
+                    <TableCell>
+                        <Badge variant="outline">{item!.kodeInstansi}</Badge>
+                    </TableCell>
+                    <TableCell className="font-medium">{item!.contractNumber}</TableCell>
                     <TableCell>
                         <Badge variant={item!.pic === 'Tim BA' ? 'secondary' : 'default'}>
                             {item!.status}
@@ -86,7 +94,7 @@ export function FulfillmentWidget() {
                 </TableRow>
                 )) : (
                     <TableRow>
-                        <TableCell colSpan={3} className="text-center h-24">
+                        <TableCell colSpan={4} className="text-center h-24">
                             Belum ada kontrak yang dilacak.
                         </TableCell>
                     </TableRow>
