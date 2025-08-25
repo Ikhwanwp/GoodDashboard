@@ -362,6 +362,7 @@ export function StatusUpdateForm({ children, updateToEdit }: StatusUpdateFormPro
                   )}
                 />
 
+                {/*
                 <Card className="bg-muted/30">
                     <CardContent className="p-4 space-y-4">
                         <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
@@ -404,6 +405,7 @@ export function StatusUpdateForm({ children, updateToEdit }: StatusUpdateFormPro
                         </div>
                     </CardContent>
                 </Card>
+                */}
 
                 <FormField
                   control={form.control}
