@@ -88,7 +88,7 @@ export function ReminderList() {
                     <Cake className="h-5 w-5" />
                   </div>
                   <div className="flex-1">
-                    <p className="font-semibold">{instansi.namaInstansi}</p>
+                    <p className="font-semibold">{instansi.kodeInstansi}</p>
                     <p className="text-sm text-muted-foreground mt-1 flex items-center gap-2"><CalendarClock className="h-4 w-4" /> {instansi.tanggalUlangTahun ? format(instansi.tanggalUlangTahun, 'dd MMMM', { locale: id }) : 'N/A'}</p>
                   </div>
                   <div className="text-sm font-bold text-accent ml-auto">
