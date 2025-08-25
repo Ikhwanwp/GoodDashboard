@@ -87,11 +87,12 @@ export function ReminderList() {
                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-accent/10 text-accent">
                     <Cake className="h-5 w-5" />
                   </div>
-                  <div className="flex-1">
+                  <div className="flex-1 min-w-0">
                     <p className="font-semibold">{instansi.kodeInstansi}</p>
+                    <p className="text-sm text-muted-foreground truncate">{instansi.namaInstansi}</p>
                     <p className="text-sm text-muted-foreground mt-1 flex items-center gap-2"><CalendarClock className="h-4 w-4" /> {instansi.tanggalUlangTahun ? format(instansi.tanggalUlangTahun, 'dd MMMM', { locale: id }) : 'N/A'}</p>
                   </div>
-                  <div className="text-sm font-bold text-accent ml-auto">
+                  <div className="text-sm font-bold text-accent ml-auto self-center shrink-0">
                     {instansi.daysLeft === 0 ? "Hari Ini!" : `${instansi.daysLeft} hari lagi`}
                   </div>
                 </li>
