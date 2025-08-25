@@ -1,4 +1,3 @@
-
 // src/app/dashboard/updates/columns.tsx
 "use client"
 
@@ -68,20 +67,20 @@ export const getUpdatesColumns = ({ instansi, deleteStatusPekerjaan, showActions
       cell: ({ row }) => <div className="max-w-xs truncate">{row.original.judulUpdate}</div>,
       size: 200,
     },
-    {
-      accessorKey: "type",
-      header: "Tipe (AI)",
-      cell: ({ row }) => {
-        const type = row.original.type;
-        return type ? <Badge variant="outline">{type}</Badge> : <span className="text-muted-foreground">N/A</span>
-      },
-      size: 150,
-    },
-     {
-      accessorKey: "subject",
-      header: "Subjek (AI)",
-      cell: ({ row }) => <div className="max-w-xs truncate">{row.original.subject || <span className="text-muted-foreground">N/A</span>}</div>,
-    },
+    // {
+    //   accessorKey: "type",
+    //   header: "Tipe (AI)",
+    //   cell: ({ row }) => {
+    //     const type = row.original.type;
+    //     return type ? <Badge variant="outline">{type}</Badge> : <span className="text-muted-foreground">N/A</span>
+    //   },
+    //   size: 150,
+    // },
+    //  {
+    //   accessorKey: "subject",
+    //   header: "Subjek (AI)",
+    //   cell: ({ row }) => <div className="max-w-xs truncate">{row.original.subject || <span className="text-muted-foreground">N/A</span>}</div>,
+    // },
     {
         accessorKey: "tanggalUpdate",
         header: "Tgl Update",
