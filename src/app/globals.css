@@ -4,7 +4,7 @@
 
 @layer base {
   :root {
-    --background: 240 10% 98%; /* Light Grey */
+    --background: 0 0% 96%; /* Light Grey */
     --foreground: 240 10% 3.9%; /* Dark Grey */
 
     --card: 0 0% 100%; /* White */
@@ -13,7 +13,7 @@
     --popover: 0 0% 100%;
     --popover-foreground: 240 10% 3.9%;
 
-    --primary: 221 83% 35%; /* Peruri Blue: #0D47A1 */
+    --primary: 231 48% 48%; /* Deep Blue #3F51B5 */
     --primary-foreground: 0 0% 98%;
 
     --secondary: 240 4.8% 95.9%; /* Lighter Grey */
@@ -22,7 +22,7 @@
     --muted: 240 4.8% 95.9%;
     --muted-foreground: 240 3.8% 46.1%;
 
-    --accent: 45 100% 50%; /* Gold: #FFD700 */
+    --accent: 36 100% 50%; /* Orange #FF9800 */
     --accent-foreground: 240 5.9% 10%;
 
     --destructive: 0 84.2% 60.2%;
@@ -30,7 +30,7 @@
 
     --border: 240 5.9% 90%;
     --input: 240 5.9% 90%;
-    --ring: 221 83% 35%; /* Peruri Blue */
+    --ring: 231 48% 48%; /* Deep Blue */
 
     --radius: 0.5rem;
     
@@ -42,12 +42,12 @@
 
     --sidebar-background: 240 5.9% 10%;
     --sidebar-foreground: 0 0% 95%;
-    --sidebar-primary: 221 83% 45%; /* Lighter Peruri Blue for sidebar */
+    --sidebar-primary: 231 48% 58%; /* Lighter Deep Blue for sidebar */
     --sidebar-primary-foreground: 0 0% 98%;
     --sidebar-accent: 240 3.7% 15.9%;
     --sidebar-accent-foreground: 0 0% 98%;
     --sidebar-border: 240 3.7% 15.9%;
-    --sidebar-ring: 221 83% 45%;
+    --sidebar-ring: 231 48% 58%;
   }
 
   .dark {
@@ -57,19 +57,19 @@
     --card-foreground: 0 0% 98%;
     --popover: 240 10% 3.9%;
     --popover-foreground: 0 0% 98%;
-    --primary: 221 83% 45%;
+    --primary: 231 48% 58%;
     --primary-foreground: 0 0% 98%;
     --secondary: 240 3.7% 15.9%;
     --secondary-foreground: 0 0% 98%;
     --muted: 240 3.7% 15.9%;
     --muted-foreground: 240 5% 64.9%;
-    --accent: 45 100% 50%;
+    --accent: 36 100% 50%;
     --accent-foreground: 240 5.9% 10%;
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 0 0% 98%;
     --border: 240 3.7% 15.9%;
     --input: 240 3.7% 15.9%;
-    --ring: 221 83% 45%;
+    --ring: 231 48% 58%;
     
     --sidebar-background: 222.2 84% 4.9%;
     --sidebar-foreground: 0 0% 95%;
