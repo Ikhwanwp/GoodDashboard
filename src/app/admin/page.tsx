@@ -27,7 +27,9 @@ import { DeleteConfirmation } from "@/components/shared/delete-confirmation";
 export default function AdminCommandCenterPage() {
     const { users, loading, deleteUser } = useData();
 
-    // Generate dynamic sample data based on real users
+    // PENTING: Data `sampleAuditLog` di bawah ini adalah data sampel (dummy data) untuk tujuan demonstrasi.
+    // Data ini tidak mencerminkan aktivitas pengguna yang sebenarnya.
+    // Dalam implementasi penuh, data ini seharusnya diambil dari koleksi "auditLog" di Firestore.
     const sampleAuditLog = useMemo(() => {
         if (!users || users.length === 0) return [];
         
@@ -49,7 +51,8 @@ export default function AdminCommandCenterPage() {
                 user: user.nama,
                 action: action.action,
                 detail: action.detail,
-                timestamp: new Date(Date.now() - (i + 1) * 3600000 * Math.random()) // Randomize timestamp
+                // Timestamp di-generate secara acak untuk demonstrasi
+                timestamp: new Date(Date.now() - (i + 1) * 3600000 * Math.random()) 
             };
         }).sort((a,b) => b.timestamp.getTime() - a.timestamp.getTime());
 
@@ -214,3 +217,5 @@ export default function AdminCommandCenterPage() {
         </main>
     );
 }
+
+    
