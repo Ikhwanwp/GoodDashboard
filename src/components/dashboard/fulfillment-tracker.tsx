@@ -35,7 +35,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
-import { CheckCircle, Circle, Loader2, Link as LinkIcon, Upload, FileText } from "lucide-react";
+import { CheckCircle, Circle, Loader2, Link as LinkIcon } from "lucide-react";
 import { useData } from "@/context/data-context";
 import { cn } from "@/lib/utils";
 import type { Fulfillment, WorkflowStep } from "@/lib/types";
@@ -59,6 +59,7 @@ export function FulfillmentTracker() {
 
   const [refNumber, setRefNumber] = useState("");
   const [notes, setNotes] = useState("");
+  const [linkDokumen, setLinkDokumen] = useState("");
   const { toast } = useToast();
 
   const handleInstansiChange = (instansiId: string) => {
@@ -88,7 +89,7 @@ export function FulfillmentTracker() {
   }, [selectedInstansiId, kontrakPks]);
 
   const instansiWithPksContracts = useMemo(() => {
-    const instansiIdsWithPks = new Set(kontrakPks.map(k => k.instansiId));
+    const instansiIdsWithPks = new Set(kontrakPks.map(k => k.id && k.statusKontrak === 'Aktif' ? k.instansiId : null));
     return instansi.filter(i => instansiIdsWithPks.has(i.id));
   }, [instansi, kontrakPks]);
 
@@ -97,6 +98,7 @@ export function FulfillmentTracker() {
     setSelectedStepIndex(index);
     setRefNumber(step.refNumber || "");
     setNotes(step.notes || "");
+    setLinkDokumen(step.linkDokumen || "");
     setIsModalOpen(true);
   };
   
@@ -113,10 +115,19 @@ export function FulfillmentTracker() {
       });
       return;
     }
+    
+    if (linkDokumen && !linkDokumen.startsWith('http')) {
+        toast({
+            variant: "destructive",
+            title: "Link Dokumen Tidak Valid",
+            description: "Harap masukkan URL yang valid (dimulai dengan http atau https).",
+        });
+        return;
+    }
 
     setIsSavingStep(true);
     try {
-      await updateFulfillmentStep(selectedKontrakId, selectedStepIndex, { refNumber, notes });
+      await updateFulfillmentStep(selectedKontrakId, selectedStepIndex, { refNumber, notes, linkDokumen });
       setIsModalOpen(false);
       // Refetch data for the current contract to show updates
       handleContractChange(selectedKontrakId);
@@ -320,15 +331,8 @@ export function FulfillmentTracker() {
                 <Textarea id="notes" value={notes} onChange={(e) => setNotes(e.target.value)} className="w-full mt-1" rows={3} readOnly={!canCompleteStep} placeholder="Informasi tambahan..."/>
              </div>
              <div>
-                <label htmlFor="doc" className="text-sm font-medium">Dokumen Pendukung</label>
-                 <div className="mt-1">
-                    <Button variant="outline" asChild disabled={!canCompleteStep} className="w-full">
-                      <label htmlFor="file-upload" className="cursor-pointer">
-                        <Upload className="mr-2 h-4 w-4"/> Unggah Dokumen
-                      </label>
-                    </Button>
-                    <input id="file-upload" name="file-upload" type="file" className="sr-only" />
-                 </div>
+                <label htmlFor="link" className="text-sm font-medium">Link Dokumen (Opsional)</label>
+                <Input id="link" value={linkDokumen} onChange={(e) => setLinkDokumen(e.target.value)} className="w-full mt-1" readOnly={!canCompleteStep} placeholder="https://docs.google.com/..."/>
              </div>
           </div>
           <DialogFooter>

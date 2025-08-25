@@ -64,7 +64,7 @@ interface DataContextType {
   deletePicEksternal: (id: string) => Promise<void>;
   // Fulfillment
   getOrCreateFulfillment: (kontrakId: string) => Promise<Fulfillment>;
-  updateFulfillmentStep: (kontrakId: string, stepIndex: number, stepData: { refNumber: string, notes: string }) => Promise<void>;
+  updateFulfillmentStep: (kontrakId: string, stepIndex: number, stepData: { refNumber: string, notes: string, linkDokumen: string }) => Promise<void>;
 }
 
 const DataContext = createContext<DataContextType | undefined>(undefined);
@@ -313,7 +313,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
             throw err;
         }
     },
-    updateFulfillmentStep: async (kontrakId: string, stepIndex: number, stepData: { refNumber: string, notes: string }) => {
+    updateFulfillmentStep: async (kontrakId: string, stepIndex: number, stepData: { refNumber: string, notes: string, linkDokumen: string }) => {
       if (!currentUser) throw new Error("User not authenticated");
       const dataWithUser = { ...stepData, userId: currentUser.id };
       await createApiFunction(

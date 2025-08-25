@@ -363,7 +363,7 @@ export const getOrCreateFulfillment = async (kontrakId: string): Promise<Fulfill
 export const updateFulfillmentStep = async (
     kontrakId: string, 
     stepIndex: number, 
-    stepData: { refNumber: string; notes: string; userId: string; }
+    stepData: { refNumber: string; notes: string; linkDokumen: string; userId: string; }
 ): Promise<void> => {
     const docRef = doc(db, 'fulfillment', kontrakId);
     const docSnap = await getDoc(docRef);
@@ -387,6 +387,7 @@ export const updateFulfillmentStep = async (
         completedBy: stepData.userId,
         refNumber: stepData.refNumber,
         notes: stepData.notes,
+        linkDokumen: stepData.linkDokumen,
     };
     
     // Mark next step as active, if it exists
