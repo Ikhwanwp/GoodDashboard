@@ -84,7 +84,7 @@ export function LoginForm() {
       }
 
     } catch (error: any) {
-      console.error("Login Error:", error);
+      console.error(`Login Error for email ${values.email}:`, error);
       let errorMessage = "Terjadi kesalahan saat login.";
       switch (error.code) {
         case 'auth/user-not-found':
@@ -93,7 +93,7 @@ export function LoginForm() {
            errorMessage = 'Email atau password salah.';
            break;
         case 'auth/invalid-api-key':
-        case 'auth/api-key-not-valid.': 
+        case 'auth/api-key-not-valid': 
            errorMessage = 'Kunci API Firebase tidak valid. Pastikan konfigurasi sudah benar.';
            break;
         case 'auth/configuration-not-found':
