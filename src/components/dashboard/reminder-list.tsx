@@ -37,8 +37,8 @@ export function ReminderList() {
   }
 
   return (
-    <div className="grid gap-8 md:grid-cols-2">
-      <Card>
+    <div className="grid gap-8 lg:grid-cols-3">
+      <Card className="lg:col-span-2">
         <CardHeader>
           <CardTitle>Kontrak Akan Berakhir (90 Hari)</CardTitle>
           <CardDescription>Kontrak PKS & MoU yang akan segera berakhir.</CardDescription>
@@ -105,4 +105,3 @@ export function ReminderList() {
     </div>
   );
 }
-
