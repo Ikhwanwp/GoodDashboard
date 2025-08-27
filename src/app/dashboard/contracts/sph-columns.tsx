@@ -1,4 +1,3 @@
-
 "use client"
 
 import type { ColumnDef } from "@tanstack/react-table"
@@ -25,6 +24,17 @@ type GetSphColumnsParams = {
 export const getSphColumns = ({ instansi, deleteDokumenSph }: GetSphColumnsParams): ColumnDef<DokumenSph>[] => {
   
   return [
+    {
+        id: "nomor",
+        header: "No.",
+        cell: ({ row, table }) => {
+            const sortedRowIndex = table.getSortedRowModel().rows.findIndex(
+                (sortedRow) => sortedRow.id === row.id
+            );
+            return <div className="text-center">{sortedRowIndex + 1}</div>;
+        },
+        size: 40,
+    },
     {
       accessorKey: "nomorSuratPeruri",
       header: "Nomor Surat",

@@ -1,4 +1,3 @@
-
 // src/app/dashboard/contracts/mou-columns.tsx
 "use client"
 
@@ -56,6 +55,17 @@ const customMouSortingFn: SortingFn<KontrakMou> = (rowA, rowB, columnId) => {
 
 export const getMouColumns = ({ instansi, users, deleteKontrakMou, showActions = true }: GetMouColumnsParams): ColumnDef<KontrakMou>[] => {
   const columns: ColumnDef<KontrakMou>[] = [
+    {
+        id: "nomor",
+        header: "No.",
+        cell: ({ row, table }) => {
+            const sortedRowIndex = table.getSortedRowModel().rows.findIndex(
+                (sortedRow) => sortedRow.id === row.id
+            );
+            return <div className="text-center">{sortedRowIndex + 1}</div>;
+        },
+        size: 40,
+    },
     {
       accessorKey: "nomorMouPeruri",
       header: "Nomor MoU",

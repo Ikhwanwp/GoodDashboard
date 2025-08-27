@@ -1,4 +1,3 @@
-
 // src/app/dashboard/contracts/pks-columns.tsx
 "use client"
 
@@ -66,6 +65,17 @@ const customPksSortingFn: SortingFn<KontrakPks> = (rowA, rowB, columnId) => {
 
 export const getPksColumns = ({ instansi, users, deleteKontrakPks, showActions = true }: GetPksColumnsParams): ColumnDef<KontrakPks>[] => {
   const columns: ColumnDef<KontrakPks>[] = [
+    {
+        id: "nomor",
+        header: "No.",
+        cell: ({ row, table }) => {
+            const sortedRowIndex = table.getSortedRowModel().rows.findIndex(
+                (sortedRow) => sortedRow.id === row.id
+            );
+            return <div className="text-center">{sortedRowIndex + 1}</div>;
+        },
+        size: 40,
+    },
     {
       accessorKey: "nomorKontrakPeruri",
       header: "Nomor Kontrak",
