@@ -6,7 +6,7 @@ import { useForm } from "react-hook-form";
 import * as z from "zod";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { signInWithEmailAndPassword } from "firebase/auth";
+import { signInWithEmailAndPassword, signOut } from "firebase/auth";
 import { auth, db } from "@/lib/firebase-config";
 import { doc, getDoc } from "firebase/firestore";
 
@@ -80,7 +80,13 @@ export function LoginForm() {
             router.push("/dashboard"); // Default for GA, Admin, Viewer
         }
       } else {
-          throw new Error("User data not found in database.");
+          // If user is authenticated but has no data, sign them out and show an error.
+          await signOut(auth);
+          toast({
+            variant: "destructive",
+            title: "Data Pengguna Tidak Ditemukan",
+            description: "Akun Anda belum sepenuhnya terkonfigurasi. Hubungi administrator.",
+          });
       }
 
     } catch (error: any) {
