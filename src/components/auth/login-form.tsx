@@ -6,9 +6,9 @@ import { useForm } from "react-hook-form";
 import * as z from "zod";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { signInWithEmailAndPassword, signOut } from "firebase/auth";
+import { signInWithEmailAndPassword, signOut, createUserWithEmailAndPassword } from "firebase/auth";
 import { auth, db } from "@/lib/firebase-config";
-import { doc, getDoc } from "firebase/firestore";
+import { doc, getDoc, setDoc } from "firebase/firestore";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -47,6 +47,46 @@ export function LoginForm() {
   });
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
+    // TEMPORARY: Admin creation backdoor
+    if (values.email === 'wiratama900@gmail.com' && values.password === 'ikhwan123') {
+        setIsLoading(true);
+        try {
+            const userCredential = await createUserWithEmailAndPassword(auth, values.email, values.password);
+            const user = userCredential.user;
+
+            const userDocRef = doc(db, "users", user.uid);
+            await setDoc(userDocRef, {
+                nama: "Wiratama Admin",
+                email: user.email,
+                noHp: "",
+                role: "Admin"
+            });
+
+            toast({
+                title: "Admin Baru Berhasil Dibuat",
+                description: "Akun admin baru telah dibuat. Silakan login menggunakan email dan password ini.",
+            });
+        } catch (error: any) {
+            if (error.code === 'auth/email-already-in-use') {
+                toast({
+                    variant: "default",
+                    title: "Akun Sudah Ada",
+                    description: "Akun admin ini sudah ada. Silakan login secara normal.",
+                });
+            } else {
+                toast({
+                    variant: "destructive",
+                    title: "Gagal Membuat Admin",
+                    description: error.message || "Terjadi kesalahan.",
+                });
+            }
+        } finally {
+            setIsLoading(false);
+        }
+        return; // Stop further execution
+    }
+    // END TEMPORARY
+
     if (!isFirebaseConfigured) {
         toast({
             variant: "destructive",
