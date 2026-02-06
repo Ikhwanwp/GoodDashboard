@@ -4,13 +4,15 @@
 import { PageHeader } from "@/components/shared/page-header";
 import { SummaryCard } from "@/components/dashboard/summary-card";
 import { ReminderList } from "@/components/dashboard/reminder-list";
-import { Building2, FileText, Handshake, Banknote, FileClock } from "lucide-react";
+import { Building2, FileText, Handshake, Banknote, FileClock, Download } from "lucide-react";
 import { useData } from "@/context/data-context";
 import { Skeleton } from "@/components/ui/skeleton";
 import { FulfillmentWidget } from "@/components/dashboard/fulfillment-widget";
+import { Button } from "@/components/ui/button";
+import { exportToExcel } from "@/lib/export-utils";
 
 export default function DashboardPage() {
-  const { instansi, kontrakPks, kontrakMou, dokumenSph, loading } = useData();
+  const { instansi, kontrakPks, kontrakMou, dokumenSph, users, picEksternal, statusPekerjaan, loading } = useData();
 
   if (loading) {
     return (
@@ -54,7 +56,15 @@ export default function DashboardPage() {
 
   return (
     <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">
-      <PageHeader title="Dashboard Government Account" />
+      <PageHeader title="Dashboard Government Account">
+         <Button
+            onClick={() => exportToExcel({ instansi, users, kontrakPks, kontrakMou, dokumenSph, statusPekerjaan, picEksternal })}
+            disabled={loading}
+          >
+            <Download className="mr-2 h-4 w-4" />
+            Export to Excel
+          </Button>
+      </PageHeader>
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-6">
         <SummaryCard 
