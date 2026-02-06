@@ -70,10 +70,7 @@ function AuthWrapper({ children }: { children: React.ReactNode }) {
       const isBaPath = pathname.startsWith('/dashboard-ba');
       const isAdminPath = pathname.startsWith('/admin');
 
-      if (currentUser.role === 'Admin' && !isAdminPath) {
-        router.push('/admin');
-      }
-      else if (currentUser.role === 'BA' && !isBaPath) {
+      if (currentUser.role === 'BA' && !isBaPath) {
         router.push('/dashboard-ba');
       } 
       else if (currentUser.role === 'GA' && (isBaPath || isAdminPath)) {
@@ -81,7 +78,11 @@ function AuthWrapper({ children }: { children: React.ReactNode }) {
       }
       // New logic to protect admin routes
       else if (currentUser.role !== 'Admin' && isAdminPath) {
-        router.push('/dashboard');
+        if (currentUser.role === 'BA') {
+            router.push('/dashboard-ba');
+        } else {
+            router.push('/dashboard');
+        }
       }
     }
   }, [currentUser, loading, router, pathname]);
@@ -109,17 +110,29 @@ function AuthWrapper({ children }: { children: React.ReactNode }) {
 
   const isViewingAsAdmin = currentUser.role === 'Admin' && (pathname.startsWith('/dashboard') || pathname.startsWith('/dashboard-ba'));
 
+  // Clone original menus to avoid mutation across renders
+  const currentGaMenu = [...gaMenuItems];
+  const currentBaMenu = [...baMenuItems];
+  
+  if(currentUser.role === 'Admin' && !pathname.startsWith('/admin')) {
+    // If admin is not in admin section, add a link back to it
+    const adminLink = { href: "/admin", label: "Command Center", icon: Shield };
+    currentGaMenu.unshift(adminLink);
+    currentBaMenu.unshift(adminLink);
+  }
+
+
   // Determine which menu to show
   if (currentUser.role === 'Admin' && !isViewingAsAdmin) {
     menuItems = adminMenuItems;
     logoText = "Admin Center";
     homePath = "/admin";
   } else if (currentUser.role === 'BA' || (isViewingAsAdmin && pathname.startsWith('/dashboard-ba'))) {
-    menuItems = baMenuItems;
+    menuItems = currentBaMenu;
     logoText = "BA Monitor";
     homePath = "/dashboard-ba";
   } else { // GA or Admin viewing GA
-    menuItems = gaMenuItems;
+    menuItems = currentGaMenu;
     logoText = "Govtech Dashboard";
     homePath = "/dashboard";
   }
