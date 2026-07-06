@@ -1,5 +1,3 @@
-
-
 import { db, auth } from './firebase-config';
 import {
   collection,
@@ -158,6 +156,7 @@ export const addUserToDB = async (data: UserWithPassword) => {
     batch.set(userRef, userDataForDB);
 
     // 4. If role is GA and instansi are selected, update instansi documents
+    // This part is now truly optional. If handledInstansiIds is empty, it just skips linking.
     if (data.role === 'GA' && data.handledInstansiIds && data.handledInstansiIds.length > 0) {
         data.handledInstansiIds.forEach(instansiId => {
             const instansiRef = doc(db, 'instansi', instansiId);
