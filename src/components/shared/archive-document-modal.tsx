@@ -153,7 +153,7 @@ export function ArchiveDocumentModal() {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant="outline">
+        <Button type="button" variant="outline">
           <Archive className="mr-2 h-4 w-4" />
           Arsipkan Dokumen
         </Button>
@@ -184,6 +184,7 @@ export function ArchiveDocumentModal() {
                   {(file.size / 1024).toFixed(2)} KB
                 </p>
                 <Button
+                  type="button"
                   variant="ghost"
                   size="sm"
                   className="mt-2 text-destructive hover:bg-destructive/10"
@@ -251,10 +252,11 @@ export function ArchiveDocumentModal() {
                     render={({ field }) => (
                       <FormItem className="flex flex-col">
                         <FormLabel>Tanggal Dokumen</FormLabel>
-                        <Popover open={datePickerOpen} onOpenChange={setDatePickerOpen}>
+                        <Popover open={datePickerOpen} onOpenChange={setDatePickerOpen} modal={false}>
                           <PopoverTrigger asChild>
                             <FormControl>
                               <Button
+                                type="button"
                                 variant={"outline"}
                                 className={cn(
                                   "w-full justify-start text-left font-normal",
@@ -308,6 +310,7 @@ export function ArchiveDocumentModal() {
                         <PopoverTrigger asChild>
                           <FormControl>
                             <Button
+                              type="button"
                               variant="outline"
                               role="combobox"
                               className={cn(

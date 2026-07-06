@@ -172,7 +172,7 @@ export function InstansiForm({ children, instansiToEdit }: InstansiFormProps) {
       {children}
     </div>
   ) : (
-    <Button className="bg-primary hover:bg-primary/90">
+    <Button type="button" className="bg-primary hover:bg-primary/90">
       <PlusCircle className="mr-2 h-4 w-4" />
       Tambah Instansi
     </Button>
@@ -297,10 +297,11 @@ export function InstansiForm({ children, instansiToEdit }: InstansiFormProps) {
                   render={({ field }) => (
                     <FormItem className="flex flex-col">
                       <FormLabel>Tanggal Ulang Tahun (Opsional)</FormLabel>
-                      <Popover open={isDatePickerOpen} onOpenChange={setDatePickerOpen}>
+                      <Popover open={isDatePickerOpen} onOpenChange={setDatePickerOpen} modal={false}>
                         <PopoverTrigger asChild>
                           <FormControl>
                             <Button
+                              type="button"
                               variant="outline"
                               className={cn(
                                 "w-full pl-3 text-left font-normal",

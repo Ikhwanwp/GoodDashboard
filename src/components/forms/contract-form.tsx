@@ -257,7 +257,7 @@ export function ContractForm({ children, contractToEdit, contractType }: {
       {children}
     </div>
   ) : (
-      <Button className="bg-primary hover:bg-primary/90">
+      <Button type="button" className="bg-primary hover:bg-primary/90">
         <PlusCircle className="mr-2 h-4 w-4" />
         Tambah Kontrak
       </Button>
@@ -302,6 +302,7 @@ export function ContractForm({ children, contractToEdit, contractType }: {
                                         <PopoverTrigger asChild>
                                         <FormControl>
                                             <Button
+                                            type="button"
                                             variant="outline"
                                             role="combobox"
                                             className={cn(
@@ -363,6 +364,7 @@ export function ContractForm({ children, contractToEdit, contractType }: {
                                         <PopoverTrigger asChild>
                                         <FormControl>
                                             <Button
+                                            type="button"
                                             variant="outline"
                                             role="combobox"
                                             className={cn(
@@ -429,10 +431,10 @@ export function ContractForm({ children, contractToEdit, contractType }: {
                             <FormField control={pksForm.control} name="tanggalMulai" render={({ field }) => (
                                 <FormItem className="flex flex-col">
                                     <FormLabel>Tanggal Mulai</FormLabel>
-                                    <Popover open={pksTglMulaiOpen} onOpenChange={setPksTglMulaiOpen}>
+                                    <Popover open={pksTglMulaiOpen} onOpenChange={setPksTglMulaiOpen} modal={false}>
                                         <PopoverTrigger asChild>
                                             <FormControl>
-                                                <Button variant={"outline"} className={cn("w-full justify-start text-left font-normal", !field.value && "text-muted-foreground")}>
+                                                <Button type="button" variant={"outline"} className={cn("w-full justify-start text-left font-normal", !field.value && "text-muted-foreground")}>
                                                     <CalendarIcon className="mr-2 h-4 w-4" />
                                                     {field.value ? (format(field.value, "PPP")) : (<span>Pilih tanggal</span>)}
                                                 </Button>
@@ -464,10 +466,10 @@ export function ContractForm({ children, contractToEdit, contractType }: {
                             <FormField control={pksForm.control} name="tanggalBerakhir" render={({ field }) => (
                                 <FormItem className="flex flex-col">
                                     <FormLabel>Tanggal Berakhir</FormLabel>
-                                    <Popover open={pksTglBerakhirOpen} onOpenChange={setPksTglBerakhirOpen}>
+                                    <Popover open={pksTglBerakhirOpen} onOpenChange={setPksTglBerakhirOpen} modal={false}>
                                         <PopoverTrigger asChild>
                                             <FormControl>
-                                                <Button variant={"outline"} className={cn("w-full justify-start text-left font-normal", !field.value && "text-muted-foreground")}>
+                                                <Button type="button" variant={"outline"} className={cn("w-full justify-start text-left font-normal", !field.value && "text-muted-foreground")}>
                                                     <CalendarIcon className="mr-2 h-4 w-4" />
                                                     {field.value ? (format(field.value, "PPP")) : (<span>Pilih tanggal</span>)}
                                                 </Button>
@@ -526,6 +528,7 @@ export function ContractForm({ children, contractToEdit, contractType }: {
                                                 <PopoverTrigger asChild>
                                                 <FormControl>
                                                     <Button
+                                                    type="button"
                                                     variant="outline"
                                                     role="combobox"
                                                     className={cn(
@@ -587,6 +590,7 @@ export function ContractForm({ children, contractToEdit, contractType }: {
                                                 <PopoverTrigger asChild>
                                                 <FormControl>
                                                     <Button
+                                                    type="button"
                                                     variant="outline"
                                                     role="combobox"
                                                     className={cn(
@@ -652,10 +656,10 @@ export function ContractForm({ children, contractToEdit, contractType }: {
                                     <FormField control={mouForm.control} name="tanggalMulai" render={({ field }) => (
                                         <FormItem className="flex flex-col">
                                             <FormLabel>Tanggal Mulai</FormLabel>
-                                            <Popover open={mouTglMulaiOpen} onOpenChange={setMouTglMulaiOpen}>
+                                            <Popover open={mouTglMulaiOpen} onOpenChange={setMouTglMulaiOpen} modal={false}>
                                                 <PopoverTrigger asChild>
                                                     <FormControl>
-                                                        <Button variant={"outline"} className={cn("w-full justify-start text-left font-normal", !field.value && "text-muted-foreground")}>
+                                                        <Button type="button" variant={"outline"} className={cn("w-full justify-start text-left font-normal", !field.value && "text-muted-foreground")}>
                                                             <CalendarIcon className="mr-2 h-4 w-4" />
                                                             {field.value ? (format(field.value, "PPP")) : (<span>Pilih tanggal</span>)}
                                                         </Button>
@@ -687,10 +691,10 @@ export function ContractForm({ children, contractToEdit, contractType }: {
                                     <FormField control={mouForm.control} name="tanggalBerakhir" render={({ field }) => (
                                         <FormItem className="flex flex-col">
                                             <FormLabel>Tanggal Berakhir</FormLabel>
-                                            <Popover open={mouTglBerakhirOpen} onOpenChange={setMouTglBerakhirOpen}>
+                                            <Popover open={mouTglBerakhirOpen} onOpenChange={setMouTglBerakhirOpen} modal={false}>
                                                 <PopoverTrigger asChild>
                                                     <FormControl>
-                                                        <Button variant={"outline"} className={cn("w-full justify-start text-left font-normal", !field.value && "text-muted-foreground")}>
+                                                        <Button type="button" variant={"outline"} className={cn("w-full justify-start text-left font-normal", !field.value && "text-muted-foreground")}>
                                                             <CalendarIcon className="mr-2 h-4 w-4" />
                                                             {field.value ? (format(field.value, "PPP")) : (<span>Pilih tanggal</span>)}
                                                         </Button>

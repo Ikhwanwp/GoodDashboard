@@ -68,7 +68,7 @@ function Calendar({
           const years = Array.from({ length: toYear - fromYear + 1 }, (_, i) => fromYear + i);
           
           return (
-            <div className="flex justify-between items-center gap-2 mb-2">
+            <div className="flex justify-between items-center gap-2 mb-2 px-1">
               <Select
                 onValueChange={(value) => {
                   const newDate = new Date(currentMonth);
@@ -77,10 +77,10 @@ function Calendar({
                 }}
                 value={String(getMonth(currentMonth))}
               >
-                <SelectTrigger className="w-[60%]">
+                <SelectTrigger className="h-8 w-[60%]">
                   <SelectValue>{format(currentMonth, "MMMM")}</SelectValue>
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent position="popper" className="z-[110]">
                   {Array.from({ length: 12 }).map((_, i) => (
                     <SelectItem key={i} value={String(i)}>
                       {format(new Date(getYear(currentMonth), i, 1), "MMMM")}
@@ -97,10 +97,10 @@ function Calendar({
                 }}
                 value={String(getYear(currentMonth))}
               >
-                <SelectTrigger className="w-[40%]">
+                <SelectTrigger className="h-8 w-[40%]">
                   <SelectValue>{getYear(currentMonth)}</SelectValue>
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent position="popper" className="z-[110]">
                   {years.map((year) => (
                     <SelectItem key={year} value={String(year)}>
                       {year}

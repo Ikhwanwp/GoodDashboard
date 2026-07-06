@@ -33,11 +33,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useData } from "@/context/data-context";
 import { useToast } from "@/hooks/use-toast";
 import { classifyUpdateAction } from "@/lib/actions";
-import type { StatusPekerjaan, KontrakPks, KontrakMou } from "@/lib/types";
+import type { StatusPekerjaan } from "@/lib/types";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
@@ -71,7 +70,6 @@ type StatusUpdateFormProps = {
 export function StatusUpdateForm({ children, updateToEdit }: StatusUpdateFormProps) {
   const [open, setOpen] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
-  const [isClassifying, setIsClassifying] = useState(false);
   const [isDatePickerOpen, setDatePickerOpen] = useState(false);
   const { toast } = useToast();
   const { instansi, kontrakPks, kontrakMou, addStatusPekerjaan, updateStatusPekerjaan } = useData();
@@ -136,39 +134,6 @@ export function StatusUpdateForm({ children, updateToEdit }: StatusUpdateFormPro
   }, [selectedInstansiId, form, isEditMode]);
 
 
-  const handleClassify = async () => {
-    const isValid = await form.trigger(["judulUpdate", "deskripsi"]);
-    if (!isValid) {
-         toast({
-            variant: "destructive",
-            title: "Input Kurang",
-            description: "Judul dan Deskripsi harus diisi untuk melakukan klasifikasi AI.",
-        });
-      return;
-    }
-    
-    setIsClassifying(true);
-    const { judulUpdate, deskripsi } = form.getValues();
-    
-    const result = await classifyUpdateAction({ title: judulUpdate, description: deskripsi });
-
-    if (result.success && result.data) {
-      form.setValue("type", result.data.type, { shouldValidate: true });
-      form.setValue("subject", result.data.subject, { shouldValidate: true });
-      toast({
-        title: "Klasifikasi AI Berhasil",
-        description: "Tipe dan subjek update telah diisi otomatis.",
-      });
-    } else {
-      toast({
-        variant: "destructive",
-        title: "Klasifikasi AI Gagal",
-        description: result.error || "Terjadi kesalahan pada server AI.",
-      });
-    }
-    setIsClassifying(false);
-  };
-
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setIsSaving(true);
     const dataToSubmit = {
@@ -196,7 +161,7 @@ export function StatusUpdateForm({ children, updateToEdit }: StatusUpdateFormPro
       {children}
     </div>
   ) : (
-    <Button className="bg-primary hover:bg-primary/90">
+    <Button type="button" className="bg-primary hover:bg-primary/90">
       <PlusCircle className="mr-2 h-4 w-4" />
       Tambah Update
     </Button>
@@ -211,7 +176,7 @@ export function StatusUpdateForm({ children, updateToEdit }: StatusUpdateFormPro
         <DialogHeader>
           <DialogTitle>{isEditMode ? 'Edit Status Pekerjaan' : 'Tambah Status Pekerjaan'}</DialogTitle>
           <DialogDescription>
-            {isEditMode ? 'Ubah detail update pekerjaan yang sudah ada.' : 'Isi detail update pekerjaan terbaru. Gunakan AI untuk klasifikasi otomatis.'}
+            {isEditMode ? 'Ubah detail update pekerjaan yang sudah ada.' : 'Isi detail update pekerjaan terbaru.'}
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
@@ -306,10 +271,11 @@ export function StatusUpdateForm({ children, updateToEdit }: StatusUpdateFormPro
                     render={({ field }) => (
                       <FormItem className="flex flex-col">
                         <FormLabel>Tanggal Event</FormLabel>
-                        <Popover open={isDatePickerOpen} onOpenChange={setDatePickerOpen}>
+                        <Popover open={isDatePickerOpen} onOpenChange={setDatePickerOpen} modal={false}>
                           <PopoverTrigger asChild>
                             <FormControl>
                               <Button
+                                type="button"
                                 variant={"outline"}
                                 className={cn(
                                   "w-full justify-start text-left font-normal",

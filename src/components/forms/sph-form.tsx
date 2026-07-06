@@ -99,7 +99,7 @@ export function SphForm({ children, sphToEdit }: SphFormProps) {
       {children}
     </div>
   ) : (
-    <Button variant="outline" className="bg-background">
+    <Button type="button" variant="outline" className="bg-background">
       <PlusCircle className="mr-2 h-4 w-4" />
       Tambah SPH
     </Button>
@@ -131,6 +131,7 @@ export function SphForm({ children, sphToEdit }: SphFormProps) {
                           <PopoverTrigger asChild>
                           <FormControl>
                               <Button
+                              type="button"
                               variant="outline"
                               role="combobox"
                               className={cn(
@@ -210,10 +211,10 @@ export function SphForm({ children, sphToEdit }: SphFormProps) {
                   render={({ field }) => (
                     <FormItem className="flex flex-col">
                         <FormLabel>Tanggal SPH</FormLabel>
-                        <Popover open={isDatePickerOpen} onOpenChange={setDatePickerOpen}>
+                        <Popover open={isDatePickerOpen} onOpenChange={setDatePickerOpen} modal={false}>
                             <PopoverTrigger asChild>
                                 <FormControl>
-                                    <Button variant={"outline"} className={cn("w-full justify-start text-left font-normal", !field.value && "text-muted-foreground")}>
+                                    <Button type="button" variant={"outline"} className={cn("w-full justify-start text-left font-normal", !field.value && "text-muted-foreground")}>
                                     <CalendarIcon className="mr-2 h-4 w-4" />
                                     {field.value ? (format(field.value, "PPP")) : (<span>Pilih tanggal</span>)}
                                     </Button>
