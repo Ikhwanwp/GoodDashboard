@@ -14,7 +14,6 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-  DialogPortal,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import {
@@ -220,21 +219,24 @@ export function SphForm({ children, sphToEdit }: SphFormProps) {
                                     </Button>
                                 </FormControl>
                             </PopoverTrigger>
-                            <DialogPortal>
-                              <PopoverContent className="w-auto p-0" align="start" style={{ zIndex: 1000 }} onCloseAutoFocus={(e) => e.preventDefault()}>
-                                  <Calendar 
-                                  mode="single" 
-                                  selected={field.value} 
-                                  onSelect={(date) => {
-                                    field.onChange(date);
-                                    setDatePickerOpen(false);
-                                  }} 
-                                  captionLayout="dropdown-buttons"
-                                  fromYear={2015}
-                                  toYear={new Date().getFullYear() + 5}
-                                  initialFocus />
-                              </PopoverContent>
-                            </DialogPortal>
+                            <PopoverContent 
+                              className="w-auto p-0" 
+                              align="start"
+                              onOpenAutoFocus={(e) => e.preventDefault()}
+                              onCloseAutoFocus={(e) => e.preventDefault()}
+                            >
+                                <Calendar 
+                                mode="single" 
+                                selected={field.value} 
+                                onSelect={(date) => {
+                                  field.onChange(date);
+                                  setDatePickerOpen(false);
+                                }} 
+                                captionLayout="dropdown-buttons"
+                                fromYear={2015}
+                                toYear={new Date().getFullYear() + 5}
+                                initialFocus />
+                            </PopoverContent>
                         </Popover>
                         <FormMessage />
                     </FormItem>

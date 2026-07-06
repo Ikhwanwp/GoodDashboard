@@ -139,11 +139,7 @@ export function ArchiveDocumentModal() {
       description: `File "${file.name}" sedang diproses.`,
     });
 
-    // --- Placeholder for actual upload logic ---
-    // In a real application, you would upload the 'file' to a storage service (like Firebase Storage)
-    // and then save the metadata (form values + file URL) to your database.
     await new Promise((resolve) => setTimeout(resolve, 2000));
-    // --- End of placeholder ---
 
     setIsSaving(false);
     setOpen(false);
@@ -274,7 +270,12 @@ export function ArchiveDocumentModal() {
                               </Button>
                             </FormControl>
                           </PopoverTrigger>
-                          <PopoverContent className="w-auto p-0" align="start">
+                          <PopoverContent 
+                            className="w-auto p-0" 
+                            align="start"
+                            onOpenAutoFocus={(e) => e.preventDefault()}
+                            onCloseAutoFocus={(e) => e.preventDefault()}
+                          >
                             <Calendar
                               mode="single"
                               selected={field.value}

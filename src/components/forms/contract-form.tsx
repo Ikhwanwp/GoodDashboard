@@ -14,7 +14,6 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-  DialogPortal,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import {
@@ -439,22 +438,25 @@ export function ContractForm({ children, contractToEdit, contractType }: {
                                                 </Button>
                                             </FormControl>
                                         </PopoverTrigger>
-                                        <DialogPortal>
-                                            <PopoverContent className="w-auto p-0" align="start" style={{ zIndex: 1000 }} onCloseAutoFocus={(e) => e.preventDefault()}>
-                                                <Calendar 
-                                                    mode="single" 
-                                                    selected={field.value} 
-                                                    onSelect={(date) => { 
-                                                        field.onChange(date); 
-                                                        setPksTglMulaiOpen(false);
-                                                    }} 
-                                                    captionLayout="dropdown-buttons" 
-                                                    fromYear={2015} 
-                                                    toYear={new Date().getFullYear() + 10} 
-                                                    initialFocus 
-                                                />
-                                            </PopoverContent>
-                                        </DialogPortal>
+                                        <PopoverContent 
+                                          className="w-auto p-0" 
+                                          align="start"
+                                          onOpenAutoFocus={(e) => e.preventDefault()}
+                                          onCloseAutoFocus={(e) => e.preventDefault()}
+                                        >
+                                            <Calendar 
+                                                mode="single" 
+                                                selected={field.value} 
+                                                onSelect={(date) => { 
+                                                    field.onChange(date); 
+                                                    setPksTglMulaiOpen(false);
+                                                }} 
+                                                captionLayout="dropdown-buttons" 
+                                                fromYear={2015} 
+                                                toYear={new Date().getFullYear() + 10} 
+                                                initialFocus 
+                                            />
+                                        </PopoverContent>
                                     </Popover>
                                     <FormMessage />
                                 </FormItem>
@@ -471,22 +473,25 @@ export function ContractForm({ children, contractToEdit, contractType }: {
                                                 </Button>
                                             </FormControl>
                                         </PopoverTrigger>
-                                        <DialogPortal>
-                                            <PopoverContent className="w-auto p-0" align="start" style={{ zIndex: 1000 }} onCloseAutoFocus={(e) => e.preventDefault()}>
-                                                <Calendar 
-                                                    mode="single" 
-                                                    selected={field.value} 
-                                                    onSelect={(date) => { 
-                                                        field.onChange(date); 
-                                                        setPksTglBerakhirOpen(false);
-                                                    }} 
-                                                    captionLayout="dropdown-buttons" 
-                                                    fromYear={2015} 
-                                                    toYear={new Date().getFullYear() + 10} 
-                                                    initialFocus 
-                                                />
-                                            </PopoverContent>
-                                        </DialogPortal>
+                                        <PopoverContent 
+                                          className="w-auto p-0" 
+                                          align="start"
+                                          onOpenAutoFocus={(e) => e.preventDefault()}
+                                          onCloseAutoFocus={(e) => e.preventDefault()}
+                                        >
+                                            <Calendar 
+                                                mode="single" 
+                                                selected={field.value} 
+                                                onSelect={(date) => { 
+                                                    field.onChange(date); 
+                                                    setPksTglBerakhirOpen(false);
+                                                }} 
+                                                captionLayout="dropdown-buttons" 
+                                                fromYear={2015} 
+                                                toYear={new Date().getFullYear() + 10} 
+                                                initialFocus 
+                                            />
+                                        </PopoverContent>
                                     </Popover>
                                     <FormMessage />
                                 </FormItem>
@@ -656,22 +661,25 @@ export function ContractForm({ children, contractToEdit, contractType }: {
                                                         </Button>
                                                     </FormControl>
                                                 </PopoverTrigger>
-                                                <DialogPortal>
-                                                    <PopoverContent className="w-auto p-0" align="start" style={{ zIndex: 1000 }} onCloseAutoFocus={(e) => e.preventDefault()}>
-                                                        <Calendar 
-                                                            mode="single" 
-                                                            selected={field.value} 
-                                                            onSelect={(date) => { 
-                                                                field.onChange(date); 
-                                                                setMouTglMulaiOpen(false);
-                                                            }} 
-                                                            captionLayout="dropdown-buttons" 
-                                                            fromYear={2015} 
-                                                            toYear={new Date().getFullYear() + 10} 
-                                                            initialFocus 
-                                                        />
-                                                    </PopoverContent>
-                                                </DialogPortal>
+                                                <PopoverContent 
+                                                  className="w-auto p-0" 
+                                                  align="start"
+                                                  onOpenAutoFocus={(e) => e.preventDefault()}
+                                                  onCloseAutoFocus={(e) => e.preventDefault()}
+                                                >
+                                                    <Calendar 
+                                                        mode="single" 
+                                                        selected={field.value} 
+                                                        onSelect={(date) => { 
+                                                            field.onChange(date); 
+                                                            setMouTglMulaiOpen(false);
+                                                        }} 
+                                                        captionLayout="dropdown-buttons" 
+                                                        fromYear={2015} 
+                                                        toYear={new Date().getFullYear() + 10} 
+                                                        initialFocus 
+                                                    />
+                                                </PopoverContent>
                                             </Popover>
                                             <FormMessage />
                                         </FormItem>
@@ -688,22 +696,25 @@ export function ContractForm({ children, contractToEdit, contractType }: {
                                                         </Button>
                                                     </FormControl>
                                                 </PopoverTrigger>
-                                                <DialogPortal>
-                                                    <PopoverContent className="w-auto p-0" align="start" style={{ zIndex: 1000 }} onCloseAutoFocus={(e) => e.preventDefault()}>
-                                                        <Calendar 
-                                                            mode="single" 
-                                                            selected={field.value} 
-                                                            onSelect={(date) => { 
-                                                                field.onChange(date); 
-                                                                setMouTglBerakhirOpen(false);
-                                                            }} 
-                                                            captionLayout="dropdown-buttons" 
-                                                            fromYear={2015} 
-                                                            toYear={new Date().getFullYear() + 10} 
-                                                            initialFocus 
-                                                        />
-                                                    </PopoverContent>
-                                                </DialogPortal>
+                                                <PopoverContent 
+                                                  className="w-auto p-0" 
+                                                  align="start"
+                                                  onOpenAutoFocus={(e) => e.preventDefault()}
+                                                  onCloseAutoFocus={(e) => e.preventDefault()}
+                                                >
+                                                    <Calendar 
+                                                        mode="single" 
+                                                        selected={field.value} 
+                                                        onSelect={(date) => { 
+                                                            field.onChange(date); 
+                                                            setMouTglBerakhirOpen(false);
+                                                        }} 
+                                                        captionLayout="dropdown-buttons" 
+                                                        fromYear={2015} 
+                                                        toYear={new Date().getFullYear() + 10} 
+                                                        initialFocus 
+                                                    />
+                                                </PopoverContent>
                                             </Popover>
                                             <FormMessage />
                                         </FormItem>
