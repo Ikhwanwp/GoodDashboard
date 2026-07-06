@@ -1,4 +1,5 @@
-import { db, auth } from './firebase-config';
+
+import { db, auth, firebaseConfig } from './firebase-config';
 import {
   collection,
   getDocs,
@@ -14,7 +15,8 @@ import {
   getDoc,
   setDoc,
 } from 'firebase/firestore';
-import { createUserWithEmailAndPassword, initializeAuth, browserLocalPersistence } from 'firebase/auth';
+import { createUserWithEmailAndPassword, getAuth, signOut as authSignOut } from 'firebase/auth';
+import { initializeApp, getApps } from 'firebase/app';
 import type {
     Instansi, InstansiFromDB,
     User, UserWithPassword,
@@ -26,7 +28,6 @@ import type {
     Fulfillment, FulfillmentFromDB, WorkflowStep
 } from './types';
 import type { User as FirebaseUser } from 'firebase/auth';
-import { getApp } from 'firebase/app';
 
 // Generic function to convert Firestore timestamps to JS Dates
 function convertTimestamps<T>(docData: any): T {
@@ -132,13 +133,14 @@ export const addUserToDB = async (data: UserWithPassword) => {
         throw new Error("Password is required to create a new user.");
     }
     
-    // Create a temporary auth instance to prevent the current user from being logged out
-    const tempAuth = initializeAuth(getApp(), {
-        persistence: browserLocalPersistence,
-    });
+    // Use a secondary app instance to create user without logging out the current admin
+    const secondaryAppName = 'UserCreationApp';
+    const secondaryApp = getApps().find(a => a.name === secondaryAppName) 
+        || initializeApp(firebaseConfig, secondaryAppName);
+    const secondaryAuth = getAuth(secondaryApp);
     
-    // 1. Create user in Firebase Auth using the temporary instance
-    const userCredential = await createUserWithEmailAndPassword(tempAuth, data.email, data.password);
+    // 1. Create user in Firebase Auth using the secondary instance
+    const userCredential = await createUserWithEmailAndPassword(secondaryAuth, data.email, data.password);
     const user = userCredential.user;
 
     // 2. Prepare user data for Firestore
@@ -156,7 +158,6 @@ export const addUserToDB = async (data: UserWithPassword) => {
     batch.set(userRef, userDataForDB);
 
     // 4. If role is GA and instansi are selected, update instansi documents
-    // This part is now truly optional. If handledInstansiIds is empty, it just skips linking.
     if (data.role === 'GA' && data.handledInstansiIds && data.handledInstansiIds.length > 0) {
         data.handledInstansiIds.forEach(instansiId => {
             const instansiRef = doc(db, 'instansi', instansiId);
@@ -166,6 +167,9 @@ export const addUserToDB = async (data: UserWithPassword) => {
 
     // 5. Commit all writes at once
     await batch.commit();
+
+    // 6. Sign out from secondary auth to clear state
+    await authSignOut(secondaryAuth);
 }
 export const updateUserInDB = async (id: string, data: Partial<Omit<User, 'id'>>) => {
     const docRef = doc(db, 'users', id);
