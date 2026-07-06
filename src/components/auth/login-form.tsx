@@ -47,9 +47,21 @@ export function LoginForm() {
   });
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    // TEMPORARY: Admin creation backdoor
+    if (!isFirebaseConfigured) {
+        toast({
+            variant: "destructive",
+            title: "Konfigurasi Firebase Tidak Ditemukan",
+            description: "Harap periksa konfigurasi Firebase Anda.",
+        });
+        return;
+    }
+
+    setIsLoading(true);
+
+    // TEMPORARY: Admin creation backdoor logic
+    // This allows creating the first admin if it doesn't exist.
+    // If it exists, it will fall through to normal login.
     if (values.email === 'wiratama900@gmail.com' && values.password === 'ikhwan123') {
-        setIsLoading(true);
         try {
             const userCredential = await createUserWithEmailAndPassword(auth, values.email, values.password);
             const user = userCredential.user;
@@ -64,44 +76,23 @@ export function LoginForm() {
 
             toast({
                 title: "Admin Baru Berhasil Dibuat",
-                description: "Akun admin baru telah dibuat. Silakan login menggunakan email dan password ini.",
+                description: "Silakan masuk ke sistem.",
             });
-        } catch (error: any) {
-            if (error.code === 'auth/email-already-in-use') {
-                toast({
-                    variant: "default",
-                    title: "Akun Sudah Ada",
-                    description: "Akun admin ini sudah ada. Silakan login secara normal.",
-                });
-            } else {
-                toast({
-                    variant: "destructive",
-                    title: "Gagal Membuat Admin",
-                    description: error.message || "Terjadi kesalahan.",
-                });
-            }
-        } finally {
+            router.push("/admin");
             setIsLoading(false);
+            return;
+        } catch (error: any) {
+            // If already exists, just continue to normal sign-in below
+            if (error.code !== 'auth/email-already-in-use') {
+                console.error("Backdoor Error:", error);
+            }
         }
-        return; // Stop further execution
-    }
-    // END TEMPORARY
-
-    if (!isFirebaseConfigured) {
-        toast({
-            variant: "destructive",
-            title: "Konfigurasi Firebase Tidak Ditemukan",
-            description: "Harap periksa file .env.local dan pastikan semua variabel telah diisi dengan benar.",
-        });
-        return;
     }
 
-    setIsLoading(true);
     try {
       const userCredential = await signInWithEmailAndPassword(auth, values.email, values.password);
       const user = userCredential.user;
 
-      // Fetch user role from Firestore
       const userDocRef = doc(db, "users", user.uid);
       const userDocSnap = await getDoc(userDocRef);
 
@@ -110,27 +101,28 @@ export function LoginForm() {
         
         toast({
             title: "Login Berhasil",
-            description: "Anda akan diarahkan ke dashboard.",
+            description: "Selamat datang kembali!",
         });
 
         // Redirect based on role
         if (userData.role === 'BA') {
             router.push("/dashboard-ba");
+        } else if (userData.role === 'Admin') {
+            router.push("/admin");
         } else {
-            router.push("/dashboard"); // Default for GA, Admin, Viewer
+            router.push("/dashboard");
         }
       } else {
-          // If user is authenticated but has no data, sign them out and show an error.
           await signOut(auth);
           toast({
             variant: "destructive",
             title: "Data Pengguna Tidak Ditemukan",
-            description: "Akun Anda belum sepenuhnya terkonfigurasi. Hubungi administrator.",
+            description: "Akun Anda belum terdaftar di database. Hubungi administrator.",
           });
       }
 
     } catch (error: any) {
-      console.error(`Login Error for email ${values.email}:`, error);
+      console.error(`Login Error:`, error);
       let errorMessage = "Terjadi kesalahan saat login.";
       switch (error.code) {
         case 'auth/user-not-found':
@@ -138,15 +130,8 @@ export function LoginForm() {
         case 'auth/invalid-credential':
            errorMessage = 'Email atau password salah.';
            break;
-        case 'auth/invalid-api-key':
-        case 'auth/api-key-not-valid': 
-           errorMessage = 'Kunci API Firebase tidak valid. Pastikan konfigurasi sudah benar.';
-           break;
-        case 'auth/configuration-not-found':
-            errorMessage = 'Konfigurasi Firebase tidak ditemukan. Periksa file .env.local Anda.';
-            break;
         default:
-          errorMessage = 'Login gagal. Silakan coba lagi.';
+          errorMessage = 'Login gagal. Silakan periksa kembali kredensial Anda.';
           break;
       }
       toast({
@@ -160,9 +145,9 @@ export function LoginForm() {
   }
 
   return (
-    <Card>
+    <Card className="border-none shadow-xl bg-white/80 backdrop-blur-sm">
       <CardHeader>
-        <CardTitle>Login</CardTitle>
+        <CardTitle className="text-xl font-bold text-center">Masuk ke Sistem</CardTitle>
       </CardHeader>
       <CardContent>
         <Form {...form}>
@@ -174,7 +159,7 @@ export function LoginForm() {
                 <FormItem>
                   <FormLabel>Email</FormLabel>
                   <FormControl>
-                    <Input placeholder="email@peruri.co.id" {...field} className="placeholder:text-muted-foreground/40" disabled={!isFirebaseConfigured} />
+                    <Input placeholder="email@peruri.co.id" {...field} className="bg-white" disabled={!isFirebaseConfigured} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -192,14 +177,14 @@ export function LoginForm() {
                         type={showPassword ? "text" : "password"}
                         placeholder="******"
                         {...field}
-                        className="placeholder:text-muted-foreground/40 pr-10"
+                        className="bg-white pr-10"
                         disabled={!isFirebaseConfigured}
                       />
                     </FormControl>
                     <button
                       type="button"
                       onClick={() => setShowPassword(!showPassword)}
-                      className="absolute inset-y-0 right-0 flex items-center pr-3 text-muted-foreground"
+                      className="absolute inset-y-0 right-0 flex items-center pr-3 text-muted-foreground hover:text-primary"
                       disabled={!isFirebaseConfigured}
                     >
                       {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
@@ -209,8 +194,8 @@ export function LoginForm() {
                 </FormItem>
               )}
             />
-            <Button type="submit" className="w-full bg-accent hover:bg-accent/90" disabled={isLoading || !isFirebaseConfigured}>
-              {isLoading ? <Loader2 className="animate-spin" /> : (isFirebaseConfigured ? 'Masuk' : 'Konfigurasi Diperlukan')}
+            <Button type="submit" className="w-full bg-primary hover:bg-primary/90 font-bold" disabled={isLoading || !isFirebaseConfigured}>
+              {isLoading ? <Loader2 className="animate-spin mr-2" /> : 'Masuk Sekarang'}
             </Button>
           </form>
         </Form>

@@ -15,6 +15,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
+  DialogPortal,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import {
@@ -112,7 +113,6 @@ export function InstansiForm({ children, instansiToEdit }: InstansiFormProps) {
       const namaPejabat = result.data.namaPejabat;
       form.setValue("pejabatTerkait", namaPejabat, { shouldValidate: true });
 
-      // If in edit mode, save the change immediately
       if (isEditMode && instansiToEdit) {
         try {
           await updateInstansi(instansiToEdit.id, { pejabatTerkait: namaPejabat });
@@ -313,23 +313,25 @@ export function InstansiForm({ children, instansiToEdit }: InstansiFormProps) {
                             </Button>
                           </FormControl>
                         </PopoverTrigger>
-                        <PopoverContent align="start" className="w-auto p-0">
-                          <Calendar
-                            mode="single"
-                            selected={field.value}
-                            onSelect={(date) => {
-                              field.onChange(date);
-                              setDatePickerOpen(false);
-                            }}
-                            captionLayout="dropdown-buttons"
-                            fromDate={new Date("1945-01-01")}
-                            toDate={new Date()}
-                            disabled={(date) =>
-                              date > new Date() || date < new Date("1900-01-01")
-                            }
-                            initialFocus
-                          />
-                        </PopoverContent>
+                        <DialogPortal>
+                          <PopoverContent align="start" className="w-auto p-0" style={{ zIndex: 1000 }} onCloseAutoFocus={(e) => e.preventDefault()}>
+                            <Calendar
+                              mode="single"
+                              selected={field.value}
+                              onSelect={(date) => {
+                                field.onChange(date);
+                                setDatePickerOpen(false);
+                              }}
+                              captionLayout="dropdown-buttons"
+                              fromDate={new Date("1945-01-01")}
+                              toDate={new Date()}
+                              disabled={(date) =>
+                                date > new Date() || date < new Date("1900-01-01")
+                              }
+                              initialFocus
+                            />
+                          </PopoverContent>
+                        </DialogPortal>
                       </Popover>
                       <FormMessage />
                     </FormItem>
