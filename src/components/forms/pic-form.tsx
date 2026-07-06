@@ -47,7 +47,7 @@ const internalPicSchemaBase = z.object({
   email: z.string().email("Format email tidak valid"),
   noHp: z.string().regex(phoneRegex, 'Nomor HP tidak valid').min(10, "Nomor HP minimal 10 digit").max(15, "Nomor HP maksimal 15 digit").or(z.literal('')),
   role: z.enum(["Admin", "GA", "BA"], { required_error: "Role harus dipilih" }),
-  handledInstansiIds: z.array(z.string()).optional(),
+  handledInstansiIds: z.array(z.string()).optional().default([]),
 });
 
 const internalPicSchema = z.discriminatedUnion("isEdit", [
@@ -82,7 +82,10 @@ export function PicForm({ children, picToEdit, picType }: PicFormProps) {
 
   const internalForm = useForm<z.infer<typeof internalPicSchema>>({
     resolver: zodResolver(internalPicSchema),
-    defaultValues: { isEdit: isEditMode }
+    defaultValues: { 
+      isEdit: isEditMode,
+      handledInstansiIds: []
+    }
   });
 
   const externalForm = useForm<z.infer<typeof externalPicSchema>>({
@@ -296,7 +299,8 @@ export function PicForm({ children, picToEdit, picType }: PicFormProps) {
                                 render={() => (
                                     <FormItem>
                                     <div className="mb-4">
-                                        <FormLabel className="text-base">Handle Instansi</FormLabel>
+                                        <FormLabel className="text-base">Handle Instansi (Opsional)</FormLabel>
+                                        <p className="text-xs text-muted-foreground">Pilih instansi yang akan ditangani. Bisa dikosongkan dan diatur nanti.</p>
                                     </div>
                                     <ScrollArea className="h-40 rounded-md border p-4">
                                         <div className="space-y-2">
@@ -319,10 +323,11 @@ export function PicForm({ children, picToEdit, picType }: PicFormProps) {
                                                     <Checkbox
                                                         checked={field.value?.includes(item.id)}
                                                         onCheckedChange={(checked) => {
+                                                        const currentValues = field.value || [];
                                                         return checked
-                                                            ? field.onChange([...(field.value || []), item.id])
+                                                            ? field.onChange([...currentValues, item.id])
                                                             : field.onChange(
-                                                                field.value?.filter(
+                                                                currentValues.filter(
                                                                 (value) => value !== item.id
                                                                 )
                                                             )
