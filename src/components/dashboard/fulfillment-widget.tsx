@@ -91,8 +91,7 @@ export function FulfillmentWidget() {
                 <TableRow>
                 <TableHead>K/L</TableHead>
                 <TableHead>Nomor Kontrak</TableHead>
-                <TableHead>Posisi Saat Ini</TableHead>
-                <TableHead className="text-right">Progres Alur</TableHead>
+                <TableHead className="text-right">Posisi Saat Ini</TableHead>
                 </TableRow>
             </TableHeader>
             <TableBody>
@@ -102,26 +101,15 @@ export function FulfillmentWidget() {
                         <Badge variant="outline" className="font-bold">{item!.kodeInstansi}</Badge>
                     </TableCell>
                     <TableCell className="font-medium text-xs md:text-sm">{item!.contractNumber}</TableCell>
-                    <TableCell>
+                    <TableCell className="text-right">
                         <Badge variant={item!.isTermin ? 'secondary' : 'default'} className={cn(item!.status === 'End Of Contract' && 'bg-green-500 text-white')}>
                             {item!.status}
                         </Badge>
                     </TableCell>
-                    <TableCell className="text-right">
-                        <div className="flex flex-col items-end gap-1">
-                            <span className="text-xs font-bold">{item!.progress}%</span>
-                            <div className="w-20 h-1.5 bg-secondary rounded-full overflow-hidden">
-                                <div 
-                                    className="h-full bg-primary transition-all" 
-                                    style={{ width: `${item!.progress}%` }} 
-                                />
-                            </div>
-                        </div>
-                    </TableCell>
                 </TableRow>
                 )) : (
                     <TableRow>
-                        <TableCell colSpan={4} className="text-center h-24 text-muted-foreground">
+                        <TableCell colSpan={3} className="text-center h-24 text-muted-foreground">
                             Belum ada alur pelacakan dengan nilai kontrak yang dikonfigurasi.
                         </TableCell>
                     </TableRow>
