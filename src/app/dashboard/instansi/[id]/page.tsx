@@ -7,17 +7,11 @@ import { useParams } from 'next/navigation';
 import { useData } from '@/context/data-context';
 import { PageHeader } from '@/components/shared/page-header';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { PksDataTable } from '@/app/dashboard/contracts/data-table-pks';
-import { getPksColumns } from '@/app/dashboard/contracts/pks-columns';
 import { MouDataTable } from '@/app/dashboard/contracts/data-table-mou';
 import { getMouColumns } from '@/app/dashboard/contracts/mou-columns';
 import { Badge } from '@/components/ui/badge';
 import { format } from 'date-fns';
 import { id as idLocale } from 'date-fns/locale';
-import type { ColumnDef } from '@tanstack/react-table';
-import type { KontrakPks, KontrakMou, PicEksternal } from '@/lib/types';
-import { ExternalPicTable } from '../../pic/external-pic-table';
-import { getExternalPicColumns } from '../../pic/external-pic-columns';
 import { User, ChevronRight } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 
@@ -26,13 +20,10 @@ export default function InstansiDetailPage() {
   const { id: instansiId } = params;
   const { 
     instansi, 
-    kontrakPks, 
     kontrakMou, 
     users, 
     picEksternal, 
-    deleteKontrakPks, 
     deleteKontrakMou, 
-    deletePicEksternal,
     loading,
   } = useData();
 
@@ -47,7 +38,6 @@ export default function InstansiDetailPage() {
           </div>
           <Skeleton className="h-80 w-full" />
           <Skeleton className="h-80 w-full" />
-          <Skeleton className="h-80 w-full" />
         </div>
       </main>
     );
@@ -56,7 +46,6 @@ export default function InstansiDetailPage() {
   const currentInstansi = instansi.find(i => i.id === instansiId);
   const pic = users.find(u => u.id === currentInstansi?.internalPicId);
 
-  const filteredPks = kontrakPks.filter(k => k.instansiId === instansiId);
   const filteredMou = kontrakMou.filter(m => m.instansiId === instansiId);
   const filteredExternalPics = picEksternal.filter(p => p.instansiId === instansiId);
 
@@ -69,9 +58,7 @@ export default function InstansiDetailPage() {
     );
   }
   
-  const pksDetailColumns = getPksColumns({ instansi, users, deleteKontrakPks, showActions: false });
   const mouDetailColumns = getMouColumns({ instansi, users, deleteKontrakMou, showActions: false });
-  const externalPicDetailColumns = getExternalPicColumns({ instansi, deletePicEksternal, showActions: false });
 
   return (
     <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">
@@ -154,17 +141,6 @@ export default function InstansiDetailPage() {
             </CardContent>
           </Card>
         </div>
-
-
-        <Card>
-            <CardHeader>
-                <CardTitle>Kontrak PKS</CardTitle>
-                <CardDescription>Daftar kontrak Perjanjian Kerja Sama yang terkait dengan instansi ini.</CardDescription>
-            </CardHeader>
-            <CardContent>
-                <PksDataTable columns={pksDetailColumns} data={filteredPks} />
-            </CardContent>
-        </Card>
 
         <Card>
             <CardHeader>
