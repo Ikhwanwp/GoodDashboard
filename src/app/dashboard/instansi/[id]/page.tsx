@@ -9,10 +9,12 @@ import { PageHeader } from '@/components/shared/page-header';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { MouDataTable } from '@/app/dashboard/contracts/data-table-mou';
 import { getMouColumns } from '@/app/dashboard/contracts/mou-columns';
+import { PksDataTable } from '@/app/dashboard/contracts/data-table-pks';
+import { getPksColumns } from '@/app/dashboard/contracts/pks-columns';
 import { Badge } from '@/components/ui/badge';
 import { format } from 'date-fns';
 import { id as idLocale } from 'date-fns/locale';
-import { User, ChevronRight } from 'lucide-react';
+import { User, ChevronRight, History, Handshake, FileText } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 
 export default function InstansiDetailPage() {
@@ -21,9 +23,11 @@ export default function InstansiDetailPage() {
   const { 
     instansi, 
     kontrakMou, 
+    kontrakPks,
     users, 
     picEksternal, 
     deleteKontrakMou, 
+    deleteKontrakPks,
     loading,
   } = useData();
 
@@ -47,6 +51,7 @@ export default function InstansiDetailPage() {
   const pic = users.find(u => u.id === currentInstansi?.internalPicId);
 
   const filteredMou = kontrakMou.filter(m => m.instansiId === instansiId);
+  const filteredPks = kontrakPks.filter(k => k.instansiId === instansiId);
   const filteredExternalPics = picEksternal.filter(p => p.instansiId === instansiId);
 
   if (!currentInstansi) {
@@ -58,6 +63,7 @@ export default function InstansiDetailPage() {
     );
   }
   
+  const pksDetailColumns = getPksColumns({ instansi, users, deleteKontrakPks, showActions: false });
   const mouDetailColumns = getMouColumns({ instansi, users, deleteKontrakMou, showActions: false });
 
   return (
@@ -142,15 +148,38 @@ export default function InstansiDetailPage() {
           </Card>
         </div>
 
-        <Card>
-            <CardHeader>
-                <CardTitle>Kontrak MoU</CardTitle>
-                <CardDescription>Daftar Memorandum of Understanding yang terkait dengan instansi ini.</CardDescription>
-            </CardHeader>
-            <CardContent>
-                <MouDataTable columns={mouDetailColumns} data={filteredMou} />
-            </CardContent>
-        </Card>
+        <div className="space-y-8">
+            <div className="flex items-center gap-2">
+                <History className="h-6 w-6 text-primary" />
+                <h2 className="text-2xl font-bold tracking-tight">Riwayat Kontrak</h2>
+            </div>
+
+            <Card>
+                <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                        <Handshake className="h-5 w-5 text-primary" />
+                        Riwayat Kontrak PKS
+                    </CardTitle>
+                    <CardDescription>Daftar seluruh Perjanjian Kerja Sama (PKS) baik yang masih aktif maupun yang sudah berakhir.</CardDescription>
+                </CardHeader>
+                <CardContent>
+                    <PksDataTable columns={pksDetailColumns} data={filteredPks} />
+                </CardContent>
+            </Card>
+
+            <Card>
+                <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                        <FileText className="h-5 w-5 text-primary" />
+                        Riwayat Kontrak MoU
+                    </CardTitle>
+                    <CardDescription>Daftar seluruh Memorandum of Understanding (MoU) baik yang masih aktif maupun yang sudah berakhir.</CardDescription>
+                </CardHeader>
+                <CardContent>
+                    <MouDataTable columns={mouDetailColumns} data={filteredMou} />
+                </CardContent>
+            </Card>
+        </div>
       </div>
     </main>
   );
