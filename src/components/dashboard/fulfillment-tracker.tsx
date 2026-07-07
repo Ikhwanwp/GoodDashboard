@@ -42,7 +42,6 @@ import type { Fulfillment, WorkflowStep } from "@/lib/types";
 import { format } from "date-fns";
 import { useToast } from "@/hooks/use-toast";
 import { Input } from "../ui/input";
-import { Textarea } from "../ui/textarea";
 
 export function FulfillmentTracker() {
   const { currentUser, instansi, kontrakPks, kontrakMou, users, getFulfillment, initializeFulfillment, updateFulfillmentStep, loading } = useData();
@@ -62,7 +61,6 @@ export function FulfillmentTracker() {
   const [isSavingStep, setIsSavingStep] = useState(false);
 
   const [refNumber, setRefNumber] = useState("");
-  const [notes, setNotes] = useState("");
   const [linkDokumen, setLinkDokumen] = useState("");
   const { toast } = useToast();
 
@@ -131,8 +129,8 @@ export function FulfillmentTracker() {
     setSelectedStep(step);
     setSelectedStepIndex(index);
     setRefNumber(step.refNumber || "");
-    setNotes(step.notes || "");
-    setLinkDokumen(step.linkDokumen || "");
+    // Default to contract document link if step link is empty
+    setLinkDokumen(step.linkDokumen || selectedContractInfo?.linkDokumen || "");
     setIsModalOpen(true);
   };
   
@@ -150,7 +148,7 @@ export function FulfillmentTracker() {
 
     setIsSavingStep(true);
     try {
-      await updateFulfillmentStep(selectedKontrakId, selectedStepIndex, { refNumber, notes, linkDokumen });
+      await updateFulfillmentStep(selectedKontrakId, selectedStepIndex, { refNumber, notes: "", linkDokumen });
       setIsModalOpen(false);
       handleContractChange(selectedKontrakId);
     } catch (error) {
@@ -448,10 +446,6 @@ export function FulfillmentTracker() {
                   <Input id="ref" value={refNumber} onChange={(e) => setRefNumber(e.target.value)} className="w-full mt-1" placeholder="Contoh: INV/2025/123"/>
                 </div>
              )}
-              <div>
-                <label htmlFor="notes" className="text-sm font-medium">Catatan (Opsional)</label>
-                <Textarea id="notes" value={notes} onChange={(e) => setNotes(e.target.value)} className="w-full mt-1" rows={3} placeholder="Informasi tambahan..."/>
-             </div>
              <div>
                 <label htmlFor="link" className="text-sm font-medium">Link Dokumen Pendukung (Opsional)</label>
                 <Input id="link" value={linkDokumen} onChange={(e) => setLinkDokumen(e.target.value)} className="w-full mt-1" placeholder="https://drive.google.com/..."/>
