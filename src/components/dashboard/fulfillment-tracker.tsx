@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useCallback, useMemo } from "react";
@@ -61,7 +62,16 @@ export function FulfillmentTracker() {
 
   const [refNumber, setRefNumber] = useState("");
   const [linkDokumen, setLinkDokumen] = useState("");
+  const [billingAmount, setBillingAmount] = useState<string>("");
   const { toast } = useToast();
+
+  const formatRupiah = (value: number) => {
+    return new Intl.NumberFormat('id-ID', {
+      style: 'currency',
+      currency: 'IDR',
+      minimumFractionDigits: 0,
+    }).format(value);
+  };
 
   const handleInstansiChange = (instansiId: string) => {
     setSelectedInstansiId(instansiId);
@@ -128,26 +138,27 @@ export function FulfillmentTracker() {
     setSelectedStep(step);
     setSelectedStepIndex(index);
     setRefNumber(step.refNumber || "");
-    // Fixed to contract link as per user request
-    setLinkDokumen(selectedContractInfo?.linkDokumen || "");
+    setLinkDokumen(step.linkDokumen || "");
+    setBillingAmount(step.billingAmount?.toString() || "");
     setIsModalOpen(true);
   };
   
   const handleCompleteStep = async () => {
     if (selectedKontrakId === null || selectedStepIndex === null) return;
 
-    if (!refNumber && selectedStep?.name !== 'Kontrak K/L') {
+    if (selectedStep?.name !== 'Kontrak K/L' && !refNumber) {
       toast({
         variant: "destructive",
-        title: "Nomor Referensi Diperlukan",
-        description: "Harap isi nomor referensi untuk menyelesaikan langkah ini.",
+        title: "Data Diperlukan",
+        description: "Harap isi nomor referensi invoice untuk menyelesaikan langkah ini.",
       });
       return;
     }
 
     setIsSavingStep(true);
     try {
-      await updateFulfillmentStep(selectedKontrakId, selectedStepIndex, { refNumber, notes: "", linkDokumen });
+      const amount = billingAmount ? parseFloat(billingAmount) : null;
+      await updateFulfillmentStep(selectedKontrakId, selectedStepIndex, { refNumber, notes: "", linkDokumen, billingAmount: amount });
       setIsModalOpen(false);
       handleContractChange(selectedKontrakId);
     } catch (error) {
@@ -156,14 +167,6 @@ export function FulfillmentTracker() {
       setIsSavingStep(false);
     }
   }
-
-  const formatRupiah = (value: number) => {
-    return new Intl.NumberFormat('id-ID', {
-      style: 'currency',
-      currency: 'IDR',
-      minimumFractionDigits: 0,
-    }).format(value);
-  };
 
   const fulfillmentHistory = activeFulfillment?.steps
     .filter(step => step.status === 'completed')
@@ -371,6 +374,7 @@ export function FulfillmentTracker() {
                             <TableHead>PIC</TableHead>
                             <TableHead>Selesai Pada</TableHead>
                             <TableHead>No. Referensi / Detail</TableHead>
+                            <TableHead>Nominal Penagihan</TableHead>
                             <TableHead className="text-center">Dokumen</TableHead>
                             </TableRow>
                         </TableHeader>
@@ -386,6 +390,9 @@ export function FulfillmentTracker() {
                                           {item.name === 'Kontrak K/L' ? 'Data Kontrak Terverifikasi' : item.refNumber}
                                         </Badge>
                                     </TableCell>
+                                    <TableCell>
+                                        {item.billingAmount ? formatRupiah(item.billingAmount) : '-'}
+                                    </TableCell>
                                     <TableCell className="text-center">
                                     <Button variant="ghost" size="icon" asChild disabled={!item.linkDokumen}>
                                         <a href={item.linkDokumen!} target="_blank" rel="noopener noreferrer">
@@ -397,7 +404,7 @@ export function FulfillmentTracker() {
                                 ))
                             ) : (
                                 <TableRow>
-                                    <TableCell colSpan={5} className="h-24 text-center text-muted-foreground">
+                                    <TableCell colSpan={6} className="h-24 text-center text-muted-foreground">
                                         Belum ada langkah yang diselesaikan.
                                     </TableCell>
                                 </TableRow>
@@ -440,26 +447,21 @@ export function FulfillmentTracker() {
                    </div>
                 </div>
              ) : (
-                <div>
-                  <label htmlFor="ref" className="text-sm font-medium">Nomor Referensi / Invoice</label>
-                  <Input id="ref" value={refNumber} onChange={(e) => setRefNumber(e.target.value)} className="w-full mt-1" placeholder="Contoh: INV/2025/123"/>
+                <div className="space-y-4">
+                  <div>
+                    <label htmlFor="ref" className="text-sm font-medium">Nomor Referensi / Invoice</label>
+                    <Input id="ref" value={refNumber} onChange={(e) => setRefNumber(e.target.value)} className="w-full mt-1" placeholder="Contoh: INV/2025/123"/>
+                  </div>
+                  <div>
+                    <label htmlFor="amount" className="text-sm font-medium">Nominal Penagihan (Rp)</label>
+                    <Input id="amount" type="number" value={billingAmount} onChange={(e) => setBillingAmount(e.target.value)} className="w-full mt-1" placeholder="Contoh: 50000000"/>
+                  </div>
+                  <div>
+                    <label htmlFor="link" className="text-sm font-medium">Link Dokumen Invoice</label>
+                    <Input id="link" value={linkDokumen} onChange={(e) => setLinkDokumen(e.target.value)} className="w-full mt-1" placeholder="https://link-dokumen-invoice.com/..."/>
+                  </div>
                 </div>
              )}
-             <div className="space-y-1">
-                <label className="text-sm font-medium">Link Dokumen Kontrak</label>
-                <div className="flex items-center gap-2 p-2 border rounded-md bg-secondary/30">
-                   <LinkIcon className="h-4 w-4 text-muted-foreground" />
-                   {linkDokumen ? (
-                      <a href={linkDokumen} target="_blank" rel="noopener noreferrer" className="text-sm text-primary hover:underline truncate flex-1">
-                         Buka Dokumen Kontrak
-                         <ExternalLink className="inline-block ml-1 h-3 w-3" />
-                      </a>
-                   ) : (
-                      <span className="text-sm text-muted-foreground italic flex-1">Link dokumen tidak tersedia di kontrak</span>
-                   )}
-                </div>
-                <p className="text-[10px] text-muted-foreground italic">Link ini merujuk otomatis pada dokumen kontrak induk.</p>
-             </div>
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setIsModalOpen(false)}>Batal</Button>
@@ -473,3 +475,4 @@ export function FulfillmentTracker() {
     </>
   );
 }
+

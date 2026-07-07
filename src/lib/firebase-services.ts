@@ -1,4 +1,5 @@
 
+
 import { db, auth, firebaseConfig } from './firebase-config';
 import {
   collection,
@@ -335,6 +336,7 @@ export const initializeFulfillment = async (kontrakId: string, terminCount: numb
         completedAt: null,
         completedBy: null,
         refNumber: null,
+        billingAmount: null,
         notes: null,
         linkDokumen: null,
     });
@@ -348,6 +350,7 @@ export const initializeFulfillment = async (kontrakId: string, terminCount: numb
             completedAt: null,
             completedBy: null,
             refNumber: null,
+            billingAmount: null,
             notes: null,
             linkDokumen: null,
         });
@@ -361,6 +364,7 @@ export const initializeFulfillment = async (kontrakId: string, terminCount: numb
         completedAt: null,
         completedBy: null,
         refNumber: null,
+        billingAmount: null,
         notes: null,
         linkDokumen: null,
     });
@@ -388,7 +392,7 @@ export const initializeFulfillment = async (kontrakId: string, terminCount: numb
 export const updateFulfillmentStep = async (
     kontrakId: string, 
     stepIndex: number, 
-    stepData: { refNumber: string; notes: string; linkDokumen: string; userId: string; }
+    stepData: { refNumber: string; billingAmount: number | null; notes: string; linkDokumen: string; userId: string; }
 ): Promise<void> => {
     const docRef = doc(db, 'fulfillment', kontrakId);
     const docSnap = await getDoc(docRef);
@@ -405,14 +409,13 @@ export const updateFulfillmentStep = async (
     }
     
     // Mark current step as completed
-    // NOTE: serverTimestamp() is NOT supported inside arrays when using updateDoc.
-    // We use new Date() as a reliable alternative for array values.
     steps[stepIndex] = {
         ...steps[stepIndex],
         status: 'completed',
         completedAt: new Date() as any, 
         completedBy: stepData.userId,
         refNumber: stepData.refNumber,
+        billingAmount: stepData.billingAmount,
         notes: stepData.notes,
         linkDokumen: stepData.linkDokumen,
     };
@@ -429,3 +432,4 @@ export const updateFulfillmentStep = async (
         lastUpdatedAt: serverTimestamp(),
     });
 }
+

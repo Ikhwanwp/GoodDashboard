@@ -1,4 +1,5 @@
 
+
 "use client";
 
 import { createContext, useContext, useState, ReactNode, useEffect, useCallback } from 'react';
@@ -64,7 +65,7 @@ interface DataContextType {
   // Fulfillment
   getFulfillment: (kontrakId: string) => Promise<Fulfillment | null>;
   initializeFulfillment: (kontrakId: string, terminCount: number) => Promise<Fulfillment>;
-  updateFulfillmentStep: (kontrakId: string, stepIndex: number, stepData: { refNumber: string, notes: string, linkDokumen: string }) => Promise<void>;
+  updateFulfillmentStep: (kontrakId: string, stepIndex: number, stepData: { refNumber: string, billingAmount: number | null, notes: string, linkDokumen: string }) => Promise<void>;
 }
 
 const DataContext = createContext<DataContextType | undefined>(undefined);
@@ -309,7 +310,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
         }
     },
     initializeFulfillment: createApiFunction(initializeFulfillment, "Alur pelacakan berhasil dikonfigurasi.", ['fulfillments']),
-    updateFulfillmentStep: async (kontrakId: string, stepIndex: number, stepData: { refNumber: string, notes: string, linkDokumen: string }) => {
+    updateFulfillmentStep: async (kontrakId: string, stepIndex: number, stepData: { refNumber: string, billingAmount: number | null, notes: string, linkDokumen: string }) => {
       if (!currentUser) throw new Error("User not authenticated");
       const dataWithUser = { ...stepData, userId: currentUser.id };
       await createApiFunction(
@@ -330,3 +331,4 @@ export function useData() {
   }
   return context;
 }
+

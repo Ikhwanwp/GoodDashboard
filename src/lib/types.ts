@@ -147,6 +147,7 @@ export interface WorkflowStep {
   completedAt: Date | null;
   completedBy: string | null; // User ID
   refNumber: string | null;
+  billingAmount: number | null; // New field for billing amount
   notes: string | null;
   linkDokumen: string | null;
 }
