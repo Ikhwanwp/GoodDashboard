@@ -341,6 +341,7 @@ export const initializeFulfillment = async (kontrakId: string, terminCount: numb
         completedBy: null,
         refNumber: null,
         billingAmount: null,
+        billingDate: null,
         notes: null,
         linkDokumen: null,
     });
@@ -355,6 +356,7 @@ export const initializeFulfillment = async (kontrakId: string, terminCount: numb
             completedBy: null,
             refNumber: null,
             billingAmount: null,
+            billingDate: null,
             notes: null,
             linkDokumen: null,
         });
@@ -369,6 +371,7 @@ export const initializeFulfillment = async (kontrakId: string, terminCount: numb
         completedBy: null,
         refNumber: null,
         billingAmount: null,
+        billingDate: null,
         notes: null,
         linkDokumen: null,
     });
@@ -396,7 +399,7 @@ export const initializeFulfillment = async (kontrakId: string, terminCount: numb
 export const updateFulfillmentStep = async (
     kontrakId: string, 
     stepIndex: number, 
-    stepData: { refNumber: string; billingAmount: number | null; notes: string; linkDokumen: string; userId: string; }
+    stepData: { refNumber: string; billingAmount: number | null; billingDate: Date | null; notes: string; linkDokumen: string; userId: string; }
 ): Promise<void> => {
     const docRef = doc(db, 'fulfillment', kontrakId);
     const docSnap = await getDoc(docRef);
@@ -420,6 +423,7 @@ export const updateFulfillmentStep = async (
         completedBy: stepData.userId,
         refNumber: stepData.refNumber,
         billingAmount: stepData.billingAmount,
+        billingDate: stepData.billingDate as any,
         notes: stepData.notes,
         linkDokumen: stepData.linkDokumen,
     };

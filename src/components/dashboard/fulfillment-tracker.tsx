@@ -35,14 +35,17 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
-import { CheckCircle, Circle, Loader2, Link as LinkIcon, Settings2, Handshake, Info, RotateCcw } from "lucide-react";
+import { CheckCircle, Circle, Loader2, Link as LinkIcon, Settings2, Handshake, Info, RotateCcw, CalendarIcon } from "lucide-react";
 import { useData } from "@/context/data-context";
 import { cn } from "@/lib/utils";
 import type { Fulfillment, WorkflowStep } from "@/lib/types";
 import { format } from "date-fns";
+import { id as idLocale } from "date-fns/locale";
 import { useToast } from "@/hooks/use-toast";
 import { Input } from "../ui/input";
 import { DeleteConfirmation } from "@/components/shared/delete-confirmation";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Calendar } from "@/components/ui/calendar";
 
 export function FulfillmentTracker() {
   const { instansi, kontrakPks, kontrakMou, getFulfillment, initializeFulfillment, updateFulfillmentStep, deleteFulfillment, loading } = useData();
@@ -64,6 +67,8 @@ export function FulfillmentTracker() {
   const [refNumber, setRefNumber] = useState("");
   const [linkDokumen, setLinkDokumen] = useState("");
   const [billingAmount, setBillingAmount] = useState<string>("");
+  const [billingDate, setBillingDate] = useState<Date | undefined>(undefined);
+  const [isDatePickerOpen, setIsDatePickerOpen] = useState(false);
   const { toast } = useToast();
 
   const formatRupiah = (value: number) => {
@@ -150,6 +155,7 @@ export function FulfillmentTracker() {
     setRefNumber(step.refNumber || "");
     setLinkDokumen(step.linkDokumen || "");
     setBillingAmount(step.billingAmount?.toString() || "");
+    setBillingDate(step.billingDate || undefined);
     setIsModalOpen(true);
   };
   
@@ -168,7 +174,13 @@ export function FulfillmentTracker() {
     setIsSavingStep(true);
     try {
       const amount = billingAmount ? parseFloat(billingAmount) : null;
-      await updateFulfillmentStep(selectedKontrakId, selectedStepIndex, { refNumber, notes: "", linkDokumen, billingAmount: amount });
+      await updateFulfillmentStep(selectedKontrakId, selectedStepIndex, { 
+        refNumber, 
+        notes: "", 
+        linkDokumen, 
+        billingAmount: amount,
+        billingDate: billingDate || null
+      });
       setIsModalOpen(false);
       handleContractChange(selectedKontrakId);
     } catch (error) {
@@ -387,6 +399,7 @@ export function FulfillmentTracker() {
                             <TableHead>Langkah</TableHead>
                             <TableHead>Selesai Pada</TableHead>
                             <TableHead>No. Referensi / Detail</TableHead>
+                            <TableHead>Tgl Penagihan</TableHead>
                             <TableHead>Nominal Penagihan</TableHead>
                             <TableHead className="text-center">Dokumen</TableHead>
                             </TableRow>
@@ -403,6 +416,9 @@ export function FulfillmentTracker() {
                                         </Badge>
                                     </TableCell>
                                     <TableCell>
+                                        {item.billingDate ? format(item.billingDate, 'dd MMM yyyy') : '-'}
+                                    </TableCell>
+                                    <TableCell>
                                         {item.billingAmount ? formatRupiah(item.billingAmount) : '-'}
                                     </TableCell>
                                     <TableCell className="text-center">
@@ -416,7 +432,7 @@ export function FulfillmentTracker() {
                                 ))
                             ) : (
                                 <TableRow>
-                                    <TableCell colSpan={5} className="h-24 text-center text-muted-foreground">
+                                    <TableCell colSpan={6} className="h-24 text-center text-muted-foreground">
                                         Belum ada langkah yang diselesaikan.
                                     </TableCell>
                                 </TableRow>
@@ -463,6 +479,34 @@ export function FulfillmentTracker() {
                   <div>
                     <label htmlFor="ref" className="text-sm font-medium">Nomor Referensi / Invoice</label>
                     <Input id="ref" value={refNumber} onChange={(e) => setRefNumber(e.target.value)} className="w-full mt-1" placeholder="Contoh: INV/2025/123"/>
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium">Tanggal Penagihan</label>
+                    <Popover open={isDatePickerOpen} onOpenChange={setIsDatePickerOpen}>
+                        <PopoverTrigger asChild>
+                            <Button
+                                variant={"outline"}
+                                className={cn(
+                                    "w-full justify-start text-left font-normal mt-1",
+                                    !billingDate && "text-muted-foreground"
+                                )}
+                            >
+                                <CalendarIcon className="mr-2 h-4 w-4" />
+                                {billingDate ? format(billingDate, "PPP", { locale: idLocale }) : <span>Pilih tanggal penagihan</span>}
+                            </Button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-auto p-0" align="start">
+                            <Calendar
+                                mode="single"
+                                selected={billingDate}
+                                onSelect={(date) => {
+                                    setBillingDate(date);
+                                    setIsDatePickerOpen(false);
+                                }}
+                                initialFocus
+                            />
+                        </PopoverContent>
+                    </Popover>
                   </div>
                   <div>
                     <label htmlFor="amount" className="text-sm font-medium">Nominal Penagihan (Rp)</label>

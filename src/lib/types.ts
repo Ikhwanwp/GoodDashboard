@@ -1,5 +1,4 @@
 
-
 import type { LucideIcon } from "lucide-react";
 import type { Timestamp } from "firebase/firestore";
 
@@ -147,13 +146,15 @@ export interface WorkflowStep {
   completedAt: Date | null;
   completedBy: string | null; // User ID
   refNumber: string | null;
-  billingAmount: number | null; // New field for billing amount
+  billingAmount: number | null; 
+  billingDate: Date | null; // Added field
   notes: string | null;
   linkDokumen: string | null;
 }
 
-export interface WorkflowStepFromDB extends Omit<WorkflowStep, 'completedAt'> {
+export interface WorkflowStepFromDB extends Omit<WorkflowStep, 'completedAt' | 'billingDate'> {
     completedAt: Timestamp | null;
+    billingDate: Timestamp | null;
 }
 
 export interface Fulfillment {

@@ -64,7 +64,7 @@ interface DataContextType {
   // Fulfillment
   getFulfillment: (kontrakId: string) => Promise<Fulfillment | null>;
   initializeFulfillment: (kontrakId: string, terminCount: number) => Promise<Fulfillment>;
-  updateFulfillmentStep: (kontrakId: string, stepIndex: number, stepData: { refNumber: string, billingAmount: number | null, notes: string, linkDokumen: string }) => Promise<void>;
+  updateFulfillmentStep: (kontrakId: string, stepIndex: number, stepData: { refNumber: string, billingAmount: number | null, billingDate: Date | null, notes: string, linkDokumen: string }) => Promise<void>;
   deleteFulfillment: (kontrakId: string) => Promise<void>;
 }
 
@@ -310,7 +310,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
         }
     },
     initializeFulfillment: createApiFunction(initializeFulfillment, "Alur pelacakan berhasil dikonfigurasi.", ['fulfillments']),
-    updateFulfillmentStep: async (kontrakId: string, stepIndex: number, stepData: { refNumber: string, billingAmount: number | null, notes: string, linkDokumen: string }) => {
+    updateFulfillmentStep: async (kontrakId: string, stepIndex: number, stepData: { refNumber: string, billingAmount: number | null, billingDate: Date | null, notes: string, linkDokumen: string }) => {
       if (!currentUser) throw new Error("User not authenticated");
       const dataWithUser = { ...stepData, userId: currentUser.id };
       await createApiFunction(
