@@ -405,10 +405,12 @@ export const updateFulfillmentStep = async (
     }
     
     // Mark current step as completed
+    // NOTE: serverTimestamp() is NOT supported inside arrays when using updateDoc.
+    // We use new Date() as a reliable alternative for array values.
     steps[stepIndex] = {
         ...steps[stepIndex],
         status: 'completed',
-        completedAt: serverTimestamp() as any, // Cast for local use, will be timestamp on server
+        completedAt: new Date() as any, 
         completedBy: stepData.userId,
         refNumber: stepData.refNumber,
         notes: stepData.notes,
