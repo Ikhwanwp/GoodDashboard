@@ -67,7 +67,7 @@ export default function DashboardPage() {
           </Button>
       </PageHeader>
 
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-6">
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-5">
         <SummaryCard 
           title="Total K/L Aktif" 
           value={instansi.length.toString()} 
@@ -87,11 +87,6 @@ export default function DashboardPage() {
           title="Kontrak Segera Berakhir" 
           value={expiringContracts.toString()} 
           icon={FileClock} 
-        />
-         <SummaryCard 
-          title="Jumlah SPH" 
-          value={dokumenSph.length.toString()} 
-          icon={FileText} 
         />
         <SummaryCard 
             title="Total Nominal Kontrak" 
