@@ -1,10 +1,9 @@
-
 "use client";
 
 import { PageHeader } from "@/components/shared/page-header";
 import { SummaryCard } from "@/components/dashboard/summary-card";
 import { ReminderList } from "@/components/dashboard/reminder-list";
-import { Building2, FileText, Handshake, Banknote, FileClock, Download } from "lucide-react";
+import { FileText, Handshake, Banknote, FileClock, Download } from "lucide-react";
 import { useData } from "@/context/data-context";
 import { Skeleton } from "@/components/ui/skeleton";
 import { FulfillmentWidget } from "@/components/dashboard/fulfillment-widget";
@@ -18,8 +17,7 @@ export default function DashboardPage() {
     return (
       <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">
         <PageHeader title="Dashboard" />
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-5">
-          <Skeleton className="h-28 w-full" />
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
           <Skeleton className="h-28 w-full" />
           <Skeleton className="h-28 w-full" />
           <Skeleton className="h-28 w-full" />
@@ -67,12 +65,7 @@ export default function DashboardPage() {
           </Button>
       </PageHeader>
 
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-5">
-        <SummaryCard 
-          title="Total K/L Aktif" 
-          value={instansi.length.toString()} 
-          icon={Building2} 
-        />
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <SummaryCard 
           title="Kontrak PKS Aktif" 
           value={activePks.length.toString()} 
