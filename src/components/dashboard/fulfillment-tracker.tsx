@@ -177,7 +177,7 @@ export function FulfillmentTracker() {
         <CardHeader>
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
             <div className="flex-1">
-                <CardTitle>Status Pra Kontrak</CardTitle>
+                <CardTitle>Status Kontrak</CardTitle>
                 <CardDescription>Atur alur termin dan monitor progres kontrak aktif.</CardDescription>
             </div>
              <div className="flex flex-col md:flex-row gap-4">
@@ -242,7 +242,7 @@ export function FulfillmentTracker() {
                     <CardHeader>
                         <CardTitle className="flex items-center gap-2">
                             <Settings2 className="text-accent h-5 w-5"/>
-                            Konfigurasi Alur Pra Kontrak Baru
+                            Konfigurasi Alur Kontrak Baru
                         </CardTitle>
                         <CardDescription>Kontrak ini belum memiliki alur. Tentukan jumlah termin penagihan.</CardDescription>
                     </CardHeader>

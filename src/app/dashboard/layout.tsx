@@ -47,7 +47,7 @@ const gaMenuItems = [
   { href: "/dashboard/instansi", label: "Instansi", icon: Building2 },
   { href: "/dashboard/contracts", label: "Kontrak", icon: Handshake },
   // Status Updates hidden as per request
-  { href: "/dashboard/fulfillment", label: "Status Pra Kontrak", icon: ChevronsRight },
+  { href: "/dashboard/fulfillment", label: "Status Kontrak", icon: ChevronsRight },
   { href: "/dashboard/pic", label: "PIC", icon: Contact },
   { href: "/dashboard/timeline", label: "Timeline", icon: Clock },
 ];
