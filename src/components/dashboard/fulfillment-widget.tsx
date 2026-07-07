@@ -41,6 +41,10 @@ export function FulfillmentWidget() {
         const contract = allContracts.find(k => k.id === fulfillment.kontrakId);
         if (!contract) return null;
 
+        // Skip contracts that don't have a nominal value (e.g. MoUs or empty PKS)
+        const nominal = (contract as any).nominal || 0;
+        if (nominal <= 0) return null;
+
         const kl = instansi.find(i => i.id === contract.instansiId);
         if (!kl) return null;
 
@@ -73,7 +77,7 @@ export function FulfillmentWidget() {
             Monitoring Status Pra Kontrak
         </CardTitle>
         <CardDescription>
-          Menampilkan progres termin dan penagihan 5 kontrak terakhir.
+          Menampilkan progres termin dan penagihan 5 kontrak terakhir yang memiliki nilai nominal.
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -118,7 +122,7 @@ export function FulfillmentWidget() {
                 )) : (
                     <TableRow>
                         <TableCell colSpan={4} className="text-center h-24 text-muted-foreground">
-                            Belum ada alur pelacakan yang dikonfigurasi.
+                            Belum ada alur pelacakan dengan nilai kontrak yang dikonfigurasi.
                         </TableCell>
                     </TableRow>
                 )}
