@@ -1,3 +1,4 @@
+
 "use client";
 
 import {
@@ -69,7 +70,7 @@ export function FulfillmentWidget() {
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
             <CreditCard className="h-5 w-5 text-primary" />
-            Monitoring Status Invoice Terkini
+            Monitoring Status Pra Kontrak
         </CardTitle>
         <CardDescription>
           Menampilkan progres termin dan penagihan 5 kontrak terakhir.

@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState, useEffect, useCallback, useMemo } from "react";
+import { useState, useCallback, useMemo } from "react";
 import {
   Select,
   SelectContent,
@@ -13,6 +13,7 @@ import {
   Card,
   CardContent,
   CardDescription,
+  CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
@@ -34,11 +35,10 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
-import { CheckCircle, Circle, Loader2, Link as LinkIcon, Settings2, Handshake } from "lucide-react";
+import { CheckCircle, Circle, Loader2, Link as LinkIcon, Settings2, Handshake, Info } from "lucide-react";
 import { useData } from "@/context/data-context";
 import { cn } from "@/lib/utils";
-import type { Fulfillment, WorkflowStep, KontrakPks, KontrakMou } from "@/lib/types";
-import { Skeleton } from "../ui/skeleton";
+import type { Fulfillment, WorkflowStep } from "@/lib/types";
 import { format } from "date-fns";
 import { useToast } from "@/hooks/use-toast";
 import { Input } from "../ui/input";
@@ -88,6 +88,7 @@ export function FulfillmentTracker() {
   }, [getFulfillment]);
 
   const allActiveContracts = useMemo(() => {
+    // Only filter for Active contracts
     const pks = kontrakPks.filter(k => k.statusKontrak === 'Aktif').map(k => ({ ...k, type: 'PKS' as const }));
     const mou = kontrakMou.filter(m => m.statusKontrak === 'Aktif').map(m => ({ ...m, type: 'MoU' as const, nominal: 0, judulKontrak: m.isiMou, nomorKontrakPeruri: m.nomorMouPeruri, nomorKontrakKl: m.nomorMouKl }));
     return [...pks, ...mou];
@@ -122,7 +123,6 @@ export function FulfillmentTracker() {
   }
 
   const handleStepClick = (step: WorkflowStep, index: number) => {
-    // Only allow clicking active or completed steps
     if (step.status === 'pending') {
         const prevStep = index > 0 ? activeFulfillment?.steps[index-1] : null;
         if (prevStep?.status !== 'completed') return;
@@ -136,12 +136,10 @@ export function FulfillmentTracker() {
     setIsModalOpen(true);
   };
   
-  const canCompleteStep = currentUser?.role === selectedStep?.role;
-
   const handleCompleteStep = async () => {
     if (selectedKontrakId === null || selectedStepIndex === null) return;
 
-    if (!refNumber) {
+    if (!refNumber && selectedStep?.name !== 'Kontrak K/L') {
       toast({
         variant: "destructive",
         title: "Nomor Referensi Diperlukan",
@@ -181,15 +179,14 @@ export function FulfillmentTracker() {
     })
     .sort((a,b) => (b.completedAt?.getTime() || 0) - (a.completedAt?.getTime() || 0));
 
-
   return (
     <>
       <Card>
         <CardHeader>
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
             <div className="flex-1">
-                <CardTitle>Pelacakan Invoice Kontrak</CardTitle>
-                <CardDescription>Atur termin dan lacak progres penagihan kontrak K/L.</CardDescription>
+                <CardTitle>Status Pra Kontrak</CardTitle>
+                <CardDescription>Atur alur termin dan monitor progres kontrak aktif.</CardDescription>
             </div>
              <div className="flex flex-col md:flex-row gap-4">
                 <Select value={selectedInstansiId || ""} onValueChange={handleInstansiChange} disabled={loading}>
@@ -214,7 +211,7 @@ export function FulfillmentTracker() {
                             ? "Pilih K/L dulu" 
                             : availableContracts.length === 0
                             ? "Tidak ada kontrak aktif"
-                            : "Pilih Kontrak..."
+                            : "Pilih Kontrak Aktif..."
                         } 
                     />
                 </SelectTrigger>
@@ -224,7 +221,7 @@ export function FulfillmentTracker() {
                             <SelectItem key={k.id} value={k.id}>{k.nomorKontrakPeruri} - {k.judulKontrak}</SelectItem>
                         ))
                     ) : (
-                        <div className="px-2 py-1.5 text-sm text-muted-foreground">Tidak ada data.</div>
+                        <div className="px-2 py-1.5 text-sm text-muted-foreground">Tidak ada kontrak aktif.</div>
                     )}
                 </SelectContent>
                 </Select>
@@ -241,7 +238,7 @@ export function FulfillmentTracker() {
           
           {!selectedKontrakId && !isLoadingFulfillment && (
              <div className="text-center text-muted-foreground py-16">
-              <p>Silakan pilih kontrak K/L yang aktif untuk memulai pelacakan.</p>
+              <p>Silakan pilih K/L dan kontrak yang aktif untuk melihat atau membuat alur kerja.</p>
             </div>
           )}
 
@@ -251,9 +248,9 @@ export function FulfillmentTracker() {
                     <CardHeader>
                         <CardTitle className="flex items-center gap-2">
                             <Settings2 className="text-accent h-5 w-5"/>
-                            Konfigurasi Pelacakan Baru
+                            Konfigurasi Alur Pra Kontrak Baru
                         </CardTitle>
-                        <CardDescription>Kontrak ini belum memiliki alur pelacakan. Tentukan jumlah termin untuk memulai.</CardDescription>
+                        <CardDescription>Kontrak ini belum memiliki alur. Tentukan jumlah termin penagihan.</CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-6">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm bg-background p-4 rounded-md border">
@@ -283,7 +280,7 @@ export function FulfillmentTracker() {
                                     className="w-24"
                                 />
                                 <p className="text-xs text-muted-foreground italic">
-                                    Alur akan otomatis menjadi: Kontrak K/L → {Array.from({length: terminCount}).map((_, i) => `Termin ${i+1}`).join(' → ')} → End Of Contract
+                                    Akan menghasilkan alur: Kontrak K/L → {Array.from({length: terminCount}).map((_, i) => `Termin ${i+1}`).join(' → ')} → End Of Contract
                                 </p>
                             </div>
                         </div>
@@ -291,7 +288,7 @@ export function FulfillmentTracker() {
                     <CardFooter>
                         <Button onClick={handleInitialize} className="w-full" disabled={isInitializing}>
                             {isInitializing ? <Loader2 className="animate-spin mr-2"/> : <Handshake className="mr-2 h-4 w-4" />}
-                            Generate Alur Pelacakan
+                            Generate Stepper Alur
                         </Button>
                     </CardFooter>
                 </Card>
@@ -316,7 +313,6 @@ export function FulfillmentTracker() {
                     </div>
                 </div>
 
-                {/* Visual Workflow Tracker */}
                 <div className="w-full overflow-x-auto pb-6">
                     <div className="relative flex items-start pt-6 min-w-max">
                     {activeFulfillment.steps.map((step, index) => {
@@ -364,10 +360,9 @@ export function FulfillmentTracker() {
                     </div>
                 </div>
 
-                {/* Activity History Table */}
                 <div className="mt-8">
                     <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
-                        Riwayat Aktivitas
+                        Riwayat Aktivitas Alur
                     </h3>
                     <div className="rounded-md border">
                         <Table>
@@ -376,7 +371,7 @@ export function FulfillmentTracker() {
                             <TableHead>Langkah</TableHead>
                             <TableHead>PIC</TableHead>
                             <TableHead>Selesai Pada</TableHead>
-                            <TableHead>No. Referensi / Invoice</TableHead>
+                            <TableHead>No. Referensi / Detail</TableHead>
                             <TableHead className="text-center">Dokumen</TableHead>
                             </TableRow>
                         </TableHeader>
@@ -388,7 +383,9 @@ export function FulfillmentTracker() {
                                     <TableCell>{item.picName}</TableCell>
                                     <TableCell>{item.completedAt ? format(item.completedAt, 'dd MMM yyyy, HH:mm') : 'N/A'}</TableCell>
                                     <TableCell>
-                                        <Badge variant="outline" className="font-mono">{item.refNumber}</Badge>
+                                        <Badge variant="outline" className="font-mono">
+                                          {item.name === 'Kontrak K/L' ? 'Data Kontrak Terverifikasi' : item.refNumber}
+                                        </Badge>
                                     </TableCell>
                                     <TableCell className="text-center">
                                     <Button variant="ghost" size="icon" asChild disabled={!item.linkDokumen}>
@@ -402,7 +399,7 @@ export function FulfillmentTracker() {
                             ) : (
                                 <TableRow>
                                     <TableCell colSpan={5} className="h-24 text-center text-muted-foreground">
-                                        Belum ada aktivitas yang tercatat.
+                                        Belum ada langkah yang diselesaikan.
                                     </TableCell>
                                 </TableRow>
                             )}
@@ -415,23 +412,43 @@ export function FulfillmentTracker() {
         </CardContent>
       </Card>
 
-      {/* Modal for Step Completion */}
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Update Langkah: {selectedStep?.name}</DialogTitle>
+            <DialogTitle>Update Progres: {selectedStep?.name}</DialogTitle>
             <DialogDescription>
-              Masukkan detail penagihan atau dokumen pendukung untuk langkah ini.
+              {selectedStep?.name === 'Kontrak K/L' 
+                ? "Verifikasi informasi kontrak berikut untuk melanjutkan alur." 
+                : "Masukkan detail penagihan atau dokumen pendukung."}
             </DialogDescription>
           </DialogHeader>
           <div className="py-4 space-y-4">
-             <div>
-                <label htmlFor="ref" className="text-sm font-medium">Nomor Referensi / Invoice</label>
-                <Input id="ref" value={refNumber} onChange={(e) => setRefNumber(e.target.value)} className="w-full mt-1" placeholder="Contoh: INV/2025/123"/>
-             </div>
+             {selectedStep?.name === 'Kontrak K/L' ? (
+                <div className="bg-muted p-4 rounded-lg space-y-3">
+                   <div className="flex items-start gap-3">
+                      <Info className="h-5 w-5 text-primary shrink-0 mt-0.5" />
+                      <div className="text-sm space-y-2">
+                         <p className="font-bold">Informasi Kontrak:</p>
+                         <div className="grid grid-cols-2 gap-x-4 gap-y-1">
+                            <span className="text-muted-foreground">Nomor Peruri:</span>
+                            <span className="font-mono">{selectedContractInfo?.nomorKontrakPeruri}</span>
+                            <span className="text-muted-foreground">Nomor K/L:</span>
+                            <span className="font-mono">{selectedContractInfo?.nomorKontrakKl}</span>
+                            <span className="text-muted-foreground">Nominal:</span>
+                            <span className="font-bold text-primary">{selectedContractInfo ? formatRupiah(selectedContractInfo.nominal) : '-'}</span>
+                         </div>
+                      </div>
+                   </div>
+                </div>
+             ) : (
+                <div>
+                  <label htmlFor="ref" className="text-sm font-medium">Nomor Referensi / Invoice</label>
+                  <Input id="ref" value={refNumber} onChange={(e) => setRefNumber(e.target.value)} className="w-full mt-1" placeholder="Contoh: INV/2025/123"/>
+                </div>
+             )}
               <div>
-                <label htmlFor="notes" className="text-sm font-medium">Catatan Penagihan (Opsional)</label>
-                <Textarea id="notes" value={notes} onChange={(e) => setNotes(e.target.value)} className="w-full mt-1" rows={3} placeholder="Informasi tambahan terkait termin ini..."/>
+                <label htmlFor="notes" className="text-sm font-medium">Catatan (Opsional)</label>
+                <Textarea id="notes" value={notes} onChange={(e) => setNotes(e.target.value)} className="w-full mt-1" rows={3} placeholder="Informasi tambahan..."/>
              </div>
              <div>
                 <label htmlFor="link" className="text-sm font-medium">Link Dokumen Pendukung (Opsional)</label>
@@ -442,7 +459,7 @@ export function FulfillmentTracker() {
             <Button variant="outline" onClick={() => setIsModalOpen(false)}>Batal</Button>
             <Button onClick={handleCompleteStep} disabled={isSavingStep}>
                 {isSavingStep ? <Loader2 className="animate-spin mr-2"/> : <CheckCircle className="mr-2 h-4 w-4" />}
-                Konfirmasi Selesai
+                {selectedStep?.name === 'Kontrak K/L' ? 'Konfirmasi & Mulai Termin' : 'Konfirmasi Selesai'}
             </Button>
           </DialogFooter>
         </DialogContent>

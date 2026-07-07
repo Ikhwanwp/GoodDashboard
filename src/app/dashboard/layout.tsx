@@ -1,5 +1,4 @@
 
-
 "use client";
 
 import Link from "next/link";
@@ -48,7 +47,7 @@ const gaMenuItems = [
   { href: "/dashboard/instansi", label: "Instansi", icon: Building2 },
   { href: "/dashboard/contracts", label: "Kontrak", icon: Handshake },
   { href: "/dashboard/updates", label: "Status Updates", icon: MessageSquareQuote },
-  { href: "/dashboard/fulfillment", label: "Tracking Invoice", icon: ChevronsRight },
+  { href: "/dashboard/fulfillment", label: "Status Pra Kontrak", icon: ChevronsRight },
   { href: "/dashboard/pic", label: "PIC", icon: Contact },
   { href: "/dashboard/timeline", label: "Timeline", icon: Clock },
 ];
@@ -76,7 +75,6 @@ function AuthWrapper({ children }: { children: React.ReactNode }) {
       else if (currentUser.role === 'GA' && (isBaPath || isAdminPath)) {
          router.push('/dashboard');
       }
-      // New logic to protect admin routes
       else if (currentUser.role !== 'Admin' && isAdminPath) {
         if (currentUser.role === 'BA') {
             router.push('/dashboard-ba');
@@ -110,19 +108,15 @@ function AuthWrapper({ children }: { children: React.ReactNode }) {
 
   const isViewingAsAdmin = currentUser.role === 'Admin' && (pathname.startsWith('/dashboard') || pathname.startsWith('/dashboard-ba'));
 
-  // Clone original menus to avoid mutation across renders
   const currentGaMenu = [...gaMenuItems];
   const currentBaMenu = [...baMenuItems];
   
   if(currentUser.role === 'Admin' && !pathname.startsWith('/admin')) {
-    // If admin is not in admin section, add a link back to it
     const adminLink = { href: "/admin", label: "Command Center", icon: Shield };
     currentGaMenu.unshift(adminLink);
     currentBaMenu.unshift(adminLink);
   }
 
-
-  // Determine which menu to show
   if (currentUser.role === 'Admin' && !isViewingAsAdmin) {
     menuItems = adminMenuItems;
     logoText = "Admin Center";
@@ -131,12 +125,11 @@ function AuthWrapper({ children }: { children: React.ReactNode }) {
     menuItems = currentBaMenu;
     logoText = "BA Monitor";
     homePath = "/dashboard-ba";
-  } else { // GA or Admin viewing GA
+  } else {
     menuItems = currentGaMenu;
     logoText = "Govtech Dashboard";
     homePath = "/dashboard";
   }
-
 
   return (
       <SidebarProvider>
@@ -198,7 +191,6 @@ function AuthWrapper({ children }: { children: React.ReactNode }) {
       </SidebarProvider>
   );
 }
-
 
 export default function DashboardLayout({
   children,
