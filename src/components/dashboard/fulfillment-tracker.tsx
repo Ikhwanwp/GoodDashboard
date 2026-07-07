@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState, useCallback, useMemo } from "react";
@@ -35,7 +34,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
-import { CheckCircle, Circle, Loader2, Link as LinkIcon, Settings2, Handshake, Info } from "lucide-react";
+import { CheckCircle, Circle, Loader2, Link as LinkIcon, Settings2, Handshake, Info, ExternalLink } from "lucide-react";
 import { useData } from "@/context/data-context";
 import { cn } from "@/lib/utils";
 import type { Fulfillment, WorkflowStep } from "@/lib/types";
@@ -129,8 +128,8 @@ export function FulfillmentTracker() {
     setSelectedStep(step);
     setSelectedStepIndex(index);
     setRefNumber(step.refNumber || "");
-    // Default to contract document link if step link is empty
-    setLinkDokumen(step.linkDokumen || selectedContractInfo?.linkDokumen || "");
+    // Fixed to contract link as per user request
+    setLinkDokumen(selectedContractInfo?.linkDokumen || "");
     setIsModalOpen(true);
   };
   
@@ -419,7 +418,7 @@ export function FulfillmentTracker() {
             <DialogDescription>
               {selectedStep?.name === 'Kontrak K/L' 
                 ? "Verifikasi informasi kontrak berikut untuk melanjutkan alur." 
-                : "Masukkan detail penagihan atau dokumen pendukung."}
+                : "Masukkan detail penagihan sesuai progres termin."}
             </DialogDescription>
           </DialogHeader>
           <div className="py-4 space-y-4">
@@ -446,9 +445,20 @@ export function FulfillmentTracker() {
                   <Input id="ref" value={refNumber} onChange={(e) => setRefNumber(e.target.value)} className="w-full mt-1" placeholder="Contoh: INV/2025/123"/>
                 </div>
              )}
-             <div>
-                <label htmlFor="link" className="text-sm font-medium">Link Dokumen Pendukung (Opsional)</label>
-                <Input id="link" value={linkDokumen} onChange={(e) => setLinkDokumen(e.target.value)} className="w-full mt-1" placeholder="https://drive.google.com/..."/>
+             <div className="space-y-1">
+                <label className="text-sm font-medium">Link Dokumen Kontrak</label>
+                <div className="flex items-center gap-2 p-2 border rounded-md bg-secondary/30">
+                   <LinkIcon className="h-4 w-4 text-muted-foreground" />
+                   {linkDokumen ? (
+                      <a href={linkDokumen} target="_blank" rel="noopener noreferrer" className="text-sm text-primary hover:underline truncate flex-1">
+                         Buka Dokumen Kontrak
+                         <ExternalLink className="inline-block ml-1 h-3 w-3" />
+                      </a>
+                   ) : (
+                      <span className="text-sm text-muted-foreground italic flex-1">Link dokumen tidak tersedia di kontrak</span>
+                   )}
+                </div>
+                <p className="text-[10px] text-muted-foreground italic">Link ini merujuk otomatis pada dokumen kontrak induk.</p>
              </div>
           </div>
           <DialogFooter>
