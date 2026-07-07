@@ -35,16 +35,17 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
-import { CheckCircle, Circle, Loader2, Link as LinkIcon, Settings2, Handshake, Info } from "lucide-react";
+import { CheckCircle, Circle, Loader2, Link as LinkIcon, Settings2, Handshake, Info, RotateCcw } from "lucide-react";
 import { useData } from "@/context/data-context";
 import { cn } from "@/lib/utils";
 import type { Fulfillment, WorkflowStep } from "@/lib/types";
 import { format } from "date-fns";
 import { useToast } from "@/hooks/use-toast";
 import { Input } from "../ui/input";
+import { DeleteConfirmation } from "@/components/shared/delete-confirmation";
 
 export function FulfillmentTracker() {
-  const { instansi, kontrakPks, kontrakMou, getFulfillment, initializeFulfillment, updateFulfillmentStep, loading } = useData();
+  const { instansi, kontrakPks, kontrakMou, getFulfillment, initializeFulfillment, updateFulfillmentStep, deleteFulfillment, loading } = useData();
   const [selectedInstansiId, setSelectedInstansiId] = useState<string | null>(null);
   const [selectedKontrakId, setSelectedKontrakId] = useState<string | null>(null);
   const [activeFulfillment, setActiveFulfillment] = useState<Fulfillment | null>(null);
@@ -125,6 +126,16 @@ export function FulfillmentTracker() {
       console.error("Initialization failed:", error);
     } finally {
       setIsInitializing(false);
+    }
+  }
+
+  const handleResetAlur = async () => {
+    if (!selectedKontrakId) return;
+    try {
+        await deleteFulfillment(selectedKontrakId);
+        setActiveFulfillment(null);
+    } catch (error) {
+        console.error("Reset alur failed:", error);
     }
   }
 
@@ -296,14 +307,25 @@ export function FulfillmentTracker() {
                         <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center">
                             <Handshake className="h-6 w-6 text-primary" />
                         </div>
-                        <div>
+                        <div className="flex-1">
                              <p className="text-sm font-semibold">{selectedContractInfo?.judulKontrak}</p>
                              <p className="text-xs text-muted-foreground">{selectedContractInfo?.nomorKontrakPeruri} | {selectedContractInfo?.nomorKontrakKl}</p>
                         </div>
                     </div>
-                    <div className="text-right">
-                        <p className="text-xs text-muted-foreground">Nominal</p>
-                        <p className="font-bold text-primary">{selectedContractInfo ? formatRupiah(selectedContractInfo.nominal) : '-'}</p>
+                    <div className="flex flex-col md:flex-row items-end md:items-center gap-4">
+                        <div className="text-right">
+                            <p className="text-xs text-muted-foreground">Nominal</p>
+                            <p className="font-bold text-primary">{selectedContractInfo ? formatRupiah(selectedContractInfo.nominal) : '-'}</p>
+                        </div>
+                        <DeleteConfirmation 
+                            onConfirm={handleResetAlur}
+                            itemName={`alur kontrak ${selectedContractInfo?.nomorKontrakPeruri || selectedContractInfo?.nomorKontrakKl}`}
+                        >
+                            <Button variant="outline" size="sm" className="text-destructive hover:bg-destructive hover:text-white">
+                                <RotateCcw className="mr-2 h-4 w-4" />
+                                Reset Alur
+                            </Button>
+                        </DeleteConfirmation>
                     </div>
                 </div>
 

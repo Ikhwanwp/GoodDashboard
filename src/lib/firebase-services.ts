@@ -1,5 +1,4 @@
 
-
 import { db, auth, firebaseConfig } from './firebase-config';
 import {
   collection,
@@ -325,6 +324,11 @@ export const getFulfillment = async (kontrakId: string): Promise<Fulfillment | n
     return null;
 }
 
+export const deleteFulfillmentFromDB = async (kontrakId: string) => {
+    const docRef = doc(db, 'fulfillment', kontrakId);
+    return await deleteDoc(docRef);
+}
+
 export const initializeFulfillment = async (kontrakId: string, terminCount: number): Promise<Fulfillment> => {
     const steps: WorkflowStep[] = [];
     
@@ -432,4 +436,3 @@ export const updateFulfillmentStep = async (
         lastUpdatedAt: serverTimestamp(),
     });
 }
-

@@ -1,5 +1,4 @@
 
-
 "use client";
 
 import { createContext, useContext, useState, ReactNode, useEffect, useCallback } from 'react';
@@ -14,7 +13,7 @@ import {
     getKontrakMou, addKontrakMouToDB, updateKontrakMouInDB, deleteKontrakMouFromDB,
     getDokumenSph, addDokumenSphToDB, updateDokumenSphInDB, deleteDokumenSphFromDB,
     getStatusPekerjaan, addStatusPekerjaanToDB, updateStatusPekerjaanInDB, deleteStatusPekerjaanFromDB,
-    getFulfillments, getFulfillment, initializeFulfillment, updateFulfillmentStep,
+    getFulfillments, getFulfillment, initializeFulfillment, updateFulfillmentStep, deleteFulfillmentFromDB
 } from '@/lib/firebase-services';
 import { useToast } from "@/hooks/use-toast";
 
@@ -66,6 +65,7 @@ interface DataContextType {
   getFulfillment: (kontrakId: string) => Promise<Fulfillment | null>;
   initializeFulfillment: (kontrakId: string, terminCount: number) => Promise<Fulfillment>;
   updateFulfillmentStep: (kontrakId: string, stepIndex: number, stepData: { refNumber: string, billingAmount: number | null, notes: string, linkDokumen: string }) => Promise<void>;
+  deleteFulfillment: (kontrakId: string) => Promise<void>;
 }
 
 const DataContext = createContext<DataContextType | undefined>(undefined);
@@ -319,6 +319,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
         ['fulfillments']
       )(kontrakId, stepIndex, dataWithUser);
     },
+    deleteFulfillment: createApiFunction(deleteFulfillmentFromDB, "Alur pelacakan berhasil direset.", ['fulfillments']),
   };
 
   return <DataContext.Provider value={value}>{children}</DataContext.Provider>;
@@ -331,4 +332,3 @@ export function useData() {
   }
   return context;
 }
-
