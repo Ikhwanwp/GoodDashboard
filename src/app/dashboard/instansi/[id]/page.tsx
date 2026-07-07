@@ -11,18 +11,15 @@ import { PksDataTable } from '@/app/dashboard/contracts/data-table-pks';
 import { getPksColumns } from '@/app/dashboard/contracts/pks-columns';
 import { MouDataTable } from '@/app/dashboard/contracts/data-table-mou';
 import { getMouColumns } from '@/app/dashboard/contracts/mou-columns';
-import { UpdatesDataTable } from '@/app/dashboard/updates/data-table';
-import { getUpdatesColumns } from '@/app/dashboard/updates/columns';
 import { Badge } from '@/components/ui/badge';
 import { format } from 'date-fns';
 import { id as idLocale } from 'date-fns/locale';
 import type { ColumnDef } from '@tanstack/react-table';
-import type { KontrakPks, KontrakMou, StatusPekerjaan, PicEksternal } from '@/lib/types';
+import type { KontrakPks, KontrakMou, PicEksternal } from '@/lib/types';
 import { ExternalPicTable } from '../../pic/external-pic-table';
 import { getExternalPicColumns } from '../../pic/external-pic-columns';
-import { User, FilePlus2, ChevronRight } from 'lucide-react';
+import { User, ChevronRight } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
-import { MomForm } from '@/components/forms/mom-form';
 
 export default function InstansiDetailPage() {
   const params = useParams();
@@ -31,12 +28,10 @@ export default function InstansiDetailPage() {
     instansi, 
     kontrakPks, 
     kontrakMou, 
-    statusPekerjaan, 
     users, 
     picEksternal, 
     deleteKontrakPks, 
     deleteKontrakMou, 
-    deleteStatusPekerjaan,
     deletePicEksternal,
     loading,
   } = useData();
@@ -63,7 +58,6 @@ export default function InstansiDetailPage() {
 
   const filteredPks = kontrakPks.filter(k => k.instansiId === instansiId);
   const filteredMou = kontrakMou.filter(m => m.instansiId === instansiId);
-  const filteredUpdates = statusPekerjaan.filter(s => s.instansiId === instansiId).sort((a,b) => b.tanggalEvent.getTime() - a.tanggalEvent.getTime());
   const filteredExternalPics = picEksternal.filter(p => p.instansiId === instansiId);
 
   if (!currentInstansi) {
@@ -77,7 +71,6 @@ export default function InstansiDetailPage() {
   
   const pksDetailColumns = getPksColumns({ instansi, users, deleteKontrakPks, showActions: false });
   const mouDetailColumns = getMouColumns({ instansi, users, deleteKontrakMou, showActions: false });
-  const updatesDetailColumns = getUpdatesColumns({ instansi, deleteStatusPekerjaan, showActions: false });
   const externalPicDetailColumns = getExternalPicColumns({ instansi, deletePicEksternal, showActions: false });
 
   return (
@@ -89,16 +82,7 @@ export default function InstansiDetailPage() {
         <ChevronRight className="h-4 w-4" />
         <span className="font-semibold text-foreground">{currentInstansi.namaInstansi}</span>
       </div>
-      <PageHeader title={currentInstansi.namaInstansi}>
-        <div className="flex items-center gap-2">
-            <MomForm instansi={currentInstansi}>
-                 <button className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2">
-                    <FilePlus2 className="mr-2 h-4 w-4" />
-                    Buat MoM
-                 </button>
-            </MomForm>
-         </div>
-      </PageHeader>
+      <PageHeader title={currentInstansi.namaInstansi} />
       
       <div className="grid gap-8">
         
@@ -189,16 +173,6 @@ export default function InstansiDetailPage() {
             </CardHeader>
             <CardContent>
                 <MouDataTable columns={mouDetailColumns} data={filteredMou} />
-            </CardContent>
-        </Card>
-
-        <Card>
-            <CardHeader>
-                <CardTitle>Status Pekerjaan</CardTitle>
-                <CardDescription>Riwayat update status pekerjaan untuk instansi ini.</CardDescription>
-            </CardHeader>
-            <CardContent>
-                <UpdatesDataTable columns={updatesDetailColumns} data={filteredUpdates} />
             </CardContent>
         </Card>
       </div>

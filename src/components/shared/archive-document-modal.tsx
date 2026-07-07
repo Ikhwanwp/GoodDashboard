@@ -61,7 +61,7 @@ import {
 } from "lucide-react";
 
 const archiveSchema = z.object({
-  documentType: z.enum(["PKS", "MoU", "SPH", "MoM"], {
+  documentType: z.enum(["PKS", "MoU", "SPH"], {
     required_error: "Tipe dokumen harus dipilih.",
   }),
   instansiId: z.string().min(1, "K/L Terkait harus dipilih."),
@@ -239,7 +239,6 @@ export function ArchiveDocumentModal() {
                           <SelectItem value="PKS">PKS (Perjanjian Kerja Sama)</SelectItem>
                           <SelectItem value="MoU">MoU (Memorandum of Understanding)</SelectItem>
                           <SelectItem value="SPH">SPH (Surat Penawaran Harga)</SelectItem>
-                          <SelectItem value="MoM">MoM (Minutes of Meeting)</SelectItem>
                         </SelectContent>
                       </Select>
                       <FormMessage />

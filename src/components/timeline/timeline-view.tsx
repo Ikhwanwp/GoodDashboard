@@ -17,7 +17,7 @@ interface TimelineViewProps {
 export function TimelineView({ instansiList }: TimelineViewProps) {
   const [selectedInstansiId, setSelectedInstansiId] = useState<string | null>(null);
   const [selectedKontrakId, setSelectedKontrakId] = useState<string>('all');
-  const { kontrakPks, kontrakMou, dokumenSph, statusPekerjaan } = useData();
+  const { kontrakPks, kontrakMou, dokumenSph } = useData();
 
   const availableContracts = useMemo(() => {
     if (!selectedInstansiId) return [];
@@ -59,18 +59,10 @@ export function TimelineView({ instansiList }: TimelineViewProps) {
             .map(s => ({ instansiId: s.instansiId, date: s.tanggal, type: 'SPH', title: `SPH: ${s.perihal}`, description: `Nomor: ${s.nomorSuratPeruri}`, icon: FileArchive }))
         : [];
 
-    const statusEvents: TimelineEvent[] = statusPekerjaan
-      .filter(u => {
-        if (u.instansiId !== selectedInstansiId) return false;
-        if (selectedKontrakId === 'all') return true;
-        // Show update if it's linked to the selected contract OR if it's a general update (no contractId)
-        return u.kontrakId === selectedKontrakId || !u.kontrakId;
-      })
-      .map(u => ({ instansiId: u.instansiId, kontrakId: u.kontrakId, date: u.tanggalUpdate, type: 'Update', title: u.judulUpdate, description: u.deskripsi, icon: MessageSquareQuote }));
+    // Status events hidden as per request
+    return [...pksEvents, ...mouEvents, ...sphEvents].sort((a, b) => b.date.getTime() - a.date.getTime());
 
-    return [...pksEvents, ...mouEvents, ...sphEvents, ...statusEvents].sort((a, b) => b.date.getTime() - a.date.getTime());
-
-  }, [selectedInstansiId, selectedKontrakId, kontrakPks, kontrakMou, dokumenSph, statusPekerjaan]);
+  }, [selectedInstansiId, selectedKontrakId, kontrakPks, kontrakMou, dokumenSph]);
 
   const handleInstansiChange = (instansiId: string) => {
     setSelectedInstansiId(instansiId);
