@@ -40,7 +40,8 @@ export default function DashboardPage() {
   
   const activePks = kontrakPks.filter(k => k.statusKontrak === 'Aktif');
   const activeMou = kontrakMou.filter(m => m.statusKontrak === 'Aktif');
-  const totalActiveRevenue = activePks.reduce((acc, contract) => acc + contract.nominal, 0);
+  // Menghitung total nominal dari PKS yang aktif saja
+  const totalActiveNominal = activePks.reduce((acc, contract) => acc + contract.nominal, 0);
 
   const formatRupiah = (value: number) => {
     return new Intl.NumberFormat('id-ID', {
@@ -93,8 +94,8 @@ export default function DashboardPage() {
           icon={FileText} 
         />
         <SummaryCard 
-            title="Total Pendapatan" 
-            value={formatRupiah(totalActiveRevenue)} 
+            title="Total Nominal Kontrak" 
+            value={formatRupiah(totalActiveNominal)} 
             icon={Banknote} 
             variant="active" 
         />
