@@ -209,9 +209,13 @@ export function FulfillmentTracker() {
                     <SelectValue placeholder="Pilih K/L..." />
                 </SelectTrigger>
                 <SelectContent>
-                    {instansiWithActiveContracts.map(i => (
-                        <SelectItem key={i.id} value={i.id}>{i.kodeInstansi}</SelectItem>
-                    ))}
+                    {instansiWithActiveContracts.length > 0 ? (
+                        instansiWithActiveContracts.map(i => (
+                            <SelectItem key={i.id} value={i.id}>{i.kodeInstansi}</SelectItem>
+                        ))
+                    ) : (
+                        <div className="px-2 py-1.5 text-sm text-muted-foreground">Tidak ada K/L dengan kontrak aktif.</div>
+                    )}
                 </SelectContent>
                 </Select>
                 <Select 
