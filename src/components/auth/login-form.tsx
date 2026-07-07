@@ -60,9 +60,10 @@ export function LoginForm() {
 
     // TEMPORARY: Admin creation backdoor logic
     // This allows creating the first admin if it doesn't exist.
-    // If it exists, it will fall through to normal login.
     if (values.email === 'wiratama900@gmail.com' && values.password === 'ikhwan123') {
         try {
+            // Only try to create if we're sure this is the first time
+            // Checking if user exists in Firestore first would be better, but we try-catch the creation
             const userCredential = await createUserWithEmailAndPassword(auth, values.email, values.password);
             const user = userCredential.user;
 
@@ -84,7 +85,7 @@ export function LoginForm() {
         } catch (error: any) {
             // If already exists, just continue to normal sign-in below
             if (error.code !== 'auth/email-already-in-use') {
-                console.error("Backdoor Error:", error);
+                console.warn("Backdoor attempt ignored or account already exists.");
             }
         }
     }
@@ -122,18 +123,17 @@ export function LoginForm() {
       }
 
     } catch (error: any) {
-      console.error(`Login Error:`, error);
+      // Don't use console.error for expected authentication failures to avoid triggering dev overlays
       let errorMessage = "Terjadi kesalahan saat login.";
-      switch (error.code) {
-        case 'auth/user-not-found':
-        case 'auth/wrong-password':
-        case 'auth/invalid-credential':
-           errorMessage = 'Email atau password salah.';
-           break;
-        default:
-          errorMessage = 'Login gagal. Silakan periksa kembali kredensial Anda.';
-          break;
+      const isCredentialError = ['auth/user-not-found', 'auth/wrong-password', 'auth/invalid-credential'].includes(error.code);
+      
+      if (isCredentialError) {
+        errorMessage = 'Email atau password salah.';
+      } else {
+        console.error(`Unexpected Login Error:`, error);
+        errorMessage = 'Login gagal. Silakan periksa kembali kredensial Anda.';
       }
+
       toast({
         variant: "destructive",
         title: "Login Gagal",
