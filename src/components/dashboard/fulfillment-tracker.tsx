@@ -35,7 +35,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
-import { CheckCircle, Circle, Loader2, Link as LinkIcon, Settings2, Handshake, Info, ExternalLink } from "lucide-react";
+import { CheckCircle, Circle, Loader2, Link as LinkIcon, Settings2, Handshake, Info } from "lucide-react";
 import { useData } from "@/context/data-context";
 import { cn } from "@/lib/utils";
 import type { Fulfillment, WorkflowStep } from "@/lib/types";
@@ -44,7 +44,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Input } from "../ui/input";
 
 export function FulfillmentTracker() {
-  const { currentUser, instansi, kontrakPks, kontrakMou, users, getFulfillment, initializeFulfillment, updateFulfillmentStep, loading } = useData();
+  const { instansi, kontrakPks, kontrakMou, getFulfillment, initializeFulfillment, updateFulfillmentStep, loading } = useData();
   const [selectedInstansiId, setSelectedInstansiId] = useState<string | null>(null);
   const [selectedKontrakId, setSelectedKontrakId] = useState<string | null>(null);
   const [activeFulfillment, setActiveFulfillment] = useState<Fulfillment | null>(null);
@@ -95,7 +95,6 @@ export function FulfillmentTracker() {
   }, [getFulfillment]);
 
   const allActiveContracts = useMemo(() => {
-    // Only filter for Active contracts
     const pks = kontrakPks.filter(k => k.statusKontrak === 'Aktif').map(k => ({ ...k, type: 'PKS' as const }));
     const mou = kontrakMou.filter(m => m.statusKontrak === 'Aktif').map(m => ({ ...m, type: 'MoU' as const, nominal: 0, judulKontrak: m.isiMou, nomorKontrakPeruri: m.nomorMouPeruri, nomorKontrakKl: m.nomorMouKl }));
     return [...pks, ...mou];
@@ -170,13 +169,6 @@ export function FulfillmentTracker() {
 
   const fulfillmentHistory = activeFulfillment?.steps
     .filter(step => step.status === 'completed')
-    .map(step => {
-        const pic = users.find(u => u.id === step.completedBy);
-        return {
-            ...step,
-            picName: pic?.nama || 'N/A',
-        };
-    })
     .sort((a,b) => (b.completedAt?.getTime() || 0) - (a.completedAt?.getTime() || 0));
 
   return (
@@ -371,7 +363,6 @@ export function FulfillmentTracker() {
                         <TableHeader>
                             <TableRow>
                             <TableHead>Langkah</TableHead>
-                            <TableHead>PIC</TableHead>
                             <TableHead>Selesai Pada</TableHead>
                             <TableHead>No. Referensi / Detail</TableHead>
                             <TableHead>Nominal Penagihan</TableHead>
@@ -383,7 +374,6 @@ export function FulfillmentTracker() {
                                 fulfillmentHistory.map((item) => (
                                 <TableRow key={item.name}>
                                     <TableCell className="font-medium">{item.name}</TableCell>
-                                    <TableCell>{item.picName}</TableCell>
                                     <TableCell>{item.completedAt ? format(item.completedAt, 'dd MMM yyyy, HH:mm') : 'N/A'}</TableCell>
                                     <TableCell>
                                         <Badge variant="outline" className="font-mono">
@@ -404,7 +394,7 @@ export function FulfillmentTracker() {
                                 ))
                             ) : (
                                 <TableRow>
-                                    <TableCell colSpan={6} className="h-24 text-center text-muted-foreground">
+                                    <TableCell colSpan={5} className="h-24 text-center text-muted-foreground">
                                         Belum ada langkah yang diselesaikan.
                                     </TableCell>
                                 </TableRow>
@@ -475,4 +465,3 @@ export function FulfillmentTracker() {
     </>
   );
 }
-
