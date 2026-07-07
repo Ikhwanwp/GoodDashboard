@@ -218,7 +218,9 @@ export function FulfillmentTracker() {
                 <SelectContent>
                     {availableContracts.length > 0 ? (
                         availableContracts.map(k => (
-                            <SelectItem key={k.id} value={k.id}>{k.nomorKontrakPeruri} - {k.judulKontrak}</SelectItem>
+                            <SelectItem key={k.id} value={k.id}>
+                              {k.nomorKontrakPeruri || k.nomorKontrakKl}
+                            </SelectItem>
                         ))
                     ) : (
                         <div className="px-2 py-1.5 text-sm text-muted-foreground">Tidak ada kontrak aktif.</div>
@@ -256,7 +258,7 @@ export function FulfillmentTracker() {
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm bg-background p-4 rounded-md border">
                             <div>
                                 <p className="text-muted-foreground">Nomor Kontrak Peruri</p>
-                                <p className="font-semibold">{selectedContractInfo?.nomorKontrakPeruri}</p>
+                                <p className="font-semibold">{selectedContractInfo?.nomorKontrakPeruri || 'N/A'}</p>
                             </div>
                             <div>
                                 <p className="text-muted-foreground">Nomor Kontrak K/L</p>
@@ -431,7 +433,7 @@ export function FulfillmentTracker() {
                          <p className="font-bold">Informasi Kontrak:</p>
                          <div className="grid grid-cols-2 gap-x-4 gap-y-1">
                             <span className="text-muted-foreground">Nomor Peruri:</span>
-                            <span className="font-mono">{selectedContractInfo?.nomorKontrakPeruri}</span>
+                            <span className="font-mono">{selectedContractInfo?.nomorKontrakPeruri || 'N/A'}</span>
                             <span className="text-muted-foreground">Nomor K/L:</span>
                             <span className="font-mono">{selectedContractInfo?.nomorKontrakKl}</span>
                             <span className="text-muted-foreground">Nominal:</span>
