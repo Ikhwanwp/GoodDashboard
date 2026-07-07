@@ -1,3 +1,4 @@
+// src/app/dashboard/contracts/sph-columns.tsx
 "use client"
 
 import type { ColumnDef } from "@tanstack/react-table"
@@ -45,7 +46,15 @@ export const getSphColumns = ({ instansi, deleteDokumenSph }: GetSphColumnsParam
       header: "Kode Instansi",
       cell: ({ row }) => {
           const sphInstansi = instansi.find(i => i.id === row.original.instansiId);
-          return <div className="font-medium">{sphInstansi?.kodeInstansi || 'N/A'}</div>;
+          if (!sphInstansi) return <div className="font-medium text-muted-foreground">N/A</div>;
+          return (
+            <Link 
+              href={`/dashboard/instansi/${sphInstansi.id}`} 
+              className="font-bold text-primary hover:underline underline-offset-4"
+            >
+              {sphInstansi.kodeInstansi}
+            </Link>
+          );
       },
       filterFn: (row, id, value) => {
         const sphInstansi = instansi.find(i => i.id === row.original.instansiId);

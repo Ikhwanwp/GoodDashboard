@@ -86,7 +86,15 @@ export const getPksColumns = ({ instansi, users, deleteKontrakPks, showActions =
       header: "Kode Instansi",
       cell: ({ row }) => {
         const i = instansi.find(i => i.id === row.original.instansiId);
-        return <div className="font-medium">{i?.kodeInstansi || 'N/A'}</div>;
+        if (!i) return <div className="font-medium text-muted-foreground">N/A</div>;
+        return (
+          <Link 
+            href={`/dashboard/instansi/${i.id}`} 
+            className="font-bold text-primary hover:underline underline-offset-4"
+          >
+            {i.kodeInstansi}
+          </Link>
+        );
       },
       filterFn: (row, id, value) => {
         const i = instansi.find(i => i.id === row.original.instansiId);
