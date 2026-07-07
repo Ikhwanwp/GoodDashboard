@@ -308,60 +308,82 @@ export const deleteStatusPekerjaanFromDB = async (id: string) => {
 
 // --- Fulfillment Services ---
 const fulfillmentCollection = collection(db, 'fulfillment');
-const defaultWorkflowSteps: Omit<WorkflowStep, 'completedAt' | 'completedBy' | 'refNumber' | 'notes' | 'linkDokumen'>[] = [
-  { "name": "Kontrak K/L", "role": "GA", "status": "pending" },
-  { "name": "Kode Produk", "role": "GA", "status": "pending" },
-  { "name": "Sales Order (SO)", "role": "GA", "status": "pending" },
-  { "name": "Purchase Req. (PR)", "role": "BA", "status": "pending" },
-  { "name": "Purchase Order (PO)", "role": "BA", "status": "pending" },
-  { "name": "Surat Perintah Kerja (SPK)", "role": "BA", "status": "pending" },
-  { "name": "Goods Receipt (GR)", "role": "BA", "status": "pending" },
-  { "name": "Berita Acara Serah Terima (BAST)", "role": "GA", "status": "pending" },
-  { "name": "Surat Tanda Terima Jaminan (STTJ)", "role": "GA", "status": "pending" },
-  { "name": "Delivery Order (DO)", "role": "GA", "status": "pending" },
-  { "name": "Invoicing", "role": "GA", "status": "pending" }
-];
-
 
 export const getFulfillments = async (): Promise<Fulfillment[]> => {
     const snapshot = await getDocs(fulfillmentCollection);
     return snapshot.docs.map(doc => convertTimestamps<Fulfillment>({ ...doc.data(), id: doc.id } as FulfillmentFromDB));
 }
 
-export const getOrCreateFulfillment = async (kontrakId: string): Promise<Fulfillment> => {
+export const getFulfillment = async (kontrakId: string): Promise<Fulfillment | null> => {
     const docRef = doc(db, 'fulfillment', kontrakId);
     const docSnap = await getDoc(docRef);
 
     if (docSnap.exists()) {
         return convertTimestamps<Fulfillment>({ ...docSnap.data(), id: docSnap.id } as FulfillmentFromDB);
-    } else {
-        const newFulfillment: Omit<Fulfillment, 'id'> = {
-            kontrakId,
-            currentStep: 0,
-            lastUpdatedAt: new Date(), // Will be replaced by server timestamp
-            steps: defaultWorkflowSteps.map(step => ({
-                ...step,
-                status: step.name === "Kontrak K/L" ? 'active' : 'pending',
-                completedAt: null,
-                completedBy: null,
-                refNumber: null,
-                notes: null,
-                linkDokumen: null,
-            }))
-        };
-        
-        await setDoc(docRef, {
-            ...newFulfillment,
-            lastUpdatedAt: serverTimestamp(),
-        });
-        
-        return {
-            ...newFulfillment,
-            id: kontrakId,
-            lastUpdatedAt: new Date(), // Return current date for immediate use
-        };
     }
+    return null;
 }
+
+export const initializeFulfillment = async (kontrakId: string, terminCount: number): Promise<Fulfillment> => {
+    const steps: WorkflowStep[] = [];
+    
+    // Step 1: Kontrak K/L
+    steps.push({
+        name: "Kontrak K/L",
+        role: "GA",
+        status: "active",
+        completedAt: null,
+        completedBy: null,
+        refNumber: null,
+        notes: null,
+        linkDokumen: null,
+    });
+
+    // Dynamic Termin Steps
+    for (let i = 1; i <= terminCount; i++) {
+        steps.push({
+            name: `Termin ${i}`,
+            role: "GA",
+            status: "pending",
+            completedAt: null,
+            completedBy: null,
+            refNumber: null,
+            notes: null,
+            linkDokumen: null,
+        });
+    }
+
+    // Final Step: End Of Contract
+    steps.push({
+        name: "End Of Contract",
+        role: "GA",
+        status: "pending",
+        completedAt: null,
+        completedBy: null,
+        refNumber: null,
+        notes: null,
+        linkDokumen: null,
+    });
+
+    const newFulfillment: Omit<Fulfillment, 'id'> = {
+        kontrakId,
+        currentStep: 0,
+        lastUpdatedAt: new Date(),
+        steps,
+    };
+
+    const docRef = doc(db, 'fulfillment', kontrakId);
+    await setDoc(docRef, {
+        ...newFulfillment,
+        lastUpdatedAt: serverTimestamp(),
+    });
+
+    return {
+        ...newFulfillment,
+        id: kontrakId,
+    };
+}
+
 
 export const updateFulfillmentStep = async (
     kontrakId: string, 

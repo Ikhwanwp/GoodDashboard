@@ -1,5 +1,4 @@
 
-
 "use client";
 
 import { createContext, useContext, useState, ReactNode, useEffect, useCallback } from 'react';
@@ -14,7 +13,7 @@ import {
     getKontrakMou, addKontrakMouToDB, updateKontrakMouInDB, deleteKontrakMouFromDB,
     getDokumenSph, addDokumenSphToDB, updateDokumenSphInDB, deleteDokumenSphFromDB,
     getStatusPekerjaan, addStatusPekerjaanToDB, updateStatusPekerjaanInDB, deleteStatusPekerjaanFromDB,
-    getFulfillments, getOrCreateFulfillment, updateFulfillmentStep,
+    getFulfillments, getFulfillment, initializeFulfillment, updateFulfillmentStep,
 } from '@/lib/firebase-services';
 import { useToast } from "@/hooks/use-toast";
 
@@ -63,7 +62,8 @@ interface DataContextType {
   updatePicEksternal: (id: string, data: Partial<PicEksternal>) => Promise<void>;
   deletePicEksternal: (id: string) => Promise<void>;
   // Fulfillment
-  getOrCreateFulfillment: (kontrakId: string) => Promise<Fulfillment>;
+  getFulfillment: (kontrakId: string) => Promise<Fulfillment | null>;
+  initializeFulfillment: (kontrakId: string, terminCount: number) => Promise<Fulfillment>;
   updateFulfillmentStep: (kontrakId: string, stepIndex: number, stepData: { refNumber: string, notes: string, linkDokumen: string }) => Promise<void>;
 }
 
@@ -300,19 +300,15 @@ export function DataProvider({ children }: { children: ReactNode }) {
     updatePicEksternal: createApiFunction(updatePicEksternalInDB, "PIC Eksternal berhasil diperbarui.", ['picEksternal']),
     deletePicEksternal: createApiFunction(deletePicEksternalFromDB, "PIC Eksternal telah dihapus.", ['picEksternal']),
     // Fulfillment
-    getOrCreateFulfillment: async (kontrakId: string) => {
+    getFulfillment: async (kontrakId: string) => {
         try {
-            return await getOrCreateFulfillment(kontrakId);
+            return await getFulfillment(kontrakId);
         } catch (err) {
             console.error(err);
-            toast({
-                variant: "destructive",
-                title: "Gagal memuat alur kerja",
-                description: "Tidak dapat mengambil atau membuat data pelacakan untuk kontrak ini."
-            });
             throw err;
         }
     },
+    initializeFulfillment: createApiFunction(initializeFulfillment, "Alur pelacakan berhasil dikonfigurasi.", ['fulfillments']),
     updateFulfillmentStep: async (kontrakId: string, stepIndex: number, stepData: { refNumber: string, notes: string, linkDokumen: string }) => {
       if (!currentUser) throw new Error("User not authenticated");
       const dataWithUser = { ...stepData, userId: currentUser.id };

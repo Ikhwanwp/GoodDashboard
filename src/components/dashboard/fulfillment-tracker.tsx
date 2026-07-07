@@ -1,5 +1,4 @@
 
-
 "use client";
 
 import { useState, useEffect, useCallback, useMemo } from "react";
@@ -35,10 +34,10 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
-import { CheckCircle, Circle, Loader2, Link as LinkIcon } from "lucide-react";
+import { CheckCircle, Circle, Loader2, Link as LinkIcon, Settings2, Handshake } from "lucide-react";
 import { useData } from "@/context/data-context";
 import { cn } from "@/lib/utils";
-import type { Fulfillment, WorkflowStep } from "@/lib/types";
+import type { Fulfillment, WorkflowStep, KontrakPks, KontrakMou } from "@/lib/types";
 import { Skeleton } from "../ui/skeleton";
 import { format } from "date-fns";
 import { useToast } from "@/hooks/use-toast";
@@ -46,12 +45,17 @@ import { Input } from "../ui/input";
 import { Textarea } from "../ui/textarea";
 
 export function FulfillmentTracker() {
-  const { currentUser, instansi, kontrakPks, users, getOrCreateFulfillment, updateFulfillmentStep, loading } = useData();
+  const { currentUser, instansi, kontrakPks, kontrakMou, users, getFulfillment, initializeFulfillment, updateFulfillmentStep, loading } = useData();
   const [selectedInstansiId, setSelectedInstansiId] = useState<string | null>(null);
   const [selectedKontrakId, setSelectedKontrakId] = useState<string | null>(null);
   const [activeFulfillment, setActiveFulfillment] = useState<Fulfillment | null>(null);
   const [isLoadingFulfillment, setIsLoadingFulfillment] = useState(false);
   
+  // Setup State
+  const [terminCount, setTerminCount] = useState<number>(1);
+  const [isInitializing, setIsInitializing] = useState(false);
+
+  // Completion State
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedStep, setSelectedStep] = useState<WorkflowStep | null>(null);
   const [selectedStepIndex, setSelectedStepIndex] = useState<number | null>(null);
@@ -74,26 +78,56 @@ export function FulfillmentTracker() {
     setIsLoadingFulfillment(true);
     setActiveFulfillment(null);
     try {
-      const fulfillmentData = await getOrCreateFulfillment(kontrakId);
+      const fulfillmentData = await getFulfillment(kontrakId);
       setActiveFulfillment(fulfillmentData);
     } catch (error) {
       console.error("Failed to load fulfillment data:", error);
     } finally {
       setIsLoadingFulfillment(false);
     }
-  }, [getOrCreateFulfillment]);
+  }, [getFulfillment]);
+
+  const allActiveContracts = useMemo(() => {
+    const pks = kontrakPks.filter(k => k.statusKontrak === 'Aktif').map(k => ({ ...k, type: 'PKS' as const }));
+    const mou = kontrakMou.filter(m => m.statusKontrak === 'Aktif').map(m => ({ ...m, type: 'MoU' as const, nominal: 0, judulKontrak: m.isiMou, nomorKontrakPeruri: m.nomorMouPeruri, nomorKontrakKl: m.nomorMouKl }));
+    return [...pks, ...mou];
+  }, [kontrakPks, kontrakMou]);
 
   const availableContracts = useMemo(() => {
     if (!selectedInstansiId) return [];
-    return kontrakPks.filter(k => k.instansiId === selectedInstansiId && k.statusKontrak === 'Aktif');
-  }, [selectedInstansiId, kontrakPks]);
+    return allActiveContracts.filter(k => k.instansiId === selectedInstansiId);
+  }, [selectedInstansiId, allActiveContracts]);
 
-  const instansiWithPksContracts = useMemo(() => {
-    const instansiIdsWithPks = new Set(kontrakPks.map(k => k.id && k.statusKontrak === 'Aktif' ? k.instansiId : null));
-    return instansi.filter(i => instansiIdsWithPks.has(i.id));
-  }, [instansi, kontrakPks]);
+  const instansiWithActiveContracts = useMemo(() => {
+    const instansiIds = new Set(allActiveContracts.map(k => k.instansiId));
+    return instansi.filter(i => instansiIds.has(i.id));
+  }, [instansi, allActiveContracts]);
+
+  const selectedContractInfo = useMemo(() => {
+    if (!selectedKontrakId) return null;
+    return allActiveContracts.find(k => k.id === selectedKontrakId);
+  }, [selectedKontrakId, allActiveContracts]);
+
+  const handleInitialize = async () => {
+    if (!selectedKontrakId) return;
+    setIsInitializing(true);
+    try {
+      const data = await initializeFulfillment(selectedKontrakId, terminCount);
+      setActiveFulfillment(data);
+    } catch (error) {
+      console.error("Initialization failed:", error);
+    } finally {
+      setIsInitializing(false);
+    }
+  }
 
   const handleStepClick = (step: WorkflowStep, index: number) => {
+    // Only allow clicking active or completed steps
+    if (step.status === 'pending') {
+        const prevStep = index > 0 ? activeFulfillment?.steps[index-1] : null;
+        if (prevStep?.status !== 'completed') return;
+    }
+    
     setSelectedStep(step);
     setSelectedStepIndex(index);
     setRefNumber(step.refNumber || "");
@@ -105,7 +139,7 @@ export function FulfillmentTracker() {
   const canCompleteStep = currentUser?.role === selectedStep?.role;
 
   const handleCompleteStep = async () => {
-    if (!canCompleteStep || selectedKontrakId === null || selectedStepIndex === null) return;
+    if (selectedKontrakId === null || selectedStepIndex === null) return;
 
     if (!refNumber) {
       toast({
@@ -115,33 +149,26 @@ export function FulfillmentTracker() {
       });
       return;
     }
-    
-    if (linkDokumen && !linkDokumen.startsWith('http')) {
-        toast({
-            variant: "destructive",
-            title: "Link Dokumen Tidak Valid",
-            description: "Harap masukkan URL yang valid (dimulai dengan http atau https).",
-        });
-        return;
-    }
 
     setIsSavingStep(true);
     try {
       await updateFulfillmentStep(selectedKontrakId, selectedStepIndex, { refNumber, notes, linkDokumen });
       setIsModalOpen(false);
-      // Refetch data for the current contract to show updates
       handleContractChange(selectedKontrakId);
     } catch (error) {
       console.error("Failed to complete step:", error);
-      toast({
-        variant: "destructive",
-        title: "Gagal Menyimpan",
-        description: "Terjadi kesalahan saat memperbarui langkah alur kerja."
-      })
     } finally {
       setIsSavingStep(false);
     }
   }
+
+  const formatRupiah = (value: number) => {
+    return new Intl.NumberFormat('id-ID', {
+      style: 'currency',
+      currency: 'IDR',
+      minimumFractionDigits: 0,
+    }).format(value);
+  };
 
   const fulfillmentHistory = activeFulfillment?.steps
     .filter(step => step.status === 'completed')
@@ -161,8 +188,8 @@ export function FulfillmentTracker() {
         <CardHeader>
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
             <div className="flex-1">
-                <CardTitle>Pelacakan Alur Pemenuhan Kontrak</CardTitle>
-                <CardDescription>Pilih K/L dan kontrak untuk melihat progres aktivitasnya.</CardDescription>
+                <CardTitle>Pelacakan Invoice Kontrak</CardTitle>
+                <CardDescription>Atur termin dan lacak progres penagihan kontrak K/L.</CardDescription>
             </div>
              <div className="flex flex-col md:flex-row gap-4">
                 <Select value={selectedInstansiId || ""} onValueChange={handleInstansiChange} disabled={loading}>
@@ -170,7 +197,7 @@ export function FulfillmentTracker() {
                     <SelectValue placeholder="Pilih K/L..." />
                 </SelectTrigger>
                 <SelectContent>
-                    {instansiWithPksContracts.map(i => (
+                    {instansiWithActiveContracts.map(i => (
                         <SelectItem key={i.id} value={i.id}>{i.kodeInstansi}</SelectItem>
                     ))}
                 </SelectContent>
@@ -180,24 +207,24 @@ export function FulfillmentTracker() {
                     onValueChange={handleContractChange} 
                     disabled={!selectedInstansiId || loading || availableContracts.length === 0}
                 >
-                <SelectTrigger className="w-full md:w-[300px]">
+                <SelectTrigger className="w-full md:w-[350px]">
                     <SelectValue 
                         placeholder={
                             !selectedInstansiId 
                             ? "Pilih K/L dulu" 
                             : availableContracts.length === 0
                             ? "Tidak ada kontrak aktif"
-                            : "Pilih nomor kontrak..."
+                            : "Pilih Kontrak..."
                         } 
                     />
                 </SelectTrigger>
                 <SelectContent>
                     {availableContracts.length > 0 ? (
                         availableContracts.map(k => (
-                            <SelectItem key={k.id} value={k.id}>{k.nomorKontrakPeruri}</SelectItem>
+                            <SelectItem key={k.id} value={k.id}>{k.nomorKontrakPeruri} - {k.judulKontrak}</SelectItem>
                         ))
                     ) : (
-                        <div className="px-2 py-1.5 text-sm text-muted-foreground">K/L ini tidak memiliki kontrak PKS aktif untuk dilacak.</div>
+                        <div className="px-2 py-1.5 text-sm text-muted-foreground">Tidak ada data.</div>
                     )}
                 </SelectContent>
                 </Select>
@@ -206,35 +233,109 @@ export function FulfillmentTracker() {
         </CardHeader>
         <CardContent>
           {isLoadingFulfillment && (
-            <div className="flex flex-col items-center justify-center p-8 gap-4">
+            <div className="flex flex-col items-center justify-center p-16 gap-4">
                 <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-                <p className="text-muted-foreground">Memuat data alur kerja...</p>
+                <p className="text-muted-foreground">Memuat alur kerja...</p>
             </div>
           )}
+          
           {!selectedKontrakId && !isLoadingFulfillment && (
              <div className="text-center text-muted-foreground py-16">
-              <p>Silakan pilih kontrak PKS yang aktif untuk memulai.</p>
+              <p>Silakan pilih kontrak K/L yang aktif untuk memulai pelacakan.</p>
             </div>
           )}
+
+          {selectedKontrakId && !isLoadingFulfillment && !activeFulfillment && (
+             <div className="max-w-2xl mx-auto py-8">
+                <Card className="border-accent/20 bg-accent/5">
+                    <CardHeader>
+                        <CardTitle className="flex items-center gap-2">
+                            <Settings2 className="text-accent h-5 w-5"/>
+                            Konfigurasi Pelacakan Baru
+                        </CardTitle>
+                        <CardDescription>Kontrak ini belum memiliki alur pelacakan. Tentukan jumlah termin untuk memulai.</CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-6">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm bg-background p-4 rounded-md border">
+                            <div>
+                                <p className="text-muted-foreground">Nomor Kontrak Peruri</p>
+                                <p className="font-semibold">{selectedContractInfo?.nomorKontrakPeruri}</p>
+                            </div>
+                            <div>
+                                <p className="text-muted-foreground">Nomor Kontrak K/L</p>
+                                <p className="font-semibold">{selectedContractInfo?.nomorKontrakKl}</p>
+                            </div>
+                            <div className="md:col-span-2 pt-2 border-t mt-2">
+                                <p className="text-muted-foreground">Nominal Kontrak</p>
+                                <p className="text-xl font-bold text-primary">{selectedContractInfo ? formatRupiah(selectedContractInfo.nominal) : 'Rp 0'}</p>
+                            </div>
+                        </div>
+
+                        <div className="space-y-2">
+                            <label className="text-sm font-medium">Jumlah Termin Pembayaran</label>
+                            <div className="flex items-center gap-4">
+                                <Input 
+                                    type="number" 
+                                    min="1" 
+                                    max="12" 
+                                    value={terminCount} 
+                                    onChange={(e) => setTerminCount(parseInt(e.target.value) || 1)}
+                                    className="w-24"
+                                />
+                                <p className="text-xs text-muted-foreground italic">
+                                    Alur akan otomatis menjadi: Kontrak K/L → {Array.from({length: terminCount}).map((_, i) => `Termin ${i+1}`).join(' → ')} → End Of Contract
+                                </p>
+                            </div>
+                        </div>
+                    </CardContent>
+                    <CardFooter>
+                        <Button onClick={handleInitialize} className="w-full" disabled={isInitializing}>
+                            {isInitializing ? <Loader2 className="animate-spin mr-2"/> : <Handshake className="mr-2 h-4 w-4" />}
+                            Generate Alur Pelacakan
+                        </Button>
+                    </CardFooter>
+                </Card>
+             </div>
+          )}
+
           {activeFulfillment && !isLoadingFulfillment && (
             <>
+                <div className="mb-6 p-4 rounded-lg bg-primary/5 border flex flex-col md:flex-row justify-between gap-4">
+                    <div className="flex gap-4 items-center">
+                        <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center">
+                            <Handshake className="h-6 w-6 text-primary" />
+                        </div>
+                        <div>
+                             <p className="text-sm font-semibold">{selectedContractInfo?.judulKontrak}</p>
+                             <p className="text-xs text-muted-foreground">{selectedContractInfo?.nomorKontrakPeruri} | {selectedContractInfo?.nomorKontrakKl}</p>
+                        </div>
+                    </div>
+                    <div className="text-right">
+                        <p className="text-xs text-muted-foreground">Nominal</p>
+                        <p className="font-bold text-primary">{selectedContractInfo ? formatRupiah(selectedContractInfo.nominal) : '-'}</p>
+                    </div>
+                </div>
+
                 {/* Visual Workflow Tracker */}
-                <div className="w-full overflow-x-auto pb-4">
+                <div className="w-full overflow-x-auto pb-6">
                     <div className="relative flex items-start pt-6 min-w-max">
-                    {activeFulfillment.steps.map((step, index) => (
+                    {activeFulfillment.steps.map((step, index) => {
+                        const isAccessible = index === 0 || activeFulfillment.steps[index-1].status === 'completed' || step.status === 'completed';
+                        
+                        return (
                         <div key={step.name} className="flex-1 flex flex-col items-center relative">
                         <div
                             className={cn(
-                                "flex flex-col items-center gap-2 cursor-pointer group z-10",
-                                step.status === 'pending' && 'opacity-50'
+                                "flex flex-col items-center gap-2 transition-all duration-200",
+                                !isAccessible ? 'opacity-30 grayscale cursor-not-allowed' : 'cursor-pointer group z-10'
                             )}
-                            onClick={() => handleStepClick(step, index)}
+                            onClick={() => isAccessible && handleStepClick(step, index)}
                         >
                             <div
                             className={cn(
                                 "flex h-12 w-12 items-center justify-center rounded-full border-2 transition-all bg-background z-10",
                                 step.status === "completed" && "bg-primary border-primary text-primary-foreground",
-                                step.status === "active" && "bg-accent border-accent text-accent-foreground animate-pulse",
+                                step.status === "active" && "bg-accent border-accent text-accent-foreground ring-4 ring-accent/20",
                                 step.status === "pending" && "bg-muted border-border text-muted-foreground"
                             )}
                             >
@@ -244,35 +345,38 @@ export function FulfillmentTracker() {
                                 <Circle className="h-6 w-6" />
                             )}
                             </div>
-                            <div className="text-center text-xs w-24">
-                            <p className="font-semibold text-foreground">{step.name}</p>
-                            <p className="text-muted-foreground group-hover:text-foreground transition-colors">{step.role}</p>
+                            <div className="text-center w-24">
+                                <p className={cn("text-xs font-bold", step.status === 'active' ? 'text-accent' : 'text-foreground')}>
+                                    {step.name}
+                                </p>
                             </div>
                         </div>
                         {index < activeFulfillment.steps.length - 1 && (
                             <div
                                 className={cn(
-                                "absolute h-1 top-[22px] left-1/2 w-full -z-1",
+                                "absolute h-0.5 top-[24px] left-1/2 w-full -z-0",
                                 step.status === 'completed' ? 'bg-primary' : 'bg-border'
                                 )}
                             />
                         )}
                         </div>
-                    ))}
+                    )})}
                     </div>
                 </div>
 
                 {/* Activity History Table */}
                 <div className="mt-8">
-                    <h3 className="text-lg font-semibold mb-4">Riwayat Aktivitas</h3>
+                    <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
+                        Riwayat Aktivitas
+                    </h3>
                     <div className="rounded-md border">
                         <Table>
                         <TableHeader>
                             <TableRow>
-                            <TableHead>Aktivitas</TableHead>
+                            <TableHead>Langkah</TableHead>
                             <TableHead>PIC</TableHead>
-                            <TableHead>Tanggal Selesai</TableHead>
-                            <TableHead>No. Referensi</TableHead>
+                            <TableHead>Selesai Pada</TableHead>
+                            <TableHead>No. Referensi / Invoice</TableHead>
                             <TableHead className="text-center">Dokumen</TableHead>
                             </TableRow>
                         </TableHeader>
@@ -281,10 +385,10 @@ export function FulfillmentTracker() {
                                 fulfillmentHistory.map((item) => (
                                 <TableRow key={item.name}>
                                     <TableCell className="font-medium">{item.name}</TableCell>
-                                    <TableCell>{item.picName} ({item.role})</TableCell>
+                                    <TableCell>{item.picName}</TableCell>
                                     <TableCell>{item.completedAt ? format(item.completedAt, 'dd MMM yyyy, HH:mm') : 'N/A'}</TableCell>
                                     <TableCell>
-                                        <Badge variant="outline">{item.refNumber}</Badge>
+                                        <Badge variant="outline" className="font-mono">{item.refNumber}</Badge>
                                     </TableCell>
                                     <TableCell className="text-center">
                                     <Button variant="ghost" size="icon" asChild disabled={!item.linkDokumen}>
@@ -298,7 +402,7 @@ export function FulfillmentTracker() {
                             ) : (
                                 <TableRow>
                                     <TableCell colSpan={5} className="h-24 text-center text-muted-foreground">
-                                        Belum ada aktivitas yang selesai.
+                                        Belum ada aktivitas yang tercatat.
                                     </TableCell>
                                 </TableRow>
                             )}
@@ -315,37 +419,30 @@ export function FulfillmentTracker() {
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Detail Langkah: {selectedStep?.name}</DialogTitle>
+            <DialogTitle>Update Langkah: {selectedStep?.name}</DialogTitle>
             <DialogDescription>
-              Lengkapi informasi di bawah ini untuk menyelesaikan langkah.
-              PIC yang bertanggung jawab untuk langkah ini adalah: <strong>Tim {selectedStep?.role}</strong>.
+              Masukkan detail penagihan atau dokumen pendukung untuk langkah ini.
             </DialogDescription>
           </DialogHeader>
           <div className="py-4 space-y-4">
              <div>
-                <label htmlFor="ref" className="text-sm font-medium">Nomor Referensi</label>
-                <Input id="ref" value={refNumber} onChange={(e) => setRefNumber(e.target.value)} className="w-full mt-1" readOnly={!canCompleteStep} placeholder="Contoh: SO/2025/123"/>
+                <label htmlFor="ref" className="text-sm font-medium">Nomor Referensi / Invoice</label>
+                <Input id="ref" value={refNumber} onChange={(e) => setRefNumber(e.target.value)} className="w-full mt-1" placeholder="Contoh: INV/2025/123"/>
              </div>
               <div>
-                <label htmlFor="notes" className="text-sm font-medium">Catatan (Opsional)</label>
-                <Textarea id="notes" value={notes} onChange={(e) => setNotes(e.target.value)} className="w-full mt-1" rows={3} readOnly={!canCompleteStep} placeholder="Informasi tambahan..."/>
+                <label htmlFor="notes" className="text-sm font-medium">Catatan Penagihan (Opsional)</label>
+                <Textarea id="notes" value={notes} onChange={(e) => setNotes(e.target.value)} className="w-full mt-1" rows={3} placeholder="Informasi tambahan terkait termin ini..."/>
              </div>
              <div>
-                <label htmlFor="link" className="text-sm font-medium">Link Dokumen (Opsional)</label>
-                <Input id="link" value={linkDokumen} onChange={(e) => setLinkDokumen(e.target.value)} className="w-full mt-1" readOnly={!canCompleteStep} placeholder="https://docs.google.com/..."/>
+                <label htmlFor="link" className="text-sm font-medium">Link Dokumen Pendukung (Opsional)</label>
+                <Input id="link" value={linkDokumen} onChange={(e) => setLinkDokumen(e.target.value)} className="w-full mt-1" placeholder="https://drive.google.com/..."/>
              </div>
           </div>
           <DialogFooter>
-             {!canCompleteStep && selectedStep?.status !== 'completed' && (
-                <p className="text-sm text-destructive mr-auto">Anda tidak memiliki izin untuk menyelesaikan langkah ini.</p>
-             )}
-             {selectedStep?.status === 'completed' && (
-                <p className="text-sm text-muted-foreground mr-auto">Langkah ini sudah selesai.</p>
-             )}
             <Button variant="outline" onClick={() => setIsModalOpen(false)}>Batal</Button>
-            <Button onClick={handleCompleteStep} disabled={!canCompleteStep || isSavingStep || selectedStep?.status === 'completed'}>
+            <Button onClick={handleCompleteStep} disabled={isSavingStep}>
                 {isSavingStep ? <Loader2 className="animate-spin mr-2"/> : <CheckCircle className="mr-2 h-4 w-4" />}
-                Selesaikan Langkah
+                Konfirmasi Selesai
             </Button>
           </DialogFooter>
         </DialogContent>
